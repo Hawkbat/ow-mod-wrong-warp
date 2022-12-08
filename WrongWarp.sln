@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModTemplate", "ModTemplate\ModTemplate.csproj", "{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WrongWarp", "ModTemplate\WrongWarp.csproj", "{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScaffoldForUnity", "ScaffoldForUnity\ScaffoldForUnity.csproj", "{D919CCEE-C1DD-4DE2-84E4-4DAA7BBCB6DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D919CCEE-C1DD-4DE2-84E4-4DAA7BBCB6DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D919CCEE-C1DD-4DE2-84E4-4DAA7BBCB6DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D919CCEE-C1DD-4DE2-84E4-4DAA7BBCB6DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D919CCEE-C1DD-4DE2-84E4-4DAA7BBCB6DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

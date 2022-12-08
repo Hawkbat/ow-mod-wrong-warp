@@ -1,8 +1,9 @@
 {
-  "filename": "ModTemplate.dll",
-  "author": "Raicuparta",
-  "name": "Mod Template",
-  "uniqueName": "Raicuparta.ModTemplate",
+  "filename": "WrongWarp.dll",
+  "author": "Hawkbar",
+  "name": "Wrong Warp",
+  "uniqueName": "Hawkbar.WrongWarp",
   "version": "0.1.0",
-  "owmlVersion": "2.3.2"
+  "owmlVersion": "2.5.1",
+  "dependencies": ["xen.NewHorizons"]
 }
