@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace WrongWarp.Components
 {
@@ -19,6 +20,12 @@ namespace WrongWarp.Components
         {
             Waypoint = GetComponentInParent<AmoebaWaypoint>();
             if (Waypoint) Waypoint.Hatches.Add(this);
+        }
+        
+        public void OnDrawGizmos()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(transform.position, 0.25f);
         }
     }
 }
