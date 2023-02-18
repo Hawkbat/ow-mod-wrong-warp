@@ -1,5 +1,6 @@
 ﻿<Project>
   <PropertyGroup>
     <OutputPath>$(AppData)\OuterWildsModManager\OWML\Mods\Hawkbar.WrongWarp</OutputPath>
+    <UnityDllsDir>D:\Code Stuff\REMOTE\OuterWildsWrongWarpAssets\Assets\Dlls</UnityDllsDir>
   </PropertyGroup>
 </Project>
