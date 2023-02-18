@@ -10,7 +10,7 @@ using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
-    public class SignalSoundPlayer : WrongWarpBehaviour
+    public class SensorSoundPlayer : WrongWarpBehaviour
     {
         public string AudioTypeName;
         public float Delay;

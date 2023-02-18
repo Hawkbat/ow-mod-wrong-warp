@@ -9,7 +9,7 @@ using WrongWarp.Modules;
 
 namespace WrongWarp.Components
 {
-    public class SignalLight : WrongWarpBehaviour, IConfigurable<SignalLightConfig>
+    public class SensorLight : WrongWarpBehaviour, IConfigurable<SignalLightConfig>
     {
         public List<Sensor> Sensors = new List<Sensor>();
         public List<string> SensorPaths = new List<string>();

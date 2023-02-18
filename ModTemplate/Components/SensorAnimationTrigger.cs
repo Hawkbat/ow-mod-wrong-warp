@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace WrongWarp.Components
 {
-    public class SignalAnimationTrigger : WrongWarpBehaviour
+    public class SensorAnimationTrigger : WrongWarpBehaviour
     {
         public Animator Animator;
         public AnimatorControllerParameterType ParameterType;

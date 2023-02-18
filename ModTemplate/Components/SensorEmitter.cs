@@ -9,7 +9,7 @@ using WrongWarp.Modules;
 
 namespace WrongWarp.Components
 {
-    public class SignalEmitter : Sensor, IConfigurable<SignalEmitterConfig>
+    public class SensorEmitter : Sensor, IConfigurable<SignalEmitterConfig>
     {
         public AudioSignal Signal;
         public string SignalName;

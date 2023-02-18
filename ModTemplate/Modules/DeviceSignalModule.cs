@@ -16,7 +16,7 @@ namespace WrongWarp.Modules
         private List<AudioSignal> availableSignals = new List<AudioSignal>();
         private Dictionary<AudioSignal, AudioSignalDetectionTrigger> signalTriggers = new Dictionary<AudioSignal, AudioSignalDetectionTrigger>();
         private readonly HashSet<SignalName> signalsKnown = new HashSet<SignalName>();
-        private readonly Dictionary<AudioSignal, SignalEmitter> allocations = new Dictionary<AudioSignal, SignalEmitter>();
+        private readonly Dictionary<AudioSignal, SensorEmitter> allocations = new Dictionary<AudioSignal, SensorEmitter>();
         private bool bypassCustomNamesHack;
         
         public DeviceSignalModule(WrongWarpMod mod) : base(mod) { }
@@ -88,7 +88,7 @@ namespace WrongWarp.Modules
             signalsKnown.Remove(signalName);
         }
 
-        public void TryAllocateSignal(SignalEmitter emitter)
+        public void TryAllocateSignal(SensorEmitter emitter)
         {
             if (emitter.Signal) return;
 
@@ -119,7 +119,7 @@ namespace WrongWarp.Modules
             }
         }
 
-        public void DeallocateSignal(SignalEmitter emitter)
+        public void DeallocateSignal(SensorEmitter emitter)
         {
             if (emitter.Signal && !availableSignals.Contains(emitter.Signal))
             {

@@ -10,7 +10,7 @@ using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
-    public class SignalDoor : WrongWarpBehaviour, IConfigurable<SignalDoorConfig>
+    public class SensorDoor : WrongWarpBehaviour, IConfigurable<SignalDoorConfig>
     {
         public List<Sensor> Sensors = new List<Sensor>();
         public List<string> SensorPaths = new List<string>();

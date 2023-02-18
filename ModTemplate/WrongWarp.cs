@@ -114,6 +114,7 @@ namespace WrongWarp
             {
                 var planet = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().First(o => o.name == body.Replace(" ", "") + "_Body");
                 var icosphere = UnityUtils.GetTransformAtPath(planet.transform, "./Sector/Icosphere");
+
                 var vmat = icosphere.gameObject.AddComponent<VanillaMaterial>();
                 vmat.Type = VanillaMaterial.MaterialType.QuantumRock;
             }
@@ -235,10 +236,10 @@ namespace WrongWarp
             ApplyModComponent(mo, config.prop, (Prop)null);
             ApplyModComponent(mo, config.quantumEntityState, (QuantumEntityState)null);
             ApplyModComponent(mo, config.scanPulse, (ScanPulse)null);
-            ApplyModComponent(mo, config.signalBarrier, (SignalBarrier)null);
-            ApplyModComponent(mo, config.signalDoor, (SignalDoor)null);
-            ApplyModComponent(mo, config.signalEmitter, (SignalEmitter)null);
-            ApplyModComponent(mo, config.signalLight, (SignalLight)null);
+            ApplyModComponent(mo, config.signalBarrier, (SensorBarrier)null);
+            ApplyModComponent(mo, config.signalDoor, (SensorDoor)null);
+            ApplyModComponent(mo, config.signalEmitter, (SensorEmitter)null);
+            ApplyModComponent(mo, config.signalLight, (SensorLight)null);
         }
 
         private TComponent ApplyModComponent<TConfig, TComponent>(WrongWarpObject mo, TConfig config, TComponent _) where TConfig : ComponentConfig where TComponent : WrongWarpBehaviour, IConfigurable<TConfig>

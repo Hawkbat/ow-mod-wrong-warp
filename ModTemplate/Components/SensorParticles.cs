@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace WrongWarp.Components
 {
-    public class SignalParticles : WrongWarpBehaviour
+    public class SensorParticles : WrongWarpBehaviour
     {
         public List<Sensor> Sensors = new List<Sensor>();
 
