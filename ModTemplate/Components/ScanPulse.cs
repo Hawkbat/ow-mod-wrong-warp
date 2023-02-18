@@ -14,8 +14,11 @@ namespace WrongWarp.Components
         public Transform Scan;
         public float Duration;
         public float MaxRadius;
+        public EasingType EaseInType;
         public EasingFunc EaseIn;
+        public EasingType EaseOutType;
         public EasingFunc EaseOut;
+        public bool Reverse;
 
         public float ScanProgress;
 
@@ -31,6 +34,8 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
+            if (EaseIn == null) EaseIn = EasingUtils.Lookup(EaseInType);
+            if (EaseOut == null) EaseOut = EasingUtils.Lookup(EaseOutType);
             Scan = GetTransformAtPath("Scan");
         }
 
@@ -50,7 +55,7 @@ namespace WrongWarp.Components
             if (ScanProgress > 1f) StopScan();
             if (Scan)
             {
-                float t = EasingUtils.Ease(ScanProgress, EaseIn, EaseOut);
+                float t = EasingUtils.Ease(Reverse ? 1f - ScanProgress : ScanProgress, EaseIn, EaseOut);
                 Scan.transform.localScale = Vector3.one * MaxRadius * t;
             }
         }

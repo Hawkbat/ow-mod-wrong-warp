@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Configs;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
@@ -13,10 +14,12 @@ namespace WrongWarp.Components
         public GameObject Character;
         public string CharacterPath;
         public float CharacterHeight;
+        public string DialoguePath;
 
+        CharacterDialogueTree dialogueTree;
+        RemoteDialogueTrigger remoteTrigger;
         CharacterAnimController characterAnim;
         SolanumAnimController solanumAnim;
-        GhostEffects ghostAnim;
         Material mat;
 
         public void ApplyConfig(HoloGuideConfig config)
@@ -27,7 +30,11 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
-            var t = Character && string.IsNullOrEmpty(CharacterPath) ? Character.transform : GetTransformAtPath(CharacterPath);
+            if (!Character && !string.IsNullOrEmpty(CharacterPath))
+            {
+                Character = Mod.NewHorizonsApi.SpawnObject(transform.root.gameObject, gameObject.GetComponentInParent<Sector>(), CharacterPath, transform.position, transform.eulerAngles, 1f, false);
+            }
+            var t = Character ? Character.transform : null;
             if (t)
             {
                 mat = new Material(Mod.Museum.HologramMaterial);
@@ -35,12 +42,10 @@ namespace WrongWarp.Components
                 Character = t.gameObject;
                 characterAnim = Character.GetComponent<CharacterAnimController>();
                 solanumAnim = Character.GetComponent<SolanumAnimController>();
-                ghostAnim = Character.GetComponent<GhostEffects>();
 
-                if (ghostAnim && !ghostAnim._animator)
+                if (t.name == "Ghostbird_IP_ANIM")
                 {
-                    ghostAnim._animator = Character.GetComponent<Animator>();
-                    ghostAnim.PlayDefaultAnimation();
+                    Character.GetComponent<Animator>().SetTrigger(Animator.StringToHash("Default"));
                 }
 
                 /*transform.position = t.position;
@@ -53,6 +58,15 @@ namespace WrongWarp.Components
                 {
                     renderer.sharedMaterials = renderer.sharedMaterials.Select(_ => mat).ToArray();
                 }
+            }
+            if (!string.IsNullOrEmpty(DialoguePath))
+            {
+                var dialogueObj = new GameObject("Dialogue");
+                dialogueObj.transform.parent = transform;
+                dialogueObj.transform.localPosition = Vector3.up * CharacterHeight * 1.2f;
+                dialogueObj.transform.localRotation = Quaternion.identity;
+
+                (dialogueTree, remoteTrigger) = Mod.NewHorizonsApi.SpawnDialogue(Mod, dialogueObj, DialoguePath, 2f);
             }
         }
 

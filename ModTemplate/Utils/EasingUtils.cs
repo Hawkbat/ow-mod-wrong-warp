@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OWML.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,11 @@ namespace WrongWarp.Utils
     public static class EasingUtils
     {
         private const float BACK_CONSTANT = 1.70158f;
+
+        public static EasingFunc Lookup(EasingType type)
+        {
+            return Lookup(EnumUtils.GetName(type));
+        }
 
         public static EasingFunc Lookup(string name)
         {

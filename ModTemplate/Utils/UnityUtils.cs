@@ -10,25 +10,39 @@ namespace WrongWarp.Utils
 {
     public static class UnityUtils
     {
-        public static void DoAfterFrames(WrongWarpMod mod, int frameCount, Action action)
+        public static void DoWhen(WrongWarpMod mod, Func<bool> criteria, Action action)
+        {
+            mod.StartCoroutine(DoWhenCouroutine(criteria, action));
+        }
+
+        static IEnumerator DoWhenCouroutine(Func<bool> criteria, Action action)
+        {
+            while (!criteria()) yield return null;
+            action();
+        }
+
+        public static void DoAfterFrames(WrongWarpMod mod, int frameCount, Action action, bool bypassSystemCheck = false)
+        {
+            mod.StartCoroutine(DoAfterFramesCouroutine(mod, frameCount, action, bypassSystemCheck));
+        }
+
+        private static IEnumerator DoAfterFramesCouroutine(WrongWarpMod mod, int frameCount, Action action, bool bypassSystemCheck)
         {
             var currentLoadCount = mod.SystemLoadCounter;
             var isInWrongWarpSystem = mod.IsInWrongWarpSystem;
-            mod.ModHelper.Events.Unity.FireInNUpdates(() =>
+            for (int i = 0; i < frameCount; i++) yield return null;
+            if (bypassSystemCheck || mod.SystemLoadCounter == currentLoadCount && mod.IsInWrongWarpSystem == isInWrongWarpSystem)
             {
-                if (mod.SystemLoadCounter == currentLoadCount && mod.IsInWrongWarpSystem == isInWrongWarpSystem)
-                {
-                    action();
-                }
-            }, frameCount);
+                action();
+            }
         }
 
         public static void DoAfterSeconds(WrongWarpMod mod, float secs, Action action)
         {
-            mod.StartCoroutine(DoAfterCoroutine(mod, secs, action));
+            mod.StartCoroutine(DoAfterSecondsCoroutine(mod, secs, action));
         }
 
-        private static IEnumerator DoAfterCoroutine(WrongWarpMod mod, float secs, Action action)
+        private static IEnumerator DoAfterSecondsCoroutine(WrongWarpMod mod, float secs, Action action)
         {
             var currentLoadCount = mod.SystemLoadCounter;
             var isInWrongWarpSystem = mod.IsInWrongWarpSystem;
@@ -37,6 +51,18 @@ namespace WrongWarp.Utils
             {
                 action();
             }
+        }
+
+        public static string GetTransformPath(Transform transform)
+        {
+            if (transform == null) return null;
+            var path = transform.name;
+            while (transform.parent != null)
+            {
+                path = transform.parent.name + "/" + path;
+                transform = transform.parent;
+            }
+            return path;
         }
 
         public static Transform GetTransformAtPath(Transform transform, string path)

@@ -1,10 +1,12 @@
-﻿using System;
+﻿using OWML.Utils;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
@@ -22,23 +24,24 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
-
-        }
-
-        public void Awake()
-        {
             audioSource = gameObject.GetAddComponent<AudioSource>();
             audioSource.spatialBlend = 1f;
             owAudioSource = gameObject.GetAddComponent<OWAudioSource>();
             owAudioSource.loop = Continuous;
-            owAudioSource.AssignAudioLibraryClip((AudioType)Enum.Parse(typeof(AudioType), AudioTypeName));
+            UnityUtils.DoAfterFrames(Mod, 1, () =>
+            {
+                owAudioSource.AssignAudioLibraryClip(EnumUtils.Parse<AudioType>(AudioTypeName, AudioType.NonDiaUINegativeSFX));
+            });
         }
 
         public void Update()
         {
-            bool activated = Continuous ? Sensor.AreAllActivated(Sensors) : Sensor.WereAllActivatedThisFrame(Sensors);
-            if (activated) PlaySound();
-            else StopSound();
+            if (owAudioSource)
+            {
+                bool activated = Continuous ? Sensor.AreAllActivated(Sensors) : Sensor.WereAllActivatedThisFrame(Sensors);
+                if (activated) PlaySound();
+                else StopSound();
+            }
         }
 
         void StopSound()

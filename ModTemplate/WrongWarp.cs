@@ -201,7 +201,7 @@ namespace WrongWarp
                     }
                 } catch (Exception ex)
                 {
-                    ModHelper.Logger.Log(ex);
+                    ModHelper.Console.WriteLine(ex.ToString(), MessageType.Error);
                 }
             }
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -16,8 +17,9 @@ namespace WrongWarp.Modules
 
         public override void OnSystemLoad()
         {
-            blackHole = Mod.NewHorizonsApi.GetPlanet(Mod.TweakConfig.wormhole.blackHole);
-            whiteHole = Mod.NewHorizonsApi.GetPlanet(Mod.TweakConfig.wormhole.whiteHole);
+            var core = Mod.NewHorizonsApi.GetPlanet("Core");
+            blackHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/BlackHole").gameObject;
+            whiteHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/WhiteHole").gameObject;
         }
 
         public override void OnSystemUnload()
@@ -32,12 +34,10 @@ namespace WrongWarp.Modules
             if (blackHole && !blackHole.activeSelf && blackHoleActive)
             {
                 blackHole.SetActive(true);
-                ResetPlanet(blackHole);
             }
             if (whiteHole && !whiteHole.activeSelf && !blackHoleActive)
             {
                 whiteHole.SetActive(true);
-                ResetPlanet(whiteHole);
             }
             if (blackHole && blackHole.activeSelf && !blackHoleActive)
             {
@@ -46,18 +46,6 @@ namespace WrongWarp.Modules
             if (whiteHole && whiteHole.activeSelf && blackHoleActive)
             {
                 whiteHole.SetActive(false);
-            }
-        }
-
-        private void ResetPlanet(GameObject planet)
-        {
-            var core = Mod.NewHorizonsApi.GetPlanet("Core");
-            var coreBody = core.GetComponent<OWRigidbody>();
-            var body = planet.GetComponent<OWRigidbody>();
-            if (coreBody && body)
-            {
-                body.SetPosition(coreBody.GetPosition());
-                body.SetVelocity(coreBody.GetVelocity());
             }
         }
     }

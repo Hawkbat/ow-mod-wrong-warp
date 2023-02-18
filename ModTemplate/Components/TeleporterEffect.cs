@@ -24,6 +24,7 @@ namespace WrongWarp.Components
             ps = GetComponentInChildren<ParticleSystem>();
             StartCoroutine(DoEffect());
         }
+
         public IEnumerator DoEffect()
         {
             float expectedFrameTime = 0f;

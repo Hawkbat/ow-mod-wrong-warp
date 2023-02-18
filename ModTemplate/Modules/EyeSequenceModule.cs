@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Components;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -183,7 +184,7 @@ namespace WrongWarp.Modules
                 yield return new WaitForSeconds(secondsPerBeat);
             }
 
-            Mod.ModHelper.Events.Unity.RunWhen(() => inflation._state == CosmicInflationController.State.ReadyToCollapse, () =>
+            UnityUtils.DoWhen(Mod, () => inflation._state == CosmicInflationController.State.ReadyToCollapse, () =>
             {
                 foreach (var campfire in campfires)
                 {

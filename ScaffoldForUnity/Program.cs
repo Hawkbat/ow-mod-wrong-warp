@@ -10,7 +10,7 @@ namespace ScaffoldForUnity
     {
         static void Main(string[] args)
         {
-            string dstPath = @"A:\Documents\Projects\OuterWildsMod\OuterWildsUnityTemplate\Assets\ModScripts\WrongWarp";
+            string dstPath = @"E:\Projects\OuterWildsMod\OuterWildsUnityTemplate\Assets\ModScripts\WrongWarp";
 
             if (Directory.Exists(dstPath))
                 Directory.Delete(dstPath, true);
@@ -49,8 +49,8 @@ namespace ScaffoldForUnity
 
                     string ns = t.Namespace.Replace('.', '\\');
                     string fileName = name.Replace('<', '_').Replace(">", "") + ".cs";
-                    string fileDir = Path.Join(dstPath, ns);
-                    string filePath = Path.Join(fileDir, fileName);
+                    string fileDir = Path.Combine(dstPath, ns);
+                    string filePath = Path.Combine(fileDir, fileName);
 
                     Directory.CreateDirectory(fileDir);
 

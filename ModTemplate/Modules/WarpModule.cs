@@ -11,10 +11,7 @@ namespace WrongWarp.Modules
 {
     public class WarpModule : WrongWarpModule
     {
-        public WarpModule(WrongWarpMod mod) : base(mod)
-        {
-            Mod.ModHelper.Events.Player.OnPlayerAwake += Player_OnPlayerAwake;
-        }
+        public WarpModule(WrongWarpMod mod) : base(mod) { }
 
         public override void OnSystemLoad()
         {
@@ -24,17 +21,6 @@ namespace WrongWarp.Modules
         public override void OnSystemUnload()
         {
 
-        }
-
-        private void Player_OnPlayerAwake(PlayerBody obj)
-        {
-            /*DoAfterFrames(5, () =>
-            {
-                if (Mod.SaveData.WrongWarpTaken && !Mod.IsInWrongWarpSystem)
-                {
-                    WarpToWrongWarpSystem();
-                }
-            });*/
         }
 
         public bool CheckWrongWarpCoordinates(NomaiCoordinateInterface coords)
@@ -72,11 +58,11 @@ namespace WrongWarp.Modules
             if (PlayerData.GetWarpedToTheEye()) PlayerData.SaveEyeCompletion();
             Mod.ModHelper.Console.WriteLine($"Attempting to warp to {OWScene.SolarSystem}", MessageType.Info);
             Mod.SaveData.WrongWarpTaken = false;
-            Mod.ModHelper.Events.Unity.FireInNUpdates(() =>
+            UnityUtils.DoAfterFrames(Mod, 2, () =>
             {
                 Mod.NewHorizonsApi.SetDefaultSystem(nameof(OWScene.SolarSystem));
                 Mod.NewHorizonsApi.ChangeCurrentStarSystem(nameof(OWScene.SolarSystem));
-            }, 2);
+            }, true);
         }
 
         public void WarpToEye()
@@ -84,11 +70,11 @@ namespace WrongWarp.Modules
             if (!PlayerData.GetWarpedToTheEye()) PlayerData.SaveWarpedToTheEye(TimeLoop.GetSecondsRemaining());
             Mod.ModHelper.Console.WriteLine($"Attempting to warp to {OWScene.EyeOfTheUniverse}", MessageType.Info);
             Mod.SaveData.WrongWarpTaken = false;
-            Mod.ModHelper.Events.Unity.FireInNUpdates(() =>
+            UnityUtils.DoAfterFrames(Mod, 2, () =>
             {
                 Mod.NewHorizonsApi.SetDefaultSystem(nameof(OWScene.SolarSystem));
                 Mod.NewHorizonsApi.ChangeCurrentStarSystem(nameof(OWScene.EyeOfTheUniverse));
-            }, 2);
+            }, true);
         }
     }
 }
