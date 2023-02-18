@@ -10,6 +10,7 @@ namespace WrongWarp.Modules
 {
     public class RespawnerModule : WrongWarpModule
     {
+        private GameObject shipBackup;
 
         public RespawnerModule(WrongWarpMod mod) : base(mod) { }
 
@@ -61,8 +62,75 @@ namespace WrongWarp.Modules
             }
         }
 
-        private void SpawnAtMuseum(int retryCount = 10)
+        public void RespawnPlayer()
         {
+            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("Hearthian Exhibit")
+                .GetComponentsInChildren<SpawnPoint>()
+                .First(s => !s.IsShipSpawn());
+            var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
+            spawner.DebugWarp(spawnPoint);
+            SpawnAtMuseum();
+        }
+
+        public void RespawnShip()
+        {
+            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("Hearthian Exhibit")
+                .GetComponentsInChildren<SpawnPoint>()
+                .First(s => s.IsShipSpawn());
+            var shipDamageCtrl = Locator.GetShipBody().GetComponent<ShipDamageController>();
+            if (shipDamageCtrl.IsHullBreached())
+            {
+                GameObject.Destroy(Locator.GetShipBody().gameObject);
+                var freshShip = GameObject.Instantiate(shipBackup);
+
+                freshShip.transform.position = spawnPoint.transform.position;
+                freshShip.transform.rotation = spawnPoint.transform.rotation;
+
+                freshShip.SetActive(true);
+
+                Locator.GetPlayerCameraController()._shipController = freshShip.GetComponentInChildren<ShipCockpitController>();
+                Locator.GetToolModeSwapper()._shipSystemsCtrlr = freshShip.GetComponentInChildren<ShipCockpitController>();
+                GameObject.FindObjectOfType<ToolModeUI>()._landingManager = freshShip.GetComponentInChildren<LandingPadManager>();
+                freshShip.GetComponentInChildren<ShipCockpitController>().enabled = true;
+
+                DoAfterFrames(1, () =>
+                {
+                    freshShip.GetComponent<OWRigidbody>().WarpToPositionRotation(spawnPoint.transform.position, spawnPoint.transform.rotation);
+                    freshShip.GetComponent<OWRigidbody>().SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetPointVelocity(spawnPoint.transform.position));
+                });
+
+                Locator._shipTransform = freshShip.GetComponent<Transform>();
+                Locator._shipBody = freshShip.GetComponent<OWRigidbody>();
+                Locator._shipDetector = freshShip.transform.Find("ShipDetector").gameObject;
+
+                freshShip.GetComponent<ShipDamageController>()._invincible = true;
+                DoAfterSeconds(1f, () =>
+                {
+                    freshShip.GetComponent<ShipDamageController>()._invincible = false;
+                });
+            } else
+            {
+                foreach (var hull in shipDamageCtrl._shipHulls)
+                    while (hull._damaged) hull.RepairTick();
+                foreach (var comp in shipDamageCtrl._shipComponents)
+                    while (comp._damaged) comp.RepairTick();
+
+                var shipBody = Locator.GetShipBody();
+                shipBody.WarpToPositionRotation(spawnPoint.transform.position, spawnPoint.transform.rotation);
+                shipBody.SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetPointVelocity(spawnPoint.transform.position));
+            }
+        }
+
+        private void SpawnAtMuseum()
+        {
+            if (!shipBackup)
+            {
+                var ship = Locator.GetShipBody().gameObject;
+                ship.SetActive(false);
+                shipBackup = GameObject.Instantiate(ship);
+                shipBackup.name = ship.name;
+                ship.SetActive(true);
+            }
             MakeCameraParticles(1f);
             MakeBodyParticles(1f);
         }
