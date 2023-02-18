@@ -9,6 +9,7 @@ namespace WrongWarp.Components
 {
     public class WrongWarpObject : MonoBehaviour
     {
+        [HideInInspector]
         public WrongWarpMod Mod;
         public List<string> ObjectTypes = new List<string>();
 

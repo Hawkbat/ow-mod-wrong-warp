@@ -13,6 +13,7 @@ namespace WrongWarp.Components
 {
     public abstract class WrongWarpBehaviour : MonoBehaviour
     {
+        [HideInInspector]
         public WrongWarpObject ModObject;
 
         public WrongWarpMod Mod => ModObject?.Mod;
