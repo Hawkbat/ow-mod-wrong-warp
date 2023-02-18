@@ -28,7 +28,7 @@ namespace WrongWarp.Components
         private void TriggerVolume_OnEntry(GameObject hitObj)
         {
             var rb = hitObj.GetAttachedOWRigidbody();
-            if (rb && (rb.CompareTag("Player") || rb.CompareTag("Probe")))
+            if (rb && rb.CompareTag("Player"))
             {
                 if (!occupants.Contains(rb.gameObject))
                 {
@@ -44,7 +44,7 @@ namespace WrongWarp.Components
         private void TriggerVolume_OnExit(GameObject hitObj)
         {
             var rb = hitObj.GetAttachedOWRigidbody();
-            if (rb && (rb.CompareTag("Player") || rb.CompareTag("Probe")))
+            if (rb && rb.CompareTag("Player"))
             {
                 if (occupants.Contains(rb.gameObject))
                     occupants.Remove(rb.gameObject);
