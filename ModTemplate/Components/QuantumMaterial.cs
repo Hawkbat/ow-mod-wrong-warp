@@ -8,7 +8,7 @@ using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
-    public class VanillaMaterial : MonoBehaviour
+    public class VanillaMaterial : WrongWarpBehaviour
     {
         public static Material invalidMaterial;
         public static Material quantumMaterial;
@@ -23,17 +23,18 @@ namespace WrongWarp.Components
             UVTest = 2,
         }
 
-        public static Material GetMaterial(MaterialType type)
+        public Material GetMaterial(MaterialType type)
         {
             switch (type)
             {
                 case MaterialType.QuantumRock:
                     if (!quantumMaterial)
-                        quantumMaterial = UnityUtils.FindResource<Material>("Rock_QM_EyeRock_mat");
+                        quantumMaterial = Mod.SystemAssetBundle.LoadAsset<Material>("Assets/ModAssets/Shared/Materials/Quantum.mat");
+                    //quantumMaterial = UnityUtils.FindResource<Material>("Rock_QM_EyeRock_mat");
                     return quantumMaterial;
                 case MaterialType.UVTest:
                     if (!uvTestMaterial)
-                        uvTestMaterial = FindObjectOfType<WrongWarpMod>().SystemAssetBundle.LoadAsset<Material>("Assets/ModAssets/Shared/Materials/UVTest.mat");
+                        uvTestMaterial = Mod.SystemAssetBundle.LoadAsset<Material>("Assets/ModAssets/Shared/Materials/UVTest.mat");
                     return uvTestMaterial;
                 default:
                     if (!invalidMaterial)
@@ -46,7 +47,7 @@ namespace WrongWarp.Components
             }
         }
 
-        public void Start()
+        public override void WireUp()
         {
             Material mat = GetMaterial(Type);
             foreach (var r in GetComponents<Renderer>())
