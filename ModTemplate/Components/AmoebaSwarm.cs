@@ -92,7 +92,9 @@ namespace WrongWarp.Components
                     }
                     else if (!inWaypoint)
                     {
-                        var nextHatch = NextHatch.Waypoint.Hatches.FirstOrDefault(h => h != NextHatch && !h.IsBlocked && h.Linked && !h.Linked.IsBlocked);
+                        var nextHatch = NextHatch.Waypoint.Hatches
+                            .OrderByDescending(h => h.SwarmPreference)
+                            .FirstOrDefault(h => h != NextHatch && !h.IsBlocked && h.Linked && !h.Linked.IsBlocked);
 
                         if (nextHatch)
                         {
