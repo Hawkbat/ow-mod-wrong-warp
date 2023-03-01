@@ -12,6 +12,7 @@ namespace WrongWarp.Objects
         public bool initialized = false;
         public bool wrongWarpTaken = false;
         public bool doneIntroTour = false;
+        public bool shipSpawnChanged = false;
         public bool archivistSignalActive = false;
         public bool curatorSignalActive = false;
         public bool guideSignalActive = false;

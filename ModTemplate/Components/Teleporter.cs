@@ -10,19 +10,64 @@ namespace WrongWarp.Components
 {
     public class Teleporter : WrongWarpBehaviour
     {
+        static List<Teleporter> all = new();
+
         public GameObject EffectPrefab;
         public float Duration;
         public Teleporter Linked;
+        public string LinkID;
 
         private bool isTeleporting;
         private List<GameObject> occupants = new List<GameObject>();
         private OWTriggerVolume triggerVolume;
+        private bool isReEnable;
+
+        void OnEnable()
+        {
+            all.Add(this);
+            if (isReEnable)
+            {
+                AttemptLink();
+                isReEnable = false;
+            }
+        }
+
+        void OnDisable()
+        {
+            all.Remove(this);
+            AttemptUnlink();
+            isReEnable = true;
+        }
 
         public override void WireUp()
         {
-            triggerVolume = GetComponentInChildren<OWTriggerVolume>();
+            triggerVolume = GetComponentInChildren<OWTriggerVolume>(true);
             triggerVolume.OnEntry += TriggerVolume_OnEntry;
             triggerVolume.OnExit += TriggerVolume_OnExit;
+            AttemptLink();
+        }
+
+        void AttemptLink()
+        {
+            if (!Linked && !string.IsNullOrEmpty(LinkID))
+            {
+                var other = all.Find(t => t.isActiveAndEnabled && t != this && !t.Linked && t.LinkID == LinkID);
+                if (other)
+                {
+                    Linked = other;
+                    other.Linked = this;
+                }
+            }
+        }
+
+        void AttemptUnlink()
+        {
+            if (Linked)
+            {
+                Linked.Linked = null;
+                if (Linked.isActiveAndEnabled) Linked.AttemptLink();
+                Linked = null;
+            }
         }
 
         private void TriggerVolume_OnEntry(GameObject hitObj)

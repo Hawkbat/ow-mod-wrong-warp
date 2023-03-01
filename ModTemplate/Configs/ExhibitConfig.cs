@@ -11,6 +11,5 @@ namespace WrongWarp.Configs
     {
         public List<string> sensorPaths;
         public string note;
-        public bool? isMissingExhibit;
     }
 }

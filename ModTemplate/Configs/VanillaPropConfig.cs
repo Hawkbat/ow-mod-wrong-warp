@@ -8,7 +8,7 @@ using WrongWarp.Objects;
 namespace WrongWarp.Configs
 {
     [Serializable]
-    public class PropConfig : ComponentConfig
+    public class VanillaPropConfig : ComponentConfig
     {
         public string propPath;
         public List<string> streamingAssetBundlesToLoad;

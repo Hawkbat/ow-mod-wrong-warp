@@ -13,7 +13,6 @@ namespace WrongWarp.Modules
         public readonly Material HologramMaterial;
 
         private readonly List<string> playedNotes = new List<string>();
-        private Exhibit missingExhibit;
 
         public MuseumModule(WrongWarpMod mod) : base(mod)
         {
@@ -27,25 +26,12 @@ namespace WrongWarp.Modules
 
         public override void OnSystemUnload()
         {
-            missingExhibit = null;
-        }
 
-        public override void OnUpdate()
-        {
-            if (missingExhibit && missingExhibit.gameObject.activeSelf != Mod.SaveData.ExhibitRestored)
-            {
-                missingExhibit.gameObject.SetActive(Mod.SaveData.ExhibitRestored);
-            }
-        }
-
-        public void SetMissingExhibit(Exhibit exhibit)
-        {
-            missingExhibit = exhibit;
         }
 
         public void TriggerNote(Exhibit exhibit)
         {
-            if (exhibit.IsMissingExhibit && !Mod.SaveData.ExhibitRestored) return;
+            if (!Mod.SaveData.ExhibitRestored) return;
             
             var note = exhibit.Note;
 

@@ -16,8 +16,7 @@ namespace WrongWarp.Configs
         public HoloGuideConfig holoGuide = null;
         public HoloPlanetConfig holoPlanet = null;
         public MotionShaftConfig motionShaft = null;
-        public ProbePortConfig probePort = null;
-        public PropConfig prop = null;
+        public VanillaPropConfig prop = null;
         public QuantumEntityStateConfig quantumEntityState = null;
         public ScanPulseConfig scanPulse = null;
         public SignalBarrierConfig signalBarrier = null;

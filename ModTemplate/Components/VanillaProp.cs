@@ -8,20 +8,20 @@ using WrongWarp.Configs;
 
 namespace WrongWarp.Components
 {
-    public class Prop : WrongWarpBehaviour, IConfigurable<PropConfig>
+    public class VanillaProp : WrongWarpBehaviour, IConfigurable<VanillaPropConfig>
     {
         public string PropPath;
         public List<string> StreamingAssetBundlesToLoad = new List<string>();
         public bool GenerateMeshColliders;
-        public List<PropConfig.BoxColliderConfig> BoxColliders = new List<PropConfig.BoxColliderConfig>();
-        public List<PropConfig.SphereColliderConfig> SphereColliders = new List<PropConfig.SphereColliderConfig>();
-        public List<PropConfig.CapsuleColliderConfig> CapsuleColliders = new List<PropConfig.CapsuleColliderConfig>();
+        public List<VanillaPropConfig.BoxColliderConfig> BoxColliders = new List<VanillaPropConfig.BoxColliderConfig>();
+        public List<VanillaPropConfig.SphereColliderConfig> SphereColliders = new List<VanillaPropConfig.SphereColliderConfig>();
+        public List<VanillaPropConfig.CapsuleColliderConfig> CapsuleColliders = new List<VanillaPropConfig.CapsuleColliderConfig>();
 
         private GameObject prop;
         private readonly List<Component> generatedMeshColliders = new List<Component>();
         private readonly List<GameObject> primitiveColliderObjects = new List<GameObject>();
 
-        public void ApplyConfig(PropConfig config)
+        public void ApplyConfig(VanillaPropConfig config)
         {
             if (!string.IsNullOrEmpty(config.propPath)) PropPath = config.propPath;
             if (config.streamingAssetBundlesToLoad != null) StreamingAssetBundlesToLoad = config.streamingAssetBundlesToLoad;

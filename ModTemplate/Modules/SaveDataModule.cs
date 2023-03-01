@@ -28,6 +28,12 @@ namespace WrongWarp.Modules
             set => SetAndSave(ref data.doneIntroTour, nameof(HasDoneIntroTour), value);
         }
 
+        public bool ShipSpawnChanged
+        {
+            get => data.shipSpawnChanged;
+            set => SetAndSave(ref data.shipSpawnChanged, nameof(ShipSpawnChanged), value);
+        }
+
         public bool ArchivistSignalActive
         {
             get => data.archivistSignalActive;
@@ -116,6 +122,10 @@ namespace WrongWarp.Modules
             if (Keyboard.current[Key.Numpad6].wasPressedThisFrame)
             {
                 ExhibitRestored = !ExhibitRestored;
+            }
+            if (Keyboard.current[Key.Numpad7].wasPressedThisFrame)
+            {
+                ShipSpawnChanged = !ShipSpawnChanged;
             }
         }
 

@@ -32,7 +32,6 @@ namespace WrongWarp
         public EyeSequenceModule EyeSequence;
         public IntroTourModule IntroTour;
         public MuseumModule Museum;
-        public ProbePortModule ProbePorts;
         public QuantumEntityModule QuantumEntities;
         public RespawnerModule Respawner;
         public SignalTowerModule SignalTowers;
@@ -58,7 +57,6 @@ namespace WrongWarp
             EyeSequence = new EyeSequenceModule(this);
             IntroTour = new IntroTourModule(this);
             Museum = new MuseumModule(this);
-            ProbePorts = new ProbePortModule(this);
             QuantumEntities = new QuantumEntityModule(this);
             Respawner = new RespawnerModule(this);
             SignalTowers = new SignalTowerModule(this);
@@ -232,8 +230,7 @@ namespace WrongWarp
             ApplyModComponent(mo, config.holoGuide, (HoloGuide)null);
             ApplyModComponent(mo, config.holoPlanet, (HoloPlanet)null);
             ApplyModComponent(mo, config.motionShaft, (MotionShaft)null);
-            ApplyModComponent(mo, config.probePort, (ProbePort)null);
-            ApplyModComponent(mo, config.prop, (Prop)null);
+            ApplyModComponent(mo, config.prop, (VanillaProp)null);
             ApplyModComponent(mo, config.quantumEntityState, (QuantumEntityState)null);
             ApplyModComponent(mo, config.scanPulse, (ScanPulse)null);
             ApplyModComponent(mo, config.signalBarrier, (SensorBarrier)null);
