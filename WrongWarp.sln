@@ -5,7 +5,7 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WrongWarp", "ModTemplate\WrongWarp.csproj", "{8A39F9E7-1A89-430C-9C3E-BDFB3B7E17DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OWUnityUtils", "OWUnityUtils\OWUnityUtils.csproj", "{B6AE58EC-CF41-4490-9BA0-D8EF200F5128}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModDataTools", "ModDataTools\ModDataTools.csproj", "{B6AE58EC-CF41-4490-9BA0-D8EF200F5128}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C5F3D5C3-3E25-45A2-A030-5DC2E89DC188}"
 EndProject

@@ -17,25 +17,7 @@
     <PackageReference Include="OuterWildsGameLibs" Version="1.1.13.393" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default-config.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="WrongWarp.csproj.user" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ModDataTools\ModDataTools.csproj">
-      <Private>True</Private>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="tweak.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Content Include="ModDataTools.csproj.user" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="Exists('$(UnityDllsDir)')">
     <Exec Command="xcopy /y &quot;$(TargetPath)&quot; &quot;$(UnityDllsDir)&quot;" />
