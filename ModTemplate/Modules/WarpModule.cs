@@ -23,32 +23,9 @@ namespace WrongWarp.Modules
 
         }
 
-        public bool CheckWrongWarpCoordinates(NomaiCoordinateInterface coords)
-        {
-            var warpCoordinates = Mod.TweakConfig.warpCoordinates;
-            if (warpCoordinates.Count != 3 || warpCoordinates.Any(l => l.Count == 0))
-            {
-                Mod.ModHelper.Console.WriteLine("Invalid warp coordinates configured");
-                return false;
-            }
-            bool checkX = coords._nodeControllers[0].CheckCoordinate(warpCoordinates[0].ToArray());
-            bool checkY = coords._nodeControllers[1].CheckCoordinate(warpCoordinates[1].ToArray());
-            bool checkZ = coords._nodeControllers[2].CheckCoordinate(warpCoordinates[2].ToArray());
-            bool allMatch = checkX && checkY && checkZ;
-            Mod.ModHelper.Console.WriteLine($"Checking wrong warp coordinates: {allMatch}", MessageType.Info);
-            return allMatch;
-        }
-
         public void WarpToWrongWarpSystem()
         {
-            WarpToWrongWarpSystem(!Mod.SaveData.HasDoneIntroTour);
-        }
-
-        public void WarpToWrongWarpSystem(bool doIntroTour)
-        {
             Mod.ModHelper.Console.WriteLine($"Attempting to warp to {WrongWarpMod.SOLAR_SYSTEM_NAME}", MessageType.Info);
-            Mod.SaveData.WrongWarpTaken = true;
-            if (doIntroTour) Mod.SaveData.HasDoneIntroTour = false;
             Mod.NewHorizonsApi.SetDefaultSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
             Mod.NewHorizonsApi.ChangeCurrentStarSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
         }
@@ -57,7 +34,6 @@ namespace WrongWarp.Modules
         {
             if (PlayerData.GetWarpedToTheEye()) PlayerData.SaveEyeCompletion();
             Mod.ModHelper.Console.WriteLine($"Attempting to warp to {OWScene.SolarSystem}", MessageType.Info);
-            Mod.SaveData.WrongWarpTaken = false;
             UnityUtils.DoAfterFrames(Mod, 2, () =>
             {
                 Mod.NewHorizonsApi.SetDefaultSystem(nameof(OWScene.SolarSystem));
@@ -69,7 +45,6 @@ namespace WrongWarp.Modules
         {
             if (!PlayerData.GetWarpedToTheEye()) PlayerData.SaveWarpedToTheEye(TimeLoop.GetSecondsRemaining());
             Mod.ModHelper.Console.WriteLine($"Attempting to warp to {OWScene.EyeOfTheUniverse}", MessageType.Info);
-            Mod.SaveData.WrongWarpTaken = false;
             UnityUtils.DoAfterFrames(Mod, 2, () =>
             {
                 Mod.NewHorizonsApi.SetDefaultSystem(nameof(OWScene.SolarSystem));

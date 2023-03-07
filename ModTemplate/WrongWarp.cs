@@ -17,6 +17,8 @@ namespace WrongWarp
 {
     public class WrongWarpMod : ModBehaviour
     {
+        public static WrongWarpMod Instance;
+
         public const string SOLAR_SYSTEM_NAME = "Hawkbar." + nameof(WrongWarp);
         public const string TWEAK_CONFIG_PATH = "tweak.json";
 
@@ -25,11 +27,14 @@ namespace WrongWarp
         public INewHorizonsApi NewHorizonsApi;
         public TweakConfig TweakConfig;
         public List<WrongWarpModule> Modules;
+        public PatchModule Patches;
         public SaveDataModule SaveData;
         public CuratorModule Curator;
+        public DebugModeModule Debug;
         public DeviceSignalModule DeviceSignals;
         public ExoCorpseModule ExoCorpses;
         public EyeSequenceModule EyeSequence;
+        public HeatModule Heat;
         public IntroTourModule IntroTour;
         public MuseumModule Museum;
         public QuantumEntityModule QuantumEntities;
@@ -42,19 +47,23 @@ namespace WrongWarp
 
         private void Start()
         {
+            Instance = this;
+
             ModHelper.Console.WriteLine($"Loading {nameof(WrongWarp)}...", MessageType.Info);
 
             ReloadTweakConfig();
-            Patches.Initialize(this);
 
             SystemAssetBundle = ModHelper.Assets.LoadBundle("assetbundles/shared");
 
             Modules = new List<WrongWarpModule>();
+            Patches = new PatchModule(this);
             SaveData = new SaveDataModule(this);
             Curator = new CuratorModule(this);
+            Debug = new DebugModeModule(this);
             DeviceSignals = new DeviceSignalModule(this);
             ExoCorpses = new ExoCorpseModule(this);
             EyeSequence = new EyeSequenceModule(this);
+            Heat = new HeatModule(this);
             IntroTour = new IntroTourModule(this);
             Museum = new MuseumModule(this);
             QuantumEntities = new QuantumEntityModule(this);
@@ -77,11 +86,12 @@ namespace WrongWarp
         {
             ModHelper.Console.WriteLine($"Changing to star system {system}", MessageType.Info);
             ReloadTweakConfig();
-            if (IsInWrongWarpSystem)
+            foreach (var module in Modules)
             {
-                foreach (var module in Modules) module.OnSystemUnload();
-                IsInWrongWarpSystem = false;
+                if (module.Active)
+                    module.OnSystemUnload();
             }
+            IsInWrongWarpSystem = false;
         }
 
         private void OnStarSystemLoaded(string system)
@@ -90,6 +100,7 @@ namespace WrongWarp
             if (system == SOLAR_SYSTEM_NAME)
             {
                 IsInWrongWarpSystem = true;
+                SaveData.WrongWarpTaken = true;
                 SystemLoadCounter++;
                 SetupNewHorizonsConfigObjectTypes();
                 foreach (var module in Modules) module.OnSystemLoad();
@@ -103,6 +114,12 @@ namespace WrongWarp
             } else
             {
                 IsInWrongWarpSystem = false;
+                SaveData.WrongWarpTaken = false;
+            }
+            foreach (var module in Modules)
+            {
+                if (module.Active)
+                    module.OnSystemLoad();
             }
         }
 
@@ -125,37 +142,20 @@ namespace WrongWarp
 
         public void Update()
         {
-            if (IsInWrongWarpSystem)
-            {
-                foreach (var module in Modules) module.OnUpdate();
-            }
-
-            if (Keyboard.current[Key.NumpadEnter].wasPressedThisFrame)
-            {
-                if (SaveData.WrongWarpTaken) Warp.WarpToHearthianSystem();
-                else Warp.WarpToWrongWarpSystem();
-            }
-            if (Keyboard.current[Key.NumpadPlus].wasPressedThisFrame)
-            {
-                if (SaveData.WrongWarpTaken) Warp.WarpToEye();
-                else Warp.WarpToWrongWarpSystem();
-            }
+            foreach (var module in Modules.Where(m => m.Active))
+                module.OnUpdate();
         }
 
         public void LateUpdate()
         {
-            if (IsInWrongWarpSystem)
-            {
-                foreach (var module in Modules) module.OnLateUpdate();
-            }
+            foreach (var module in Modules.Where(m => m.Active))
+                module.OnLateUpdate();
         }
 
         public void FixedUpdate()
         {
-            if (IsInWrongWarpSystem)
-            {
-                foreach (var module in Modules) module.OnFixedUpdate();
-            }
+            foreach (var module in Modules.Where(m => m.Active))
+                module.OnFixedUpdate();
         }
 
         public void SetupNewHorizonsConfigObjectTypes()

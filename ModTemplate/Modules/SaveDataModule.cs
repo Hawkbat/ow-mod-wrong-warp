@@ -93,42 +93,6 @@ namespace WrongWarp.Modules
             Save();
         }
 
-        public override void OnUpdate()
-        {
-            if (Keyboard.current[Key.Numpad0].wasPressedThisFrame)
-            {
-                HasDoneIntroTour = !HasDoneIntroTour;
-            }
-            if (Keyboard.current[Key.Numpad1].wasPressedThisFrame)
-            {
-                ArchivistSignalActive = !ArchivistSignalActive;
-            }
-            if (Keyboard.current[Key.Numpad2].wasPressedThisFrame)
-            {
-                GuideSignalActive = !GuideSignalActive;
-            }
-            if (Keyboard.current[Key.Numpad3].wasPressedThisFrame)
-            {
-                CuratorSignalActive = !CuratorSignalActive;
-            }
-            if (Keyboard.current[Key.Numpad4].wasPressedThisFrame)
-            {
-                HasPlayedMuseumMelody = !HasPlayedMuseumMelody;
-            }
-            if (Keyboard.current[Key.Numpad5].wasPressedThisFrame)
-            {
-                SignalJammerActive = !SignalJammerActive;
-            }
-            if (Keyboard.current[Key.Numpad6].wasPressedThisFrame)
-            {
-                ExhibitRestored = !ExhibitRestored;
-            }
-            if (Keyboard.current[Key.Numpad7].wasPressedThisFrame)
-            {
-                ShipSpawnChanged = !ShipSpawnChanged;
-            }
-        }
-
         public override void OnLateUpdate()
         {
             if (saveNextFrame)

@@ -25,6 +25,8 @@ namespace WrongWarp.Modules
         public virtual void OnLateUpdate() { }
         public virtual void OnFixedUpdate() { }
 
+        public virtual bool Active => LoadManager.GetCurrentScene() == OWScene.SolarSystem && Mod.IsInWrongWarpSystem;
+
         protected void DoAfterFrames(int frameCount, Action action)
             => UnityUtils.DoAfterFrames(Mod, frameCount, action);
 

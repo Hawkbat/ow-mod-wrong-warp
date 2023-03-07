@@ -1,6 +1,7 @@
 ﻿using OWML.Common;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,18 +18,23 @@ namespace WrongWarp.Modules
 
         public override void OnSystemLoad()
         {
-            DoAfterSeconds(0.1f, () => {
-                if (!Mod.SaveData.HasDoneIntroTour)
+            DoAfterFrames(1, () =>
+            {
+                var vesselWarpController = GameObject.FindObjectOfType<VesselWarpController>();
+                if (vesselWarpController && vesselWarpController.isActiveAndEnabled)
                 {
-                    Mod.SaveData.HasDoneIntroTour = true;
-                    StartSequence();
+                    GlobalMessenger<DeathType>.AddListener("PlayerDeath", OnDiedInIntroTour);
+                    Mod.SaveData.HasDoneIntroTour = false;
+                    DoAfterSeconds(0.1f, () => {
+                        StartSequence();
+                    });
                 }
             });
         }
 
         public override void OnSystemUnload()
         {
-            CleanupVessel();
+            vesselBody = null;
         }
 
         public override void OnFixedUpdate()
@@ -40,71 +46,82 @@ namespace WrongWarp.Modules
             }
         }
 
-        private void CleanupVessel()
+        private void OnDiedInIntroTour(DeathType deathType)
         {
-            vesselBody = null;
+            Mod.SaveData.HasDoneIntroTour = true;
+            GlobalMessenger<DeathType>.RemoveListener("PlayerDeath", OnDiedInIntroTour);
         }
 
         private void StartSequence()
         {
+            var corePlanet = Mod.NewHorizonsApi.GetPlanet("Core");
             var shipBody = Locator.GetShipBody();
-            shipBody.SetPosition(Vector3.zero);
+            shipBody.SetPosition(corePlanet.GetAttachedOWRigidbody().GetPosition());
 
             Locator.GetPlayerSuit().SuitUp(false, true, true);
 
-            /*
-            Mod.ModHelper.Console.WriteLine($"Spawning vessel", MessageType.Info);
-            var planet = Mod.NewHorizonsApi.GetPlanet("Core");
-            var clone = Mod.NewHorizonsApi.SpawnObject(
-                planet,
-                planet.gameObject.GetComponentInChildren<Sector>(),
-                "DB_VesselDimension_Body/Sector_VesselDimension",
-                Mod.TweakConfig.introTour.vessel.position,
-                Mod.TweakConfig.introTour.vessel.rotation,
-                1f,
-                false);
-            var vessel = clone;
-            Mod.ModHelper.Console.WriteLine($"Setting up vessel", MessageType.Info);
-            vessel.transform.Find("Vessel_Atmosphere").gameObject.SetActive(false);
-            vessel.transform.Find("Geometry_VesselDimension/OtherComponentsGroup/Vines").gameObject.SetActive(false);
-            vessel.transform.Find("Geometry_VesselDimension/OtherComponentsGroup/Terrain_DB_BrambleSphere_Outer_v2").gameObject.SetActive(false);
-            vessel.transform.Find("Geometry_VesselDimension/BatchedGroup/BatchedMeshColliders_1").gameObject.SetActive(false);
-            vessel.transform.Find("Geometry_VesselDimension/BatchedGroup/BatchedMeshColliders_2").gameObject.SetActive(false);
-            vessel.transform.Find("Geometry_VesselDimension/OtherComponentsGroup/Structure_NOM_Vessel/glass").gameObject.SetActive(false);
-            foreach (Transform t in vessel.transform.Find("Interactables_VesselDimension/DynamicProps_VesselDimension")) t.gameObject.SetActive(false);
-            foreach (Transform t in vessel.transform.Find("Sector_VesselBridge/Interactibles_VesselBridge/DynamicProps")) t.gameObject.SetActive(false);
-            Mod.ModHelper.Console.WriteLine($"Adding vessel rigidbody", MessageType.Info);
-            vesselBody = vessel.gameObject.AddComponent<OWRigidbody>();
-            vesselBody.MakeKinematic();
-            vesselBody.EnableKinematicSimulation();
-            Mod.ModHelper.Console.WriteLine($"Enabling warp controller", MessageType.Info);
-            var ctrl = vessel.GetComponentInChildren<VesselWarpController>();
-            ctrl.SetPowered(true);
-            Mod.ModHelper.Console.WriteLine($"Adding vessel alarm", MessageType.Info);
-            var alarm = vessel.AddComponent<OWAudioSource>();
+            Locator.GetPlayerCameraController().StopSnapping();
+
+            vesselBody = GameObject.FindObjectOfType<VesselWarpController>().GetAttachedOWRigidbody();
+            UnityUtils.GetTransformAtPath(vesselBody.transform, "./Sector_VesselBridge/Volumes_VesselBridge/GravityOxygenVolume_VesselBridge").gameObject.SetActive(false);
+
+            var alarmObj = new GameObject("Alarm");
+            alarmObj.transform.parent = UnityUtils.GetTransformAtPath(vesselBody.transform, "./Sector_VesselBridge/Interactibles_VesselBridge/WarpCoreSocket");
+            alarmObj.transform.localPosition = Vector3.zero;
+            var alarm = alarmObj.AddComponent<OWAudioSource>();
             alarm.SetTrack(OWAudioMixer.TrackName.Environment);
             alarm.AssignAudioLibraryClip(AudioType.NomaiEscapePodDistressSignal_LP);
             alarm.loop = true;
             alarm.Play();
 
-            SpawnAtVessel();
-            */
+            var airLeakObj = new GameObject("Air Leak");
+            airLeakObj.transform.parent = UnityUtils.GetTransformAtPath(vesselBody.transform, "./Sector_VesselBridge/Interactibles_VesselBridge/CoordinateInterface");
+            airLeakObj.transform.localPosition = Vector3.zero;
+            var airLeak = airLeakObj.AddComponent<OWAudioSource>();
+            airLeak.SetTrack(OWAudioMixer.TrackName.Environment);
+            airLeak.AssignAudioLibraryClip(AudioType.AirRushingOut);
+            airLeak.loop = true;
+            airLeak.Play();
 
-            DoAfterSeconds(Mod.TweakConfig.introTour.supernovaTime, () => GlobalMessenger.FireEvent("TriggerSupernova"));
+            Locator.GetPlayerCamera().GetComponent<PlayerCameraEffectController>().OpenEyes(1f, false);
+
+            var plrRes = Locator.GetPlayerBody().GetComponentInChildren<PlayerResources>();
+            plrRes.ApplySuitPuncture();
+            plrRes._currentFuel = 10f;
+            plrRes._currentHealth = 50f;
+
+            TimeLoop.SetSecondsRemaining(60f);
+
+            UnityUtils.DoAfterSeconds(Mod, 0f, () =>
+            {
+                NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.Player, "SUIT INTEGRITY FAILURE"), true);
+            });
+            UnityUtils.DoAfterSeconds(Mod, 5f, () =>
+            {
+                NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.Player, "TEMPERATURE LEVELS RISING"), true);
+            });
+            UnityUtils.DoAfterSeconds(Mod, 10f, () =>
+            {
+                NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.Player, "TEMPERATURE LEVELS CRITICAL"), true);
+
+                var burnObj = new GameObject("Burn");
+                burnObj.SetActive(false);
+                burnObj.transform.parent = Locator.GetPlayerBody().transform;
+                burnObj.transform.localPosition = Vector3.zero;
+                burnObj.layer = LayerMask.NameToLayer("BasicEffectVolume");
+                var burnShape = burnObj.AddComponent<SphereShape>();
+                burnShape._collisionMode = Shape.CollisionMode.Volume;
+                burnShape._radius = 1000f;
+                var burnTrigger = burnObj.AddComponent<OWTriggerVolume>();
+                var burnHazard = burnObj.AddComponent<HeatHazardVolume>();
+                burnHazard._damagePerSecond = 2f;
+                burnHazard._triggerVolume = burnTrigger;
+                burnObj.SetActive(true);
+                burnTrigger.AddObjectToVolume(Locator.GetPlayerDetector().gameObject);
+                burnTrigger.AddObjectToVolume(Locator.GetPlayerCamera().GetComponentInChildren<FluidDetector>().gameObject);
+            });
+
+            //DoAfterSeconds(Mod.TweakConfig.introTour.supernovaTime, () => Locator.GetPlayerBody().GetComponentInChildren<DeathManager>().KillPlayer(DeathType.Supernova));
         }
-        /*
-        private void SpawnAtVessel(int retryCount = 10)
-        {
-            var playerBody = Locator.GetPlayerBody();
-            var planet = Mod.NewHorizonsApi.GetPlanet("Core");
-            vesselBody.SetVelocity(Vector3.zero);
-            playerBody.SetVelocity(Vector3.zero);
-            playerBody.WarpToPositionRotation(
-                planet.transform.TransformPoint(
-                    Mod.TweakConfig.introTour.vessel.position + Mod.TweakConfig.introTour.player.offset),
-                Quaternion.Euler(Mod.TweakConfig.introTour.player.rotation));
-            if (retryCount > 0) DoAfterSeconds(0.1f, () => SpawnAtVessel(retryCount - 1));
-        }
-        */
     }
 }

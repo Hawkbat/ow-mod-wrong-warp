@@ -51,14 +51,20 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
-            foreach (var bundle in StreamingAssetBundlesToLoad)
-            {
-                StreamingManager.LoadStreamingAssets(bundle);
-            }
-
             if (!string.IsNullOrEmpty(PropPath))
             {
                 prop = Mod.NewHorizonsApi.SpawnObject(transform.root.gameObject, GetComponentInParent<Sector>(), PropPath, Vector3.zero, Vector3.zero, 1f, false);
+
+                foreach (StreamingMeshHandle handle in prop.GetComponentsInChildren<StreamingMeshHandle>())
+                {
+                    StreamingManager.LoadStreamingAssets(handle.assetBundle);
+                }
+
+                foreach (string bundle in StreamingAssetBundlesToLoad)
+                {
+                    StreamingManager.LoadStreamingAssets(bundle);
+                }
+
                 prop.transform.SetParent(transform, false);
                 prop.transform.localPosition = Vector3.zero;
                 prop.transform.localEulerAngles = Vector3.zero;
@@ -121,6 +127,18 @@ namespace WrongWarp.Components
                     primitiveColliderObjects.Add(go);
                 }
             }
+        }
+
+        void OnDrawGizmos()
+        {
+            Gizmos.color = Color.gray;
+            Gizmos.DrawSphere(transform.position, 0.25f);
+        }
+
+        void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawSphere(transform.position, 0.25f);
         }
     }
 }

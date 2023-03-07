@@ -66,10 +66,13 @@ namespace WrongWarp.Modules
         {
             var spawnPoint = Mod.NewHorizonsApi.GetPlanet("Hearthian Exhibit")
                 .GetComponentsInChildren<SpawnPoint>()
-                .First(s => !s.IsShipSpawn());
-            var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
-            spawner.DebugWarp(spawnPoint);
-            SpawnAtMuseum();
+                .FirstOrDefault(s => !s.IsShipSpawn());
+            if (spawnPoint != null)
+            {
+                var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
+                spawner.DebugWarp(spawnPoint);
+                SpawnAtMuseum();
+            }
         }
 
         public void RespawnShip()

@@ -17,7 +17,18 @@ namespace WrongWarp.Modules
         bool startedFinale;
 
         public EyeSequenceModule(WrongWarpMod mod) : base(mod) {
+        }
+
+        public override bool Active => LoadManager.GetCurrentScene() == OWScene.EyeOfTheUniverse;
+
+        public override void OnSystemLoad()
+        {
             GlobalMessenger<EyeState>.AddListener("EyeStateChanged", OnEyeStateChanged);
+        }
+
+        public override void OnSystemUnload()
+        {
+            GlobalMessenger<EyeState>.RemoveListener("EyeStateChanged", OnEyeStateChanged);
         }
 
         private void OnEyeStateChanged(EyeState state)
@@ -71,7 +82,7 @@ namespace WrongWarp.Modules
 
         public bool IsApostateEnding()
         {
-            return true;
+            return Mod.SaveData.ExhibitRestored;
         }
 
         public void SetupEyeSequence()
@@ -110,7 +121,7 @@ namespace WrongWarp.Modules
             dialogueTree.transform.localPosition = Vector3.up;
 
             var travelerController = pivot.gameObject.AddComponent<TravelerEyeController>();
-            travelerController._animator = travelerPrefab.GetComponent<Animator>();
+            travelerController._animator = traveler.GetComponent<Animator>();
             travelerController._dialogueTree = dialogueTree;
             travelerController._isPlaying = false;
             travelerController._rockingChairAnimator = null;

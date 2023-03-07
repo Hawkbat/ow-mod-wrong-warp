@@ -1,0 +1,477 @@
+{
+    "museumNotes": [
+        "C5",
+        "G5",
+        "B5",
+        "G5",
+        "C6",
+        "B5",
+        "A5",
+        "G5",
+        "A5",
+        "B5",
+        "G5"
+    ],
+    "flashbackColor": {
+        "r": 0,
+        "g": 0.75,
+        "b": 0.5,
+        "a": 1
+    },
+    "introTour": {
+        "vessel": {
+            "acceleration": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            },
+            "angularAcceleration": {
+                "x": 0,
+                "y": 0,
+                "z": 0.05
+            }
+        }
+    },
+    "eyeSequence": {
+        "travelerPosition": {
+            "x": 0,
+            "y": 0,
+            "z": -8
+        },
+        "travelerRotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        },
+        "altTravelerPosition": {
+            "x": 0,
+            "y": 0,
+            "z": -8
+        },
+        "altTravelerRotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+        }
+    },
+    "objectTypes": {
+        "SignalDoor": {
+            "signalDoor": {
+                "sensorPaths": [
+                    "SignalEmitter"
+                ],
+                "easeIn": "quadratic",
+                "easeOut": "bounce",
+                "speed": 1.0,
+                "gracePeriod": 2.0
+            }
+        },
+        "DoorSignalEmitter": {
+            "signalEmitter": {
+                "signalPrefix": "Tone ",
+                "allocRange": 50,
+                "deallocRange": 100
+            }
+        },
+        "DoorSignalLight": {
+            "signalLight": {
+                "sensorPaths": [
+                    "../SignalEmitter"
+                ]
+            }
+        },
+        "BioDoor": {
+            "signalDoor": {
+                "sensorPaths": [
+                    "BioSensor"
+                ],
+                "easeIn": "quadratic",
+                "easeOut": "bounce",
+                "speed": 1.0,
+                "gracePeriod": 2.0
+            }
+        },
+        "DoorBioSensorLight": {
+            "signalLight": {
+                "sensorPaths": [
+                    "../BioSensor"
+                ]
+            }
+        },
+        "DoorBioSensor": {
+            "bioSensor": {
+                "minDistance": 5,
+                "maxDistance": 10
+            }
+        },
+        "AntiTechBarrier": {
+            "signalBarrier": {
+                "sensorPaths": [
+                    "AntiTechSensor"
+                ],
+                "barrierPaths": [
+                    "Barrier"
+                ]
+            }
+        },
+        "AntiTechHatch": {
+            "signalBarrier": {
+                "sensorPaths": [
+                    "AntiTechSensor"
+                ],
+                "barrierPaths": [
+                    "Barrier"
+                ]
+            }
+        },
+        "DoorAntiTechSensorLight": {
+            "signalLight": {
+                "sensorPaths": [
+                    "../AntiTechSensor"
+                ]
+            }
+        },
+        "HatchAntiTechSensorLight": {
+            "signalLight": {
+                "sensorPaths": [
+                    "../AntiTechSensor"
+                ]
+            }
+        },
+        "DoorAntiTechSensor": {
+            "antiTechSensor": {
+                "minDistance": 10,
+                "maxDistance": 15
+            }
+        },
+        "HatchAntiTechSensor": {
+            "antiTechSensor": {
+                "minDistance": 4,
+                "maxDistance": 8
+            }
+        },
+        "SystemScanPulse": {
+            "scanPulse": {
+                "duration": 30,
+                "maxRadius": 50000,
+                "easeIn": "circle"
+            }
+        },
+        "ExhibitMotionShaft": {
+            "motionShaft": {
+                "sensorPaths": [
+                    "Start/SignalEmitter",
+                    "End/SignalEmitter"
+                ],
+                "indicatorCount": 10,
+                "indicatorSpeed": 0.1,
+                "force": 20,
+                "startReversed": true
+            }
+        },
+        "ExhibitMotionShaftSignalEmitter": {
+            "signalEmitter": {
+                "signalPrefix": "Tone ",
+                "allocRange": 50,
+                "deallocRange": 90
+            }
+        },
+        "Exhibit": {
+            "exhibit": {
+                "sensorPaths": [
+                    "SignalEmitter"
+                ]
+            }
+        },
+        "ExhibitSignalEmitter": {
+            "signalEmitter": {
+                "allocRange": 600,
+                "deallocRange": 20000
+            }
+        },
+        "ExhibitHearthian": {
+            "exhibit": {
+                "note": "C6"
+            }
+        },
+        "ExhibitSignalEmitterHearthian": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_HEARTHIAN"
+            }
+        },
+        "ExhibitSeeker": {
+            "exhibit": {
+                "note": "B5"
+            }
+        },
+        "ExhibitSignalEmitterSeeker": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_SEEKER"
+            }
+        },
+        "ExhibitApostate": {
+            "exhibit": {
+                "note": "A5",
+                "isMissingExhibit": true
+            }
+        },
+        "ExhibitSignalEmitterApostate": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_APOSTATE"
+            }
+        },
+        "ExhibitAcolyte": {
+            "exhibit": {
+                "note": "G5"
+            }
+        },
+        "ExhibitSignalEmitterAcolyte": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_ACOLYTE"
+            }
+        },
+        "ExhibitArchitect": {
+            "exhibit": {
+                "note": "C5"
+            }
+        },
+        "ExhibitSignalEmitterArchitect": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_ARCHITECT"
+            }
+        },
+        "ExhibitEye": {
+            "quantumEntityState": {
+                "group": "ExhibitEye",
+                "entangleRadius": 100,
+                "needsSignalJammer": true
+            }
+        },
+        "ExhibitEyeStart": {
+            "exhibit": {
+                "note": "D6"
+            }
+        },
+        "ExhibitSignalEmitterEyeStart": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_EYE_START"
+            }
+        },
+        "ExhibitEyeEnd": {
+            "exhibit": {
+                "note": "D5"
+            }
+        },
+        "ExhibitSignalEmitterEyeEnd": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_EYE_END"
+            }
+        },
+        "ExhibitEyeHidden": {
+            "exhibit": {
+                "note": "D5"
+            },
+            "quantumEntityState": {
+                "isInitialState": true
+            }
+        },
+        "ExhibitSignalEmitterEyeHidden": {
+            "signalEmitter": {
+                "signal": "EXHIBIT_EYE_HIDDEN"
+            }
+        },
+        "HoloMapPlanet": {
+            "holoPlanet": {
+                "centerBody": "Core",
+                "scaleFactor": 0.0004,
+                "distanceFactor": 0.5
+            }
+        },
+        "ProbePort": {
+            "probePort": {
+                "screens": [
+                    {
+                        "type": "PlayerStatus",
+                        "x": 0,
+                        "y": 0
+                    },
+                    {
+                        "type": "ProbeGame",
+                        "x": -1,
+                        "y": 1,
+                        "probeGame": {
+                            "entities": [
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 11,
+                                    "h": 1,
+                                    "type": "WallHollow"
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 10,
+                                    "w": 11,
+                                    "h": 1,
+                                    "type": "WallHollow"
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 1,
+                                    "h": 11,
+                                    "type": "WallHollow"
+                                },
+                                {
+                                    "x": 10,
+                                    "y": 0,
+                                    "w": 1,
+                                    "h": 11,
+                                    "type": "WallHollow"
+                                },
+                                {
+                                    "x": 0,
+                                    "y": 0,
+                                    "w": 11,
+                                    "h": 1,
+                                    "type": "WallHollow"
+                                },
+                                {
+                                    "x": 1,
+                                    "y": 7,
+                                    "type": "WhiteHole"
+                                },
+                                {
+                                    "x": 9,
+                                    "y": 4,
+                                    "type": "BlackHole"
+                                },
+                                {
+                                    "x": 2,
+                                    "y": 7,
+                                    "type": "Probe"
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 5,
+                                    "type": "Angler"
+                                },
+                                {
+                                    "x": 4,
+                                    "y": 1,
+                                    "type": "Stranger"
+                                },
+                                {
+                                    "x": 6,
+                                    "y": 9,
+                                    "type": "StrangerBack"
+                                },
+                                {
+                                    "x": 9,
+                                    "y": 9,
+                                    "type": "Seed"
+                                },
+                                {
+                                    "x": 8,
+                                    "y": 9,
+                                    "type": "VineX"
+                                },
+                                {
+                                    "x": 9,
+                                    "y": 8,
+                                    "type": "VineY"
+                                },
+                                {
+                                    "x": 1,
+                                    "y": 1,
+                                    "type": "Nomai"
+                                },
+                                {
+                                    "x": 2,
+                                    "y": 3,
+                                    "type": "Crystal"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "SignalTowers",
+                        "x": -1,
+                        "y": 0
+                    },
+                    {
+                        "type": "",
+                        "x": 1,
+                        "y": 0
+                    },
+                    {
+                        "type": "Temperature",
+                        "x": 0,
+                        "y": 2
+                    }
+                ]
+            }
+        }
+    },
+    "signalPool": {
+        "EXHIBIT_EYE_START": {
+            "displayName": "Eye Exhibit"
+        },
+        "EXHIBIT_EYE_END": {
+            "displayName": "Eye Exhibit"
+        },
+        "EXHIBIT_EYE_HIDDEN": {
+            "displayName": "Eye Exhibit"
+        },
+        "EXHIBIT_HEARTHIAN": {
+            "displayName": "Hearthian Exhibit"
+        },
+        "EXHIBIT_SEEKER": {
+            "displayName": "Seeker Exhibit"
+        },
+        "EXHIBIT_APOSTATE": {
+            "displayName": "Apostate Exhibit"
+        },
+        "EXHIBIT_ACOLYTE": {
+            "displayName": "Acolyte Exhibit"
+        },
+        "EXHIBIT_ARCHITECT": {
+            "displayName": "Architect Exhibit"
+        },
+        "TONE 1": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        },
+        "TONE 2": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        },
+        "TONE 3": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        },
+        "TONE 4": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        },
+        "TONE 5": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        },
+        "TONE 6": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        },
+        "TONE 7": {
+            "displayName": "Device Signal",
+            "startDisabled": true,
+            "alwaysForget": true
+        }
+    }
+}

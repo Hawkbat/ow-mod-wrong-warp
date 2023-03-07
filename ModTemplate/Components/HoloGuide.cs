@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Epic.OnlineServices;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -42,6 +43,10 @@ namespace WrongWarp.Components
                 Character = t.gameObject;
                 characterAnim = Character.GetComponent<CharacterAnimController>();
                 solanumAnim = Character.GetComponent<SolanumAnimController>();
+                foreach (StreamingMeshHandle handle in Character.GetComponentsInChildren<StreamingMeshHandle>())
+                {
+                    StreamingManager.LoadStreamingAssets(handle.assetBundle);
+                }
 
                 if (t.name == "Ghostbird_IP_ANIM")
                 {
