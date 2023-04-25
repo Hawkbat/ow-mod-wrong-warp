@@ -20,9 +20,10 @@ namespace WrongWarp.Modules
         {
             DoAfterFrames(1, () =>
             {
-                var vesselWarpController = GameObject.FindObjectOfType<VesselWarpController>();
-                if (vesselWarpController && vesselWarpController.isActiveAndEnabled)
+                var vessel = GameObject.Find("Vessel_Body");
+                if (vessel)
                 {
+                    vesselBody = vessel.GetAttachedOWRigidbody();
                     GlobalMessenger<DeathType>.AddListener("PlayerDeath", OnDiedInIntroTour);
                     Mod.SaveData.HasDoneIntroTour = false;
                     DoAfterSeconds(0.1f, () => {
@@ -54,7 +55,7 @@ namespace WrongWarp.Modules
 
         private void StartSequence()
         {
-            var corePlanet = Mod.NewHorizonsApi.GetPlanet("Core");
+            var corePlanet = Mod.NewHorizonsApi.GetPlanet("WW_CORE");
             var shipBody = Locator.GetShipBody();
             shipBody.SetPosition(corePlanet.GetAttachedOWRigidbody().GetPosition());
 
@@ -62,7 +63,6 @@ namespace WrongWarp.Modules
 
             Locator.GetPlayerCameraController().StopSnapping();
 
-            vesselBody = GameObject.FindObjectOfType<VesselWarpController>().GetAttachedOWRigidbody();
             UnityUtils.GetTransformAtPath(vesselBody.transform, "./Sector_VesselBridge/Volumes_VesselBridge/GravityOxygenVolume_VesselBridge").gameObject.SetActive(false);
 
             var alarmObj = new GameObject("Alarm");
@@ -91,37 +91,6 @@ namespace WrongWarp.Modules
             plrRes._currentHealth = 50f;
 
             TimeLoop.SetSecondsRemaining(60f);
-
-            UnityUtils.DoAfterSeconds(Mod, 0f, () =>
-            {
-                NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.Player, "SUIT INTEGRITY FAILURE"), true);
-            });
-            UnityUtils.DoAfterSeconds(Mod, 5f, () =>
-            {
-                NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.Player, "TEMPERATURE LEVELS RISING"), true);
-            });
-            UnityUtils.DoAfterSeconds(Mod, 10f, () =>
-            {
-                NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.Player, "TEMPERATURE LEVELS CRITICAL"), true);
-
-                var burnObj = new GameObject("Burn");
-                burnObj.SetActive(false);
-                burnObj.transform.parent = Locator.GetPlayerBody().transform;
-                burnObj.transform.localPosition = Vector3.zero;
-                burnObj.layer = LayerMask.NameToLayer("BasicEffectVolume");
-                var burnShape = burnObj.AddComponent<SphereShape>();
-                burnShape._collisionMode = Shape.CollisionMode.Volume;
-                burnShape._radius = 1000f;
-                var burnTrigger = burnObj.AddComponent<OWTriggerVolume>();
-                var burnHazard = burnObj.AddComponent<HeatHazardVolume>();
-                burnHazard._damagePerSecond = 2f;
-                burnHazard._triggerVolume = burnTrigger;
-                burnObj.SetActive(true);
-                burnTrigger.AddObjectToVolume(Locator.GetPlayerDetector().gameObject);
-                burnTrigger.AddObjectToVolume(Locator.GetPlayerCamera().GetComponentInChildren<FluidDetector>().gameObject);
-            });
-
-            //DoAfterSeconds(Mod.TweakConfig.introTour.supernovaTime, () => Locator.GetPlayerBody().GetComponentInChildren<DeathManager>().KillPlayer(DeathType.Supernova));
         }
     }
 }

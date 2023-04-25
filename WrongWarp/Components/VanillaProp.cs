@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Configs;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
@@ -69,6 +70,15 @@ namespace WrongWarp.Components
                 prop.transform.localPosition = Vector3.zero;
                 prop.transform.localEulerAngles = Vector3.zero;
                 prop.transform.localScale = Vector3.one;
+
+
+                var pictureFrameInterface = prop.GetComponentInChildren<PictureFrameDoorInterface>();
+                if (pictureFrameInterface != null)
+                {
+                    UnityUtils.DoAfterFrames(Mod, 1, () => pictureFrameInterface.ToggleOpenState());
+                    UnityUtils.DoAfterFrames(Mod, 2, () => pictureFrameInterface.ToggleOpenState());
+                    UnityUtils.DoAfterFrames(Mod, 3, () => pictureFrameInterface.ToggleOpenState());
+                }
             }
 
             if (generatedMeshColliders.Count > 0 && !GenerateMeshColliders)

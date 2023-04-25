@@ -89,7 +89,7 @@ namespace WrongWarp.Components
             }
         }
 
-        [System.Serializable]
+        [Serializable]
         public class Indicator
         {
             public Transform transform;

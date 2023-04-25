@@ -62,8 +62,8 @@ namespace WrongWarp.Modules
             if (overheatVolume)
             {
                 var pos = Locator.GetPlayerTransform().position;
-                displayMessage += $"Temperature: ${overheatVolume.GetTemperatureAt(pos)} / ${overheatVolume.GetCurrentMaxTemperature()}\n";
-                displayMessage += $"Damage: ${overheatVolume.GetRawDamageAt(pos)} (${overheatVolume.GetEffectiveDamageToPlayer()})\n";
+                displayMessage += $"Temperature: {overheatVolume.GetTemperatureAt(pos):n2} / {overheatVolume.GetCurrentMaxTemperature():n2}\n";
+                displayMessage += $"Damage: {overheatVolume.GetRawDamageAt(pos):n2} ({overheatVolume.GetEffectiveDamageToPlayer():n2})\n";
             }
             displayMessage = displayMessage.Trim();
             return displayMessage;

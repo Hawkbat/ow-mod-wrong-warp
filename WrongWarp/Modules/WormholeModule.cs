@@ -17,9 +17,9 @@ namespace WrongWarp.Modules
 
         public override void OnSystemLoad()
         {
-            var core = Mod.NewHorizonsApi.GetPlanet("Core");
-            blackHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/BlackHole").gameObject;
-            whiteHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/WhiteHole").gameObject;
+            var core = Mod.NewHorizonsApi.GetPlanet("WW_CORE");
+            blackHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/Black Hole").gameObject;
+            whiteHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/White Hole").gameObject;
         }
 
         public override void OnSystemUnload()

@@ -79,6 +79,8 @@ namespace WrongWarp.Modules
             }
         }
 
+        public override bool Active => true;
+
         public SaveDataModule(WrongWarpMod mod) : base(mod) {
             LoadManager.OnCompleteSceneLoad += LoadManager_OnCompleteSceneLoad;
         }
@@ -112,12 +114,17 @@ namespace WrongWarp.Modules
 
         private void Load()
         {
+            if (this.data != null && this.data.initialized && this.data.profile == GetCurrentProfile())
+            {
+                return;
+            }
             var data = Mod.ModHelper.Storage.Load<SaveData>(GetCurrentSaveFileName());
-            if (data == null || !data.initialized)
+            if (data == null || !data.initialized || data.profile != GetCurrentProfile())
             {
                 data = new SaveData
                 {
-                    initialized = true
+                    initialized = true,
+                    profile = GetCurrentProfile(),
                 };
                 Mod.ModHelper.Console.WriteLine($"Created new {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}", MessageType.Success);
                 Save(true);

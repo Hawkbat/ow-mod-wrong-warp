@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Components;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -20,7 +21,11 @@ namespace WrongWarp.Modules
             GlobalMessenger.AddListener("FlashbackStart", FlashbackStart);
             if (Mod.SaveData.HasDoneIntroTour)
             {
-                DoAfterSeconds(0.1f, () => SpawnAtMuseum());
+                DoAfterSeconds(0.1f, () =>
+                {
+                    RespawnPlayer();
+                    RespawnShip();
+                });
             }
         }
 
@@ -36,6 +41,7 @@ namespace WrongWarp.Modules
             {
                 MakeCameraParticles(2f);
                 MakeBodyParticles(2f);
+                MakeShipParticles(2f);
             }
         }
 
@@ -64,82 +70,52 @@ namespace WrongWarp.Modules
 
         public void RespawnPlayer()
         {
-            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("Hearthian Exhibit")
+            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
                 .GetComponentsInChildren<SpawnPoint>()
                 .FirstOrDefault(s => !s.IsShipSpawn());
             if (spawnPoint != null)
             {
                 var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
                 spawner.DebugWarp(spawnPoint);
-                SpawnAtMuseum();
+                MakeCameraParticles(1f);
+                MakeBodyParticles(1f);
             }
         }
 
         public void RespawnShip()
         {
-            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("Hearthian Exhibit")
+            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
                 .GetComponentsInChildren<SpawnPoint>()
                 .First(s => s.IsShipSpawn());
-            var shipDamageCtrl = Locator.GetShipBody().GetComponent<ShipDamageController>();
-            if (shipDamageCtrl.IsHullBreached())
+
+            var shipBody = Locator.GetShipBody();
+
+            var shipDamageCtrl = shipBody.GetComponent<ShipDamageController>();
+            shipDamageCtrl._invincible = true;
+
+            MakeShipParticles(1f);
+
+            for (int i = 0; i < 10; i++)
             {
-                GameObject.Destroy(Locator.GetShipBody().gameObject);
-                var freshShip = GameObject.Instantiate(shipBackup);
-
-                freshShip.transform.position = spawnPoint.transform.position;
-                freshShip.transform.rotation = spawnPoint.transform.rotation;
-
-                freshShip.SetActive(true);
-
-                Locator.GetPlayerCameraController()._shipController = freshShip.GetComponentInChildren<ShipCockpitController>();
-                Locator.GetToolModeSwapper()._shipSystemsCtrlr = freshShip.GetComponentInChildren<ShipCockpitController>();
-                GameObject.FindObjectOfType<ToolModeUI>()._landingManager = freshShip.GetComponentInChildren<LandingPadManager>();
-                freshShip.GetComponentInChildren<ShipCockpitController>().enabled = true;
-
-                DoAfterFrames(1, () =>
+                UnityUtils.DoAfterSeconds(Mod, 0.2f * i, () =>
                 {
-                    freshShip.GetComponent<OWRigidbody>().WarpToPositionRotation(spawnPoint.transform.position, spawnPoint.transform.rotation);
-                    freshShip.GetComponent<OWRigidbody>().SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetPointVelocity(spawnPoint.transform.position));
+                    shipBody.WarpToPositionRotation(spawnPoint.transform.position + spawnPoint.transform.up * 4f, spawnPoint.transform.rotation);
+                    shipBody.SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetPointVelocity(spawnPoint.transform.position));
                 });
-
-                Locator._shipTransform = freshShip.GetComponent<Transform>();
-                Locator._shipBody = freshShip.GetComponent<OWRigidbody>();
-                Locator._shipDetector = freshShip.transform.Find("ShipDetector").gameObject;
-
-                freshShip.GetComponent<ShipDamageController>()._invincible = true;
-                DoAfterSeconds(1f, () =>
-                {
-                    freshShip.GetComponent<ShipDamageController>()._invincible = false;
-                });
-            } else
+            }
+            UnityUtils.DoAfterSeconds(Mod, 0.2f * 10f, () =>
             {
                 foreach (var hull in shipDamageCtrl._shipHulls)
                     while (hull._damaged) hull.RepairTick();
                 foreach (var comp in shipDamageCtrl._shipComponents)
                     while (comp._damaged) comp.RepairTick();
-
-                var shipBody = Locator.GetShipBody();
-                shipBody.WarpToPositionRotation(spawnPoint.transform.position, spawnPoint.transform.rotation);
-                shipBody.SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetPointVelocity(spawnPoint.transform.position));
-            }
-        }
-
-        private void SpawnAtMuseum()
-        {
-            if (!shipBackup)
-            {
-                var ship = Locator.GetShipBody().gameObject;
-                ship.SetActive(false);
-                shipBackup = GameObject.Instantiate(ship);
-                shipBackup.name = ship.name;
-                ship.SetActive(true);
-            }
-            MakeCameraParticles(1f);
-            MakeBodyParticles(1f);
+                shipDamageCtrl._invincible = false;
+            });
         }
 
         GameObject playerSpawnEffectPrefab;
         GameObject cameraSpawnEffectPrefab;
+        GameObject shipSpawnEffectPrefab;
 
         public void MakeBodyParticles(float duration)
         {
@@ -169,6 +145,21 @@ namespace WrongWarp.Modules
             var teleporterFx = cameraSpawnEffect.GetComponent<TeleporterEffect>();
             teleporterFx.Duration = duration;
             cameraSpawnEffect.SetActive(true);
+        }
+
+        public void MakeShipParticles(float duration)
+        {
+            if (!shipSpawnEffectPrefab)
+            {
+                shipSpawnEffectPrefab = Mod.SystemAssetBundle.LoadAsset<GameObject>("Assets/ModAssets/Shared/Objects/ShipSpawnEffect.prefab");
+                shipSpawnEffectPrefab.SetActive(false);
+            }
+
+            var shipBody = Locator.GetShipBody();
+            var shipSpawnEffect = GameObject.Instantiate(shipSpawnEffectPrefab, shipBody.transform, false);
+            var teleporterFx = shipSpawnEffect.GetComponent<TeleporterEffect>();
+            teleporterFx.Duration = duration;
+            shipSpawnEffect.SetActive(true);
         }
     }
 }

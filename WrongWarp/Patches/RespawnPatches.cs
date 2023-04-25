@@ -19,102 +19,64 @@ namespace WrongWarp.Patches
         {
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
             if (!WrongWarpMod.Instance.SaveData.HasDoneIntroTour) return true;
-            if (__0 != DeathType.Dream && __0 != DeathType.DreamExplosion && __0 != DeathType.Supernova && __0 != DeathType.TimeLoop && __0 != DeathType.Meditation)
+            if (__0 is DeathType.Dream or DeathType.DreamExplosion or DeathType.Supernova or DeathType.TimeLoop or DeathType.Meditation)
             {
-                isRespawn = true;
-                __instance._isDying = true;
-                __instance._deathType = __0;
-                Locator.GetPauseCommandListener().AddPauseCommandLock();
-                PlayerData.SetLastDeathType(__0);
-                GlobalMessenger<DeathType>.FireEvent("PlayerDeath", __0);
-                return false;
+                return true;
             }
-            return true;
+            isRespawn = true;
+            __instance._isDying = true;
+            __instance._deathType = __0;
+            Locator.GetPauseCommandListener().AddPauseCommandLock();
+            PlayerData.SetLastDeathType(__0);
+            GlobalMessenger<DeathType>.FireEvent("PlayerDeath", __0);
+            return false;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(DeathManager), nameof(DeathManager.FinishDeathSequence))]
         public static bool DeathManager_FinishDeathSequence(DeathManager __instance)
         {
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
-            if (isRespawn)
+            if (!isRespawn)
             {
-                UnityUtils.DoAfterSeconds(WrongWarpMod.Instance, 2f, () =>
-                {
-                    __instance._isDying = false;
-                    GlobalMessenger.FireEvent("PlayerResurrection");
-                    Locator.GetPauseCommandListener().RemovePauseCommandLock();
-                    OWInput.ChangeInputMode(InputMode.Character);
-                    ReticleController.Show();
-                    Locator.GetPromptManager().SetPromptsVisible(true);
-                    Locator.GetAudioMixer()._deathMixed = false;
-                    Locator.GetAudioMixer().UnmixMemoryUplink();
-                    Locator.GetPlayerBody().GetComponent<PlayerResources>().DebugRefillResources();
-                    Locator.GetPlayerBody().GetComponent<PlayerResources>().enabled = true;
-                    WrongWarpMod.Instance.Respawner.RespawnPlayer();
-                    WrongWarpMod.Instance.Respawner.RespawnShip();
-                });
-                return false;
+                return true;
             }
-            return true;
-        }
-
-        static GameObject shipLogDetectiveModeEntryCardTemplate;
-        static GameObject shipLogDetectiveModeEntryLinkTemplate;
-        static bool shipLogDetectiveModeMidInitialization;
-
-        [HarmonyPrefix, HarmonyPatch(typeof(ShipLogDetectiveMode), nameof(ShipLogDetectiveMode.Initialize))]
-        public static bool ShipLogDetectiveMode_Initialize_Prefix(ShipLogDetectiveMode __instance)
-        {
-            if (shipLogDetectiveModeMidInitialization) return false;
-            shipLogDetectiveModeMidInitialization = true;
-            if (__instance._cardList != null && __instance._cardList.Count > 0)
-                shipLogDetectiveModeEntryCardTemplate = __instance._cardList[0].gameObject;
-            else if (!shipLogDetectiveModeEntryCardTemplate && __instance._entryCardTemplate)
-                shipLogDetectiveModeEntryCardTemplate = __instance._entryCardTemplate;
-            if (__instance._linkList != null && __instance._linkList.Count > 0)
-                shipLogDetectiveModeEntryLinkTemplate = __instance._linkList[0].gameObject;
-            else if (!shipLogDetectiveModeEntryLinkTemplate && __instance._entryLinkTemplate)
-                shipLogDetectiveModeEntryLinkTemplate = __instance._entryLinkTemplate;
-            __instance._entryCardTemplate = UnityEngine.Object.Instantiate(shipLogDetectiveModeEntryCardTemplate);
-            __instance._entryLinkTemplate = UnityEngine.Object.Instantiate(shipLogDetectiveModeEntryLinkTemplate);
-            return true;
-        }
-
-        [HarmonyPostfix, HarmonyPatch(typeof(ShipLogDetectiveMode), nameof(ShipLogDetectiveMode.Initialize))]
-        public static void ShipLogDetectiveMode_Initialize_Postfix(ShipLogDetectiveMode __instance)
-        {
-            __instance._entryCardTemplate = UnityEngine.Object.Instantiate(shipLogDetectiveModeEntryCardTemplate);
-            __instance._entryLinkTemplate = UnityEngine.Object.Instantiate(shipLogDetectiveModeEntryLinkTemplate);
-            shipLogDetectiveModeMidInitialization = false;
-        }
-        [HarmonyPrefix, HarmonyPatch(typeof(CanvasGroupAnimator), nameof(CanvasGroupAnimator.SetImmediate), typeof(float), typeof(Vector3))]
-        public static void CanvasGroupAnimator_SetImmediate(CanvasGroupAnimator __instance)
-        {
-            if (!__instance._canvasGroup)
+            UnityUtils.DoAfterSeconds(WrongWarpMod.Instance, 2f, () =>
             {
-                __instance._canvasGroup = __instance.GetComponent<CanvasGroup>();
-                __instance._rectTransform = __instance.GetComponent<RectTransform>();
-                __instance._isComplete = true;
-                __instance._updatingCanvases = false;
-            }
+                __instance._isDying = false;
+                GlobalMessenger.FireEvent("PlayerResurrection");
+                Locator.GetPauseCommandListener().RemovePauseCommandLock();
+                OWInput.ChangeInputMode(InputMode.Character);
+                ReticleController.Show();
+                Locator.GetPromptManager().SetPromptsVisible(true);
+                Locator.GetAudioMixer()._deathMixed = false;
+                Locator.GetAudioMixer().UnmixMemoryUplink();
+                Locator.GetPlayerBody().GetComponent<PlayerResources>().DebugRefillResources();
+                Locator.GetPlayerBody().GetComponent<PlayerResources>().enabled = true;
+                WrongWarpMod.Instance.Respawner.RespawnPlayer();
+                WrongWarpMod.Instance.Respawner.RespawnShip();
+            });
+            return false;
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(SingleInteractionVolume), nameof(SingleInteractionVolume.UpdatePromptVisibility))]
-        public static void SingleInteractionVolume_UpdatePromptVisibility(SingleInteractionVolume __instance)
+        [HarmonyPrefix, HarmonyPatch(typeof(ShipDamageController), nameof(ShipDamageController.Explode))]
+        public static bool ShipDamageController_Explode(ShipDamageController __instance)
         {
-            if (!__instance._playerCam) __instance._playerCam = Locator.GetPlayerCamera();
+            WrongWarpMod.Instance.ModHelper.Console.WriteLine($"Prevented ship explosion", OWML.Common.MessageType.Warning);
+            return false;
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(PlayerAttachPoint), nameof(PlayerAttachPoint.InitAttachment))]
-        public static void PlayerAttachPoint_InitAttachment(PlayerAttachPoint __instance)
+        [HarmonyPrefix, HarmonyPatch(typeof(ShipDetachableModule), nameof(ShipDetachableModule.Detach))]
+        public static bool ShipDetachableModule_Detach(ShipDetachableModule __instance)
         {
-            if (!__instance._playerTransform)
-            {
-                __instance._playerTransform = Locator.GetPlayerTransform();
-                __instance._playerOWRigidbody = __instance._playerTransform.GetRequiredComponent<OWRigidbody>();
-                __instance._playerController = __instance._playerTransform.GetRequiredComponent<PlayerCharacterController>();
-                __instance._fpsCamController = __instance._playerTransform.GetRequiredComponentInChildren<PlayerCameraController>();
-            }
+            WrongWarpMod.Instance.ModHelper.Console.WriteLine($"Prevented {__instance} from detaching", OWML.Common.MessageType.Warning);
+            return false;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(ShipDetachableLeg), nameof(ShipDetachableLeg.Detach))]
+        public static bool ShipDetachableLeg_Detach(ShipDetachableLeg __instance)
+        {
+            WrongWarpMod.Instance.ModHelper.Console.WriteLine($"Prevented {__instance} from detaching", OWML.Common.MessageType.Warning);
+            return false;
         }
     }
 }

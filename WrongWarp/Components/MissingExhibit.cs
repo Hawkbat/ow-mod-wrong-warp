@@ -12,9 +12,11 @@ namespace WrongWarp.Components
         public GameObject Debris;
         public GameObject Exhibit;
 
+        public GravityVolume gravityWell;
+
         public override void WireUp()
         {
-
+            gravityWell = transform.root.Find("GravityWell").GetComponent<GravityVolume>();
         }
 
         void Update()
@@ -22,6 +24,10 @@ namespace WrongWarp.Components
             bool restored = Mod.SaveData.ExhibitRestored;
             if (Debris.activeSelf != !restored) Debris.SetActive(!restored);
             if (Exhibit.activeSelf != restored) Exhibit.SetActive(restored);
+            if (gravityWell != null && gravityWell.IsVolumeActive() != restored)
+            {
+                gravityWell.SetVolumeActivation(restored);
+            }
         }
     }
 }

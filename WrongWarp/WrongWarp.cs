@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using ModDataTools.Utilities;
 using OWML.Common;
 using OWML.ModHelper;
 using UnityEngine;
@@ -19,7 +20,7 @@ namespace WrongWarp
     {
         public static WrongWarpMod Instance;
 
-        public const string SOLAR_SYSTEM_NAME = "Hawkbar." + nameof(WrongWarp);
+        public const string SOLAR_SYSTEM_NAME = "Hawkbar.WRONG_WARP";
         public const string TWEAK_CONFIG_PATH = "tweak.json";
 
         public bool IsInWrongWarpSystem;
@@ -44,6 +45,8 @@ namespace WrongWarp
         public WormholeModule Wormhole;
         public int SystemLoadCounter;
         public AssetBundle SystemAssetBundle;
+
+        private bool wasSystemChange;
 
         private void Start()
         {
@@ -77,7 +80,6 @@ namespace WrongWarp
 
             NewHorizonsApi.GetChangeStarSystemEvent().AddListener(OnChangeStarSystem);
             NewHorizonsApi.GetStarSystemLoadedEvent().AddListener(OnStarSystemLoaded);
-            NewHorizonsApi.GetBodyLoadedEvent().AddListener(OnBodyLoaded);
 
             ModHelper.Console.WriteLine($"{nameof(WrongWarp)} is loaded!", MessageType.Success);
         }
@@ -92,6 +94,7 @@ namespace WrongWarp
                     module.OnSystemUnload();
             }
             IsInWrongWarpSystem = false;
+            wasSystemChange = true;
         }
 
         private void OnStarSystemLoaded(string system)
@@ -110,28 +113,33 @@ namespace WrongWarp
                     var playerCam = Locator.GetPlayerCamera();
                     if (playerCam && playerCam.mainCamera)
                         playerCam.mainCamera.depthTextureMode = DepthTextureMode.Depth;
+
+                    foreach (var planet in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().Where(o => o.name.StartsWith("WW_COREAsteroid")))
+                    {
+                        var icosphere = UnityUtils.GetTransformAtPath(planet.transform, "./Sector/Icosphere");
+                        var vmat = icosphere.gameObject.AddComponent<VanillaMaterial>();
+                        vmat.Type = VanillaMaterial.MaterialType.QuantumRock;
+                    }
                 });
-            } else
+            } else if (wasSystemChange)
             {
                 IsInWrongWarpSystem = false;
                 SaveData.WrongWarpTaken = false;
+            } else
+            {
+                IsInWrongWarpSystem = false;
+                if (SaveData.WrongWarpTaken)
+                {
+                    Warp.WarpToWrongWarpSystem();
+                }
             }
+
+            wasSystemChange = false;
+
             foreach (var module in Modules)
             {
                 if (module.Active)
                     module.OnSystemLoad();
-            }
-        }
-
-        private void OnBodyLoaded(string body)
-        {
-            if (body.StartsWith("Core Asteroid "))
-            {
-                var planet = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().First(o => o.name == body.Replace(" ", "") + "_Body");
-                var icosphere = UnityUtils.GetTransformAtPath(planet.transform, "./Sector/Icosphere");
-
-                var vmat = icosphere.gameObject.AddComponent<VanillaMaterial>();
-                vmat.Type = VanillaMaterial.MaterialType.QuantumRock;
             }
         }
 
@@ -160,14 +168,14 @@ namespace WrongWarp
 
         public void SetupNewHorizonsConfigObjectTypes()
         {
-            var planetFolderPath = $"{ModHelper.Manifest.ModFolderPath}/planets/{nameof(WrongWarp)}/";
+            var planetFolderPath = $"{ModHelper.Manifest.ModFolderPath}/planets/{SOLAR_SYSTEM_NAME}/";
             var planetFileFullPaths = Directory.EnumerateFiles(planetFolderPath);
             foreach (var planetFileFullPath in planetFileFullPaths)
             {
                 try
                 {
                     var planetFileName = Path.GetFileName(planetFileFullPath);
-                    var planetFilePath = $"planets/{nameof(WrongWarp)}/{planetFileName}";
+                    var planetFilePath = $"planets/{SOLAR_SYSTEM_NAME}/{planetFileName}";
                     var config = ModHelper.Storage.Load<NHPlanetConfig>(planetFilePath);
                     if (config == null || config.Props == null || config.Props.details == null) continue;
                     var planet = NewHorizonsApi.GetPlanet(config.name);

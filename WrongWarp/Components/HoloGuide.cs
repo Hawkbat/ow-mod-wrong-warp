@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Configs;
 using WrongWarp.Utils;
+using ModDataTools.Assets;
 
 namespace WrongWarp.Components
 {
@@ -15,12 +16,8 @@ namespace WrongWarp.Components
         public GameObject Character;
         public string CharacterPath;
         public float CharacterHeight;
-        public string DialoguePath;
+        public DialogueAsset Dialogue;
 
-        CharacterDialogueTree dialogueTree;
-        RemoteDialogueTrigger remoteTrigger;
-        CharacterAnimController characterAnim;
-        SolanumAnimController solanumAnim;
         Material mat;
 
         public void ApplyConfig(HoloGuideConfig config)
@@ -41,8 +38,6 @@ namespace WrongWarp.Components
                 mat = new Material(Mod.Museum.HologramMaterial);
                 
                 Character = t.gameObject;
-                characterAnim = Character.GetComponent<CharacterAnimController>();
-                solanumAnim = Character.GetComponent<SolanumAnimController>();
                 foreach (StreamingMeshHandle handle in Character.GetComponentsInChildren<StreamingMeshHandle>())
                 {
                     StreamingManager.LoadStreamingAssets(handle.assetBundle);
@@ -53,9 +48,6 @@ namespace WrongWarp.Components
                     Character.GetComponent<Animator>().SetTrigger(Animator.StringToHash("Default"));
                 }
 
-                /*transform.position = t.position;
-                transform.rotation = t.rotation;
-                transform.parent = t.parent;*/
                 t.parent = transform;
                 t.localPosition = Vector3.zero;
                 t.localRotation = Quaternion.identity;
@@ -64,14 +56,21 @@ namespace WrongWarp.Components
                     renderer.sharedMaterials = renderer.sharedMaterials.Select(_ => mat).ToArray();
                 }
             }
-            if (!string.IsNullOrEmpty(DialoguePath))
+            var dialoguePath = Dialogue ? Dialogue.GetXmlOutputPath() : null;
+            if (!string.IsNullOrEmpty(dialoguePath))
             {
                 var dialogueObj = new GameObject("Dialogue");
                 dialogueObj.transform.parent = transform;
                 dialogueObj.transform.localPosition = Vector3.up * CharacterHeight * 1.2f;
                 dialogueObj.transform.localRotation = Quaternion.identity;
 
-                (dialogueTree, remoteTrigger) = Mod.NewHorizonsApi.SpawnDialogue(Mod, dialogueObj, DialoguePath, 2f);
+                var pathToAnimController = UnityUtils.GetTransformPath(t, true);
+
+                var (dialogueTree, remoteTrigger) = Mod.NewHorizonsApi.SpawnDialogue(Mod, dialogueObj.transform.root.gameObject, dialoguePath, 2f, 1f, null, 5f, pathToAnimController, 0f);
+                dialogueTree.transform.parent = dialogueObj.transform;
+                dialogueTree.transform.localPosition = Vector3.zero;
+                dialogueTree.transform.localRotation = Quaternion.identity;
+                if (remoteTrigger) remoteTrigger.transform.SetParent(dialogueObj.transform, true);
             }
         }
 

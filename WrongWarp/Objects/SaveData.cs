@@ -10,6 +10,7 @@ namespace WrongWarp.Objects
     public class SaveData
     {
         public bool initialized = false;
+        public string profile = "";
         public bool wrongWarpTaken = false;
         public bool doneIntroTour = false;
         public bool shipSpawnChanged = false;

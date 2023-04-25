@@ -42,7 +42,7 @@ namespace WrongWarp.Modules
         {
             if (Mod.IsInWrongWarpSystem)
             {
-                var alienShip = Mod.NewHorizonsApi.GetPlanet("Direlict Ship").GetComponent<OWRigidbody>();
+                var alienShip = Mod.NewHorizonsApi.GetPlanet("WW_THE_DIRELICT").GetComponent<OWRigidbody>();
                 var ship = Locator.GetShipBody();
                 ship.SetVelocity(alienShip.GetVelocity() + (alienShip.GetPosition() - ship.GetPosition()).normalized);
             }
@@ -134,28 +134,28 @@ namespace WrongWarp.Modules
         public string GetSignalTowerStatusText(SignalTowerType type)
         {
             var player = Locator.GetPlayerBody();
-            var alienShip = Mod.NewHorizonsApi.GetPlanet("The Direlict").GetComponent<OWRigidbody>();
+            var alienShip = Mod.NewHorizonsApi.GetPlanet("WW_THE_DIRELICT").GetComponent<OWRigidbody>();
 
             switch (type)
             {
                 case SignalTowerType.Archivist:
                     if (Mod.SaveData.ArchivistSignalActive)
                     {
-                        var towerA = Mod.NewHorizonsApi.GetPlanet("The Archivist").GetComponent<OWRigidbody>();
+                        var towerA = Mod.NewHorizonsApi.GetPlanet("WW_THE_ARCHIVIST").GetComponent<OWRigidbody>();
                         return $"Archivist: {GetDisplayDistance(towerA, player, alienShip)}";
                     }
                     return "Archivist: INACTIVE";
                 case SignalTowerType.Guide:
                     if (Mod.SaveData.GuideSignalActive)
                     {
-                        var towerB = Mod.NewHorizonsApi.GetPlanet("The Guide").GetComponent<OWRigidbody>();
+                        var towerB = Mod.NewHorizonsApi.GetPlanet("WW_THE_GUIDE").GetComponent<OWRigidbody>();
                         return $"Guide: {GetDisplayDistance(towerB, player, alienShip)}";
                     }
                     return "Guide: INACTIVE";
                 case SignalTowerType.Curator:
                     if (Mod.SaveData.CuratorSignalActive)
                     {
-                        var towerC = Mod.NewHorizonsApi.GetPlanet("The Curator").GetComponent<OWRigidbody>();
+                        var towerC = Mod.NewHorizonsApi.GetPlanet("WW_THE_CURATOR").GetComponent<OWRigidbody>();
                         return $"Curator: {GetDisplayDistance(towerC, player, alienShip)}";
                     }
                     return "Curator: INACTIVE";

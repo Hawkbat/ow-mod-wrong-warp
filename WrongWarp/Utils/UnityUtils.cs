@@ -53,14 +53,28 @@ namespace WrongWarp.Utils
             }
         }
 
-        public static string GetTransformPath(Transform transform)
+        public static string GetTransformPath(Transform t)
         {
-            if (transform == null) return null;
-            var path = transform.name;
-            while (transform.parent != null)
+            if (t == null) return null;
+            var path = t.name;
+            while (t.parent != null)
             {
-                path = transform.parent.name + "/" + path;
-                transform = transform.parent;
+                path = t.parent.name + "/" + path;
+                t = t.parent;
+            }
+            return path;
+        }
+
+        public static string GetTransformPath(Transform t, bool skipRoot)
+        {
+            if (!skipRoot) return GetTransformPath(t);
+            if (t == null) return null;
+            if (t.parent == null) return string.Empty;
+            var path = t.name;
+            while (t.parent != null && t.parent != t.root)
+            {
+                path = t.parent.name + "/" + path;
+                t = t.parent;
             }
             return path;
         }
