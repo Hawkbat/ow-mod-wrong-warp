@@ -13,7 +13,7 @@ namespace WrongWarp.Components
 
         public bool IsActive => Mod.SignalTowers.IsSignalTowerActive(SignalTower);
 
-        public override string GetText() => $"SIGNAL TRACKING\n{Mod.SignalTowers.GetSignalTowerStatusText(SignalTower)}\n< {(IsActive ? "ENABLED" : "DISABLED")} >";
+        public override string GetText() => $"[SIGNAL TRACKING]\n{Mod.SignalTowers.GetSignalTowerStatusText(SignalTower)}\n< {(IsActive ? "ENABLED" : "DISABLED")} >";
 
         public override bool OnTick(int dx, int dy)
         {

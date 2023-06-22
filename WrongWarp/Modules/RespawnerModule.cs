@@ -11,7 +11,11 @@ namespace WrongWarp.Modules
 {
     public class RespawnerModule : WrongWarpModule
     {
-        private GameObject shipBackup;
+        bool isRespawningPlayer;
+        bool isRespawningShip;
+
+        public bool IsRespawningPlayer => isRespawningPlayer;
+        public bool IsRespawningShip => isRespawningShip;
 
         public RespawnerModule(WrongWarpMod mod) : base(mod) { }
 
@@ -39,9 +43,9 @@ namespace WrongWarp.Modules
         {
             if (Mod.IsInWrongWarpSystem)
             {
-                MakeCameraParticles(2f);
-                MakeBodyParticles(2f);
-                MakeShipParticles(2f);
+                MakeCameraParticles(3f);
+                MakeBodyParticles(3f);
+                MakeShipParticles(3f);
             }
         }
 
@@ -70,23 +74,41 @@ namespace WrongWarp.Modules
 
         public void RespawnPlayer()
         {
+            if (isRespawningPlayer) return;
+            isRespawningPlayer = true;
             var spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
-                .GetComponentsInChildren<SpawnPoint>()
+                .GetComponentsInChildren<SpawnPoint>(true)
                 .FirstOrDefault(s => !s.IsShipSpawn());
             if (spawnPoint != null)
             {
-                var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
-                spawner.DebugWarp(spawnPoint);
                 MakeCameraParticles(1f);
                 MakeBodyParticles(1f);
+                UnityUtils.DoAfterSeconds(Mod, 1f, () =>
+                {
+                    var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
+                    spawner.DebugWarp(spawnPoint);
+                    isRespawningPlayer = false;
+                });
             }
         }
 
         public void RespawnShip()
         {
-            var spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
-                .GetComponentsInChildren<SpawnPoint>()
-                .First(s => s.IsShipSpawn());
+            if (isRespawningShip) return;
+            isRespawningShip = true;
+
+            SpawnPoint spawnPoint;
+            if (Mod.SaveData.ShipSpawnChanged)
+            {
+                spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_SEEKERS_EXHIBIT")
+                    .GetComponentsInChildren<SpawnPoint>(true)
+                    .First(s => s.IsShipSpawn());
+            } else
+            {
+                spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
+                    .GetComponentsInChildren<SpawnPoint>(true)
+                    .First(s => s.IsShipSpawn());
+            }
 
             var shipBody = Locator.GetShipBody();
 
@@ -95,22 +117,29 @@ namespace WrongWarp.Modules
 
             MakeShipParticles(1f);
 
-            for (int i = 0; i < 10; i++)
+            UnityUtils.DoAfterSeconds(Mod, 1f, () =>
             {
-                UnityUtils.DoAfterSeconds(Mod, 0.2f * i, () =>
+                for (int i = 0; i < 10; i++)
                 {
-                    shipBody.WarpToPositionRotation(spawnPoint.transform.position + spawnPoint.transform.up * 4f, spawnPoint.transform.rotation);
-                    shipBody.SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetPointVelocity(spawnPoint.transform.position));
+                    UnityUtils.DoAfterSeconds(Mod, 0.1f * i, () =>
+                    {
+                        shipBody.WarpToPositionRotation(spawnPoint.transform.position + spawnPoint.transform.up * 4f, spawnPoint.transform.rotation);
+                        shipBody.SetVelocity(spawnPoint.GetAttachedOWRigidbody().GetVelocity());
+                    });
+                }
+                UnityUtils.DoAfterSeconds(Mod, 0.1f * 10f, () =>
+                {
+                    foreach (var hull in shipDamageCtrl._shipHulls)
+                        while (hull._damaged) hull.RepairTick();
+                    foreach (var comp in shipDamageCtrl._shipComponents)
+                        while (comp._damaged) comp.RepairTick();
+                    Locator.GetShipBody().GetComponentInChildren<ShipResources>().RefillResources();
+
+                    shipDamageCtrl._invincible = false;
+                    isRespawningShip = false;
                 });
-            }
-            UnityUtils.DoAfterSeconds(Mod, 0.2f * 10f, () =>
-            {
-                foreach (var hull in shipDamageCtrl._shipHulls)
-                    while (hull._damaged) hull.RepairTick();
-                foreach (var comp in shipDamageCtrl._shipComponents)
-                    while (comp._damaged) comp.RepairTick();
-                shipDamageCtrl._invincible = false;
             });
+
         }
 
         GameObject playerSpawnEffectPrefab;

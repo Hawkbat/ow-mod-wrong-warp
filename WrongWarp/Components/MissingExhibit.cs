@@ -12,7 +12,7 @@ namespace WrongWarp.Components
         public GameObject Debris;
         public GameObject Exhibit;
 
-        public GravityVolume gravityWell;
+        GravityVolume gravityWell;
 
         public override void WireUp()
         {

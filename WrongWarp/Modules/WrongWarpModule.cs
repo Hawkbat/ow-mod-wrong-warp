@@ -24,6 +24,7 @@ namespace WrongWarp.Modules
         public virtual void OnUpdate() { }
         public virtual void OnLateUpdate() { }
         public virtual void OnFixedUpdate() { }
+        public virtual void OnGUI() { }
 
         public virtual bool Active => LoadManager.GetCurrentScene() == OWScene.SolarSystem && Mod.IsInWrongWarpSystem;
 

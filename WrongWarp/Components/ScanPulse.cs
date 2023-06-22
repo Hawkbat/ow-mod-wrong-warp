@@ -11,6 +11,7 @@ namespace WrongWarp.Components
 {
     public class ScanPulse : WrongWarpBehaviour, IConfigurable<ScanPulseConfig>
     {
+        public Transform Target;
         public Transform Scan;
         public float Duration;
         public float MaxRadius;
@@ -57,6 +58,11 @@ namespace WrongWarp.Components
             {
                 float t = EasingUtils.Ease(Reverse ? 1f - ScanProgress : ScanProgress, EaseIn, EaseOut);
                 Scan.transform.localScale = Vector3.one * MaxRadius * t;
+                if (Target)
+                {
+                    float t2 = EasingUtils.Ease(Reverse ? 1f - ScanProgress : ScanProgress, EasingUtils.Linear, EasingUtils.Octic);
+                    Scan.transform.position = Vector3.Lerp(transform.position, Target.position, Reverse ? 1f - ScanProgress : ScanProgress);
+                }
             }
         }
     }

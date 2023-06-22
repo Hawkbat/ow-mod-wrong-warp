@@ -25,7 +25,7 @@ namespace WrongWarp.Modules
 
         public void WarpToWrongWarpSystem()
         {
-            Mod.ModHelper.Console.WriteLine($"Attempting to warp to {WrongWarpMod.SOLAR_SYSTEM_NAME}", MessageType.Info);
+            LogUtils.Log($"Attempting to warp to {WrongWarpMod.SOLAR_SYSTEM_NAME}");
             Mod.NewHorizonsApi.SetDefaultSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
             Mod.NewHorizonsApi.ChangeCurrentStarSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
         }
@@ -33,7 +33,7 @@ namespace WrongWarp.Modules
         public void WarpToHearthianSystem()
         {
             if (PlayerData.GetWarpedToTheEye()) PlayerData.SaveEyeCompletion();
-            Mod.ModHelper.Console.WriteLine($"Attempting to warp to {OWScene.SolarSystem}", MessageType.Info);
+            LogUtils.Log($"Attempting to warp to {OWScene.SolarSystem}");
             UnityUtils.DoAfterFrames(Mod, 2, () =>
             {
                 Mod.NewHorizonsApi.SetDefaultSystem(nameof(OWScene.SolarSystem));
@@ -44,7 +44,7 @@ namespace WrongWarp.Modules
         public void WarpToEye()
         {
             if (!PlayerData.GetWarpedToTheEye()) PlayerData.SaveWarpedToTheEye(TimeLoop.GetSecondsRemaining());
-            Mod.ModHelper.Console.WriteLine($"Attempting to warp to {OWScene.EyeOfTheUniverse}", MessageType.Info);
+            LogUtils.Log($"Attempting to warp to {OWScene.EyeOfTheUniverse}");
             UnityUtils.DoAfterFrames(Mod, 2, () =>
             {
                 Mod.NewHorizonsApi.SetDefaultSystem(nameof(OWScene.SolarSystem));

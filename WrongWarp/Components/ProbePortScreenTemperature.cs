@@ -16,7 +16,7 @@ namespace WrongWarp.Components
             var maxTemp = 5778f;
             var i = EasingUtils.EaseIn(TimeLoop.GetFractionElapsed(), EasingUtils.Quartic);
             var temp = Mathf.RoundToInt(Mathf.Lerp(minTemp, maxTemp, i));
-            return $"Core Temperature\n{temp}K";
+            return $"[Core Temperature]\n{temp}K";
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Components;
 using WrongWarp.Configs;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -54,7 +55,7 @@ namespace WrongWarp.Modules
 
             if (allSignals.Count == 0)
             {
-                Mod.ModHelper.Console.WriteLine("Failed to locate any signals!", OWML.Common.MessageType.Error);
+                LogUtils.Error("Failed to locate any signals!");
             }
         }
 
@@ -114,7 +115,7 @@ namespace WrongWarp.Modules
                 } else
                 {
                     var signalNames = string.Join(", ", availableSignals.Select(s => GetOriginalName(s.GetName()).ToUpper()));
-                    Mod.ModHelper.Console.WriteLine($"Emitter wanted a signal matching '{emitter.SignalName}' or prefix '{emitter.SignalPrefix}' or suffix '{emitter.SignalSuffix}' but no match was found in list: {signalNames}", OWML.Common.MessageType.Error);
+                    LogUtils.Log($"Emitter wanted a signal matching '{emitter.SignalName}' or prefix '{emitter.SignalPrefix}' or suffix '{emitter.SignalSuffix}' but no match was found in list: {signalNames}");
                 }
             }
         }

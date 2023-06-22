@@ -150,13 +150,6 @@
                 "maxDistance": 8
             }
         },
-        "SystemScanPulse": {
-            "scanPulse": {
-                "duration": 30,
-                "maxRadius": 50000,
-                "easeIn": "circle"
-            }
-        },
         "ExhibitMotionShaft": {
             "motionShaft": {
                 "sensorPaths": [

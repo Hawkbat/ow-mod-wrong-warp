@@ -1,21 +1,23 @@
-﻿using System;
+﻿using ModDataTools.Assets;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
-    public class Teleporter : WrongWarpBehaviour
+    public class Teleporter : Sensor
     {
         static List<Teleporter> all = new();
 
         public GameObject EffectPrefab;
         public float Duration;
         public Teleporter Linked;
-        public string LinkID;
+        public FrequencyAsset Frequency;
 
         private bool isTeleporting;
         private List<GameObject> occupants = new List<GameObject>();
@@ -25,6 +27,9 @@ namespace WrongWarp.Components
         void OnEnable()
         {
             all.Add(this);
+            triggerVolume = GetComponentInChildren<OWTriggerVolume>(true);
+            triggerVolume.OnEntry += TriggerVolume_OnEntry;
+            triggerVolume.OnExit += TriggerVolume_OnExit;
             if (isReEnable)
             {
                 AttemptLink();
@@ -35,23 +40,25 @@ namespace WrongWarp.Components
         void OnDisable()
         {
             all.Remove(this);
+            triggerVolume.OnEntry -= TriggerVolume_OnEntry;
+            triggerVolume.OnExit -= TriggerVolume_OnExit;
             AttemptUnlink();
             isReEnable = true;
         }
 
         public override void WireUp()
         {
-            triggerVolume = GetComponentInChildren<OWTriggerVolume>(true);
-            triggerVolume.OnEntry += TriggerVolume_OnEntry;
-            triggerVolume.OnExit += TriggerVolume_OnExit;
             AttemptLink();
         }
 
+        public override float ComputeStrength()
+            => Linked && Linked.isActiveAndEnabled ? 1f : 0f;
+
         void AttemptLink()
         {
-            if (!Linked && !string.IsNullOrEmpty(LinkID))
+            if (!Linked)
             {
-                var other = all.Find(t => t.isActiveAndEnabled && t != this && !t.Linked && t.LinkID == LinkID);
+                var other = all.Find(t => t && t.isActiveAndEnabled && t != this && t.Frequency && Frequency && t.Frequency.FullID == Frequency.FullID);
                 if (other)
                 {
                     Linked = other;
@@ -117,6 +124,7 @@ namespace WrongWarp.Components
 
             if (rb == Locator.GetPlayerBody())
             {
+                //Mod.QuantumExhibit.ApplyTemporaryLock();
                 Mod.Respawner.MakeCameraParticles(Duration);
             }
 
@@ -146,6 +154,12 @@ namespace WrongWarp.Components
             }
 
             yield return new WaitForSeconds(Duration);
+
+            if (rb == Locator.GetPlayerBody())
+            {
+                //Mod.QuantumExhibit.ReleaseTemporaryLock();
+            }
+
             isTeleporting = false;
             if (Linked && target == Linked.transform) Linked.isTeleporting = false;
         }

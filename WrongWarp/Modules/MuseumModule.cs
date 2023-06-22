@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using WrongWarp.Components;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -37,7 +38,7 @@ namespace WrongWarp.Modules
 
             if (Mod.TweakConfig.museumNotes[playedNotes.Count] == note)
             {
-                Mod.ModHelper.Console.WriteLine($"Played right note {note}", OWML.Common.MessageType.Success);
+                LogUtils.Success($"Played right note {note}");
                 playedNotes.Add(note);
                 if (playedNotes.Count == Mod.TweakConfig.museumNotes.Count)
                 {
@@ -47,11 +48,11 @@ namespace WrongWarp.Modules
             }
             else
             {
-                Mod.ModHelper.Console.WriteLine($"Played wrong note {note}", OWML.Common.MessageType.Warning);
+                LogUtils.Warn($"Played wrong note {note}");
                 playedNotes.Clear();
                 if (Mod.TweakConfig.museumNotes.Count > 0 && note == Mod.TweakConfig.museumNotes[0])
                 {
-                    Mod.ModHelper.Console.WriteLine($"Restarting sequence with first note {note} already played", OWML.Common.MessageType.Warning);
+                    LogUtils.Warn($"Restarting sequence with first note {note} already played");
                     playedNotes.Add(note);
                 }
             }
@@ -60,7 +61,7 @@ namespace WrongWarp.Modules
         private void NoteSequenceComplete()
         {
             Mod.SaveData.HasPlayedMuseumMelody = true;
-            Mod.ModHelper.Console.WriteLine($"Played right note sequence!", OWML.Common.MessageType.Success);
+            LogUtils.Success($"Played right note sequence!");
         }
     }
 }

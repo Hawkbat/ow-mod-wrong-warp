@@ -12,7 +12,7 @@ namespace WrongWarp.Components
         {
             var oxygen = Locator.GetPlayerController()._playerResources.GetOxygenInSeconds();
             var health = Locator.GetPlayerController()._playerResources.GetHealthFraction();
-            return $"Visitor Vitals\nOxygen Remaining: {oxygen}\nBiological Integrity: {Math.Round(health * 100)}%";
+            return $"[Visitor Vitals]\nOxygen Remaining: {oxygen}\nBiological Integrity: {Math.Round(health * 100)}%";
         }
     }
 }

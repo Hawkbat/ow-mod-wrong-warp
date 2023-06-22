@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
@@ -16,6 +17,7 @@ namespace WrongWarp.Components
         public int Height;
         public int Depth;
         public float Duration;
+        public Vector3 Offset;
 
         private ParticleSystem ps;
 
@@ -29,8 +31,16 @@ namespace WrongWarp.Components
         {
             float expectedFrameTime = 0f;
             float actualFrameTime = 0f;
-            var offset = -0.5f * BoxSize * new Vector3(Width, 0f, Depth);
+            var offset = -0.5f * BoxSize * new Vector3(Width, 0f, Depth) + Offset;
             float frameRate = Duration / (Width * Depth * Height);
+
+            var main = ps.main;
+            main.maxParticles = Width * Height * Depth;
+            if (main.maxParticles > ushort.MaxValue)
+            {
+                LogUtils.Error($"WAY TOO MANY PARTICLES for this teleporter effect! {UnityUtils.GetTransformPath(transform)}");
+            }
+
             for (int y = 0; y < Height; y++)
             {
                 for (int x = 0; x < Width; x++)

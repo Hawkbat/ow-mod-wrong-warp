@@ -19,7 +19,7 @@ namespace WrongWarp.Patches
         {
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
             if (!WrongWarpMod.Instance.SaveData.HasDoneIntroTour) return true;
-            if (__0 is DeathType.Dream or DeathType.DreamExplosion or DeathType.Supernova or DeathType.TimeLoop or DeathType.Meditation)
+            if (__0 == DeathType.Dream || __0 == DeathType.DreamExplosion || __0 == DeathType.Supernova || __0 == DeathType.TimeLoop || __0 == DeathType.Meditation)
             {
                 return true;
             }
@@ -52,6 +52,12 @@ namespace WrongWarp.Patches
                 Locator.GetAudioMixer().UnmixMemoryUplink();
                 Locator.GetPlayerBody().GetComponent<PlayerResources>().DebugRefillResources();
                 Locator.GetPlayerBody().GetComponent<PlayerResources>().enabled = true;
+                var visorEffects = Locator.GetPlayerBody().GetComponentInChildren<VisorEffectController>();
+                visorEffects.OnDestroy();
+                visorEffects.Awake();
+                var hudCanvas = Locator.GetPlayerBody().GetComponentInChildren<HUDCanvas>();
+                hudCanvas.enabled = true;
+                hudCanvas._boostArrowIndicator.transform.root.GetComponentInChildren<ThrustAndAttitudeIndicator>().enabled = true;
                 WrongWarpMod.Instance.Respawner.RespawnPlayer();
                 WrongWarpMod.Instance.Respawner.RespawnShip();
             });
@@ -61,22 +67,47 @@ namespace WrongWarp.Patches
         [HarmonyPrefix, HarmonyPatch(typeof(ShipDamageController), nameof(ShipDamageController.Explode))]
         public static bool ShipDamageController_Explode(ShipDamageController __instance)
         {
-            WrongWarpMod.Instance.ModHelper.Console.WriteLine($"Prevented ship explosion", OWML.Common.MessageType.Warning);
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
+            LogUtils.Warn($"Prevented ship explosion");
+            WrongWarpMod.Instance.Respawner.RespawnShip();
             return false;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(ShipDetachableModule), nameof(ShipDetachableModule.Detach))]
         public static bool ShipDetachableModule_Detach(ShipDetachableModule __instance)
         {
-            WrongWarpMod.Instance.ModHelper.Console.WriteLine($"Prevented {__instance} from detaching", OWML.Common.MessageType.Warning);
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
+            LogUtils.Warn($"Prevented {__instance} from detaching");
+            if (__instance.name == "Module_Cockpit")
+            {
+                var ejectionSystem = Locator.GetShipBody().GetComponentInChildren<ShipEjectionSystem>();
+                if (ejectionSystem._ejectPressed)
+                {
+                    ejectionSystem._ejectPressed = false;
+                    ejectionSystem.enabled = false;
+                    Locator.GetPlayerAudioController().PlayNegativeUISound();
+                }
+                WrongWarpMod.Instance.Respawner.RespawnShip();
+            }
             return false;
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(ShipDetachableLeg), nameof(ShipDetachableLeg.Detach))]
         public static bool ShipDetachableLeg_Detach(ShipDetachableLeg __instance)
         {
-            WrongWarpMod.Instance.ModHelper.Console.WriteLine($"Prevented {__instance} from detaching", OWML.Common.MessageType.Warning);
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
+            LogUtils.Warn($"Prevented {__instance} from detaching");
             return false;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(ReferenceFrameGUI), nameof(ReferenceFrameGUI.OnPlayerDeath))]
+        public static bool ReferenceFrameGUI_OnPlayerDeath(ReferenceFrameGUI __instance)
+        {
+            if (isRespawn)
+            {
+                return false;
+            }
+            return true;
         }
     }
 }

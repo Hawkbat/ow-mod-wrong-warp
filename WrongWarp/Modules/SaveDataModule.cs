@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.InputSystem;
 using WrongWarp.Objects;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -57,10 +58,10 @@ namespace WrongWarp.Modules
             set => SetAndSave(ref data.playedMuseumMelody, nameof(HasPlayedMuseumMelody), value);
         }
 
-        public bool SignalJammerActive
+        public bool SignalJammerDisabled
         {
             get => data.jammerActive;
-            set => SetAndSave(ref data.jammerActive, nameof(SignalJammerActive), value);
+            set => SetAndSave(ref data.jammerActive, nameof(SignalJammerDisabled), value);
         }
 
         public bool ExhibitRestored
@@ -73,7 +74,7 @@ namespace WrongWarp.Modules
         {
             if (!value.Equals(data))
             {
-                Mod.ModHelper.Console.WriteLine($"Changing {name} from {data} to {value}", MessageType.Success);
+                LogUtils.Success($"Changing {name} from {data} to {value}");
                 data = value;
                 Save();
             }
@@ -126,11 +127,11 @@ namespace WrongWarp.Modules
                     initialized = true,
                     profile = GetCurrentProfile(),
                 };
-                Mod.ModHelper.Console.WriteLine($"Created new {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}", MessageType.Success);
+                LogUtils.Success($"Created new {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
                 Save(true);
             } else
             {
-                Mod.ModHelper.Console.WriteLine($"Loaded {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}", MessageType.Success);
+                LogUtils.Success($"Loaded {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
             }
             this.data = data;
         }
@@ -144,7 +145,7 @@ namespace WrongWarp.Modules
                 return;
             }
             Mod.ModHelper.Storage.Save(data, GetCurrentSaveFileName());
-            Mod.ModHelper.Console.WriteLine($"Saved {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}", MessageType.Success);
+            LogUtils.Success($"Saved {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
         }
 
         private void Reset()
@@ -153,7 +154,7 @@ namespace WrongWarp.Modules
             {
                 initialized = true
             };
-            Mod.ModHelper.Console.WriteLine($"Reset {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}", MessageType.Success);
+            LogUtils.Success($"Reset {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
             Save(true);
         }
 

@@ -38,7 +38,7 @@ namespace WrongWarp
         public HeatModule Heat;
         public IntroTourModule IntroTour;
         public MuseumModule Museum;
-        public QuantumEntityModule QuantumEntities;
+        public QuantumExhibitModule QuantumExhibit;
         public RespawnerModule Respawner;
         public SignalTowerModule SignalTowers;
         public WarpModule Warp;
@@ -69,7 +69,7 @@ namespace WrongWarp
             Heat = new HeatModule(this);
             IntroTour = new IntroTourModule(this);
             Museum = new MuseumModule(this);
-            QuantumEntities = new QuantumEntityModule(this);
+            QuantumExhibit = new QuantumExhibitModule(this);
             Respawner = new RespawnerModule(this);
             SignalTowers = new SignalTowerModule(this);
             Warp = new WarpModule(this);
@@ -166,6 +166,12 @@ namespace WrongWarp
                 module.OnFixedUpdate();
         }
 
+        public void OnGUI()
+        {
+            foreach (var module in Modules.Where(m => m.Active))
+                module.OnGUI();
+        }
+
         public void SetupNewHorizonsConfigObjectTypes()
         {
             var planetFolderPath = $"{ModHelper.Manifest.ModFolderPath}/planets/{SOLAR_SYSTEM_NAME}/";
@@ -239,7 +245,6 @@ namespace WrongWarp
             ApplyModComponent(mo, config.holoPlanet, (HoloPlanet)null);
             ApplyModComponent(mo, config.motionShaft, (MotionShaft)null);
             ApplyModComponent(mo, config.prop, (VanillaProp)null);
-            ApplyModComponent(mo, config.quantumEntityState, (QuantumEntityState)null);
             ApplyModComponent(mo, config.scanPulse, (ScanPulse)null);
             ApplyModComponent(mo, config.signalBarrier, (SensorBarrier)null);
             ApplyModComponent(mo, config.signalDoor, (SensorDoor)null);
