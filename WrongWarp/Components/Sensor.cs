@@ -9,9 +9,6 @@ namespace WrongWarp.Components
 {
     public abstract class Sensor : WrongWarpBehaviour
     {
-        public float MinDistance;
-        public float MaxDistance;
-
         public float Strength { get; private set; }
         public float PreviousStrength { get; private set; }
 

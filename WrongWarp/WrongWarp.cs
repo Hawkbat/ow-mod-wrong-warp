@@ -112,7 +112,7 @@ namespace WrongWarp
                 {
                     var playerCam = Locator.GetPlayerCamera();
                     if (playerCam && playerCam.mainCamera)
-                        playerCam.mainCamera.depthTextureMode = DepthTextureMode.Depth;
+                        playerCam.mainCamera.depthTextureMode = DepthTextureMode.DepthNormals;
 
                     foreach (var planet in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().Where(o => o.name.StartsWith("WW_COREAsteroid")))
                     {

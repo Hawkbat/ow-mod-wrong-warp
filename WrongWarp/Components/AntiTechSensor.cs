@@ -8,7 +8,7 @@ using WrongWarp.Configs;
 
 namespace WrongWarp.Components
 {
-    public class AntiTechSensor : Sensor, IConfigurable<AntiTechSensorConfig>
+    public class AntiTechSensor : RadialSensor, IConfigurable<AntiTechSensorConfig>
     {
 
         public void ApplyConfig(AntiTechSensorConfig config)

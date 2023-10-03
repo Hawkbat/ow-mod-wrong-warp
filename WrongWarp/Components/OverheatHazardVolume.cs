@@ -23,11 +23,14 @@ namespace WrongWarp.Components
         public float SuitlessDamageReduction;
         public float SuitedDamageReduction;
         public float InShipDamageReduction;
+        public List<Transform> ScaledObjects = new();
 
         public override HazardType GetHazardType() => HazardType.HEAT;
         public override InstantDamageType GetFirstContactDamageType() => InstantDamageType.Impact;
 
         SphereShape shape;
+        bool playerInside;
+        NotificationData notification;
 
         public override void Awake()
         {
@@ -37,7 +40,40 @@ namespace WrongWarp.Components
 
         void Update()
         {
-            shape.radius = GetRadius();
+            var radius = GetRadius();
+            shape.radius = radius;
+            foreach (var o in ScaledObjects)
+            {
+                o.localScale = Vector3.one * radius;
+            }
+            if (playerInside && notification == null)
+            {
+                notification = new NotificationData(NotificationTarget.All, $"DANGEROUS TEMPERATURE LEVELS DETECTED");
+                NotificationManager.SharedInstance.PostNotification(notification, true);
+            }
+            if (!playerInside && notification != null)
+            {
+                NotificationManager.SharedInstance.UnpinNotification(notification);
+                notification = null;
+            }
+        }
+
+        public override void OnEffectVolumeEnter(GameObject hitObj)
+        {
+            base.OnEffectVolumeEnter(hitObj);
+            if (hitObj.CompareTag("PlayerDetector"))
+            {
+                playerInside = true;
+            }
+        }
+
+        public override void OnEffectVolumeExit(GameObject hitObj)
+        {
+            base.OnEffectVolumeExit(hitObj);
+            if (hitObj.CompareTag("PlayerDetector"))
+            {
+                playerInside = false;
+            }
         }
 
         public override float GetDamagePerSecond(HazardDetector detector)

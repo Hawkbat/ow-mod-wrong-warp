@@ -57,7 +57,8 @@ namespace WrongWarp.Patches
                 visorEffects.Awake();
                 var hudCanvas = Locator.GetPlayerBody().GetComponentInChildren<HUDCanvas>();
                 hudCanvas.enabled = true;
-                hudCanvas._boostArrowIndicator.transform.root.GetComponentInChildren<ThrustAndAttitudeIndicator>().enabled = true;
+                if (hudCanvas._boostArrowIndicator.GetComponentInChildren<ThrustAndAttitudeIndicator>())
+                    hudCanvas._boostArrowIndicator.transform.root.GetComponentInChildren<ThrustAndAttitudeIndicator>().enabled = true;
                 WrongWarpMod.Instance.Respawner.RespawnPlayer();
                 WrongWarpMod.Instance.Respawner.RespawnShip();
             });

@@ -11,7 +11,13 @@ namespace WrongWarp.Modules
 {
     public class SignalTowerModule : WrongWarpModule
     {
-        private NotificationData notification;
+        NotificationData notification;
+        AudioSignal direlictSignal;
+
+        OWRigidbody alienShip;
+        OWRigidbody towerA;
+        OWRigidbody towerB;
+        OWRigidbody towerC;
 
         public SignalTowerModule(WrongWarpMod mod) : base(mod)
         {
@@ -21,6 +27,11 @@ namespace WrongWarp.Modules
         public override void OnSystemLoad()
         {
             GlobalMessenger.AddListener("ShipEnterCloakField", OnShipEnterCloakField);
+            alienShip = Mod.NewHorizonsApi.GetPlanet("WW_THE_DIRELICT").GetComponent<OWRigidbody>();
+            towerA = Mod.NewHorizonsApi.GetPlanet("WW_THE_ARCHIVIST").GetComponent<OWRigidbody>();
+            towerB = Mod.NewHorizonsApi.GetPlanet("WW_THE_GUIDE").GetComponent<OWRigidbody>();
+            towerC = Mod.NewHorizonsApi.GetPlanet("WW_THE_CURATOR").GetComponent<OWRigidbody>();
+            direlictSignal = alienShip.GetComponentsInChildren<AudioSignal>().First(s => s.name == "DirelictSignal");
         }
 
         public override void OnSystemUnload()
@@ -28,6 +39,7 @@ namespace WrongWarp.Modules
             GlobalMessenger.RemoveListener("ShipEnterCloakField", OnShipEnterCloakField);
             if (IsNotificationActivated())
                 DeactivateNotification();
+            direlictSignal = null;
         }
 
         public override void OnUpdate()
@@ -37,6 +49,8 @@ namespace WrongWarp.Modules
             if (IsNotificationActivated() && !ShouldActivateNotification())
                 DeactivateNotification();
         }
+
+        public AudioSignal GetDirelictSignal() => direlictSignal;
 
         private void OnShipEnterCloakField()
         {
@@ -131,36 +145,28 @@ namespace WrongWarp.Modules
             }
         }
 
-        public string GetSignalTowerStatusText(SignalTowerType type)
+        public OWRigidbody GetSignalTowerBody(SignalTowerType type)
         {
-            var player = Locator.GetPlayerBody();
-            var alienShip = Mod.NewHorizonsApi.GetPlanet("WW_THE_DIRELICT").GetComponent<OWRigidbody>();
-
             switch (type)
             {
                 case SignalTowerType.Archivist:
-                    if (Mod.SaveData.ArchivistSignalActive)
-                    {
-                        var towerA = Mod.NewHorizonsApi.GetPlanet("WW_THE_ARCHIVIST").GetComponent<OWRigidbody>();
-                        return $"Archivist: {GetDisplayDistance(towerA, player, alienShip)}";
-                    }
-                    return "Archivist: INACTIVE";
+                    return towerA;
                 case SignalTowerType.Guide:
-                    if (Mod.SaveData.GuideSignalActive)
-                    {
-                        var towerB = Mod.NewHorizonsApi.GetPlanet("WW_THE_GUIDE").GetComponent<OWRigidbody>();
-                        return $"Guide: {GetDisplayDistance(towerB, player, alienShip)}";
-                    }
-                    return "Guide: INACTIVE";
+                    return towerB;
                 case SignalTowerType.Curator:
-                    if (Mod.SaveData.CuratorSignalActive)
-                    {
-                        var towerC = Mod.NewHorizonsApi.GetPlanet("WW_THE_CURATOR").GetComponent<OWRigidbody>();
-                        return $"Curator: {GetDisplayDistance(towerC, player, alienShip)}";
-                    }
-                    return "Curator: INACTIVE";
+                    return towerC;
             }
-            return string.Empty;
+            return null;
+        }
+
+        public string GetSignalTowerStatusText(SignalTowerType type)
+        {
+            return $"{type}: {(IsSignalTowerActive(type) ? GetDisplayDistance(GetSignalTowerBody(type), Locator.GetPlayerBody(), alienShip) : "INACTIVE")}";
+        }
+
+        public float GetSignalTowerDistance(SignalTowerType type)
+        {
+            return Vector3.Distance(GetSignalTowerBody(type).GetPosition(), alienShip.GetPosition());
         }
 
         private string GetDisplayDistance(OWRigidbody a, OWRigidbody b, OWRigidbody c)

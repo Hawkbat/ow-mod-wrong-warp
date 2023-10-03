@@ -8,7 +8,7 @@ using WrongWarp.Configs;
 
 namespace WrongWarp.Components
 {
-    public class BioSensor : Sensor, IConfigurable<BioSensorConfig>
+    public class BioSensor : RadialSensor, IConfigurable<BioSensorConfig>
     {
 
         public void ApplyConfig(BioSensorConfig config)

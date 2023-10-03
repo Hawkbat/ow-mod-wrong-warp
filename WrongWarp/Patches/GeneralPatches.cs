@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
+using WrongWarp.Components;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Patches
 {
@@ -15,6 +18,7 @@ namespace WrongWarp.Patches
         {
             if (__instance.transform.parent && __instance.gameObject.name.StartsWith("$"))
             {
+                LogUtils.Warn($"Old TestTagScript hijack still in place at {UnityUtils.GetTransformPath(__instance.transform)}");
                 WrongWarpMod.Instance.ApplyModObjectType(__instance.transform.parent.gameObject, __instance.gameObject.name.Substring(1));
                 UnityEngine.Object.Destroy(__instance.gameObject);
                 return false;
@@ -54,6 +58,32 @@ namespace WrongWarp.Patches
                 return false;
             }
             return true;
+        }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(PlayerData), nameof(PlayerData.GetFreezeTimeWhileReadingTranslator))]
+        public static void PlayerData_GetFreezeTimeWhileReadingTranslator(ref bool __result)
+        {
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return;
+            if (__result)
+            {
+                if (ExoText.All.Any(t => t.IsHighlighted))
+                {
+                    __result = false;
+                }
+            }
+        }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(NomaiTextLine), nameof(NomaiTextLine.DetermineTextLineColor))]
+        public static void NomaiTextLine_DetermineTextLineColor(NomaiTextLine __instance, ref Color __result)
+        {
+            var exoText = ExoText.All.FirstOrDefault(t => t.TextLine == __instance);
+            if (exoText)
+            {
+                if (__instance._state != NomaiTextLine.VisualState.HIDDEN)
+                {
+                    __result = Sensor.IsActivated(exoText) ? exoText.ActiveColor : exoText.InactiveColor;
+                }
+            }
         }
     }
 }

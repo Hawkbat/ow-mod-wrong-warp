@@ -21,10 +21,9 @@ namespace WrongWarp.Modules
             var curator = Mod.NewHorizonsApi.GetPlanet("WW_THE_CURATOR");
             DoAfterFrames(1, () =>
             {
-                scanPulse = curator.GetComponentInChildren<ScanPulse>();
+                scanPulse = curator.GetComponentInChildren<ScanPulse>(true);
                 scanPulse.Target = Mod.NewHorizonsApi.GetPlanet("WW_CORE").transform;
             });
-
         }
 
         public override void OnSystemUnload()

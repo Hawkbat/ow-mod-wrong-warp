@@ -10,10 +10,6 @@ namespace WrongWarp.Components
 {
     public class ExoCorpse : WrongWarpBehaviour, IConfigurable<ExoCorpseConfig>
     {
-        public Sensor ScrambleSensor;
-        public GameObject ScrambledObj;
-        public GameObject UnscrambledObj;
-
         public void ApplyConfig(ExoCorpseConfig config)
         {
 
@@ -22,13 +18,6 @@ namespace WrongWarp.Components
         public override void WireUp()
         {
             Mod.ExoCorpses.All.Add(this);
-        }
-
-        public void Update()
-        {
-            var scrambled = Sensor.IsActivated(ScrambleSensor);
-            ScrambledObj.SetActive(scrambled);
-            UnscrambledObj.SetActive(!scrambled);
         }
     }
 }

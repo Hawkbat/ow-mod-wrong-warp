@@ -116,9 +116,19 @@ namespace WrongWarp.Modules
             shipDamageCtrl._invincible = true;
 
             MakeShipParticles(1f);
+            var spawnParticles = MakeShipParticles(1f, spawnPoint.transform);
 
             UnityUtils.DoAfterSeconds(Mod, 1f, () =>
             {
+                spawnParticles.transform.parent = null;
+                spawnParticles.gameObject.AddComponent<Rigidbody>();
+                var spawnRB = spawnParticles.gameObject.AddComponent<OWRigidbody>();
+                var spawnCUO = spawnParticles.gameObject.AddComponent<CenterOfTheUniverseOffsetApplier>();
+                spawnCUO._body = spawnRB;
+
+                spawnRB.WarpToPositionRotation(shipBody.transform.position, shipBody.transform.rotation);
+                spawnRB.SetVelocity(shipBody.GetVelocity());
+                
                 for (int i = 0; i < 10; i++)
                 {
                     UnityUtils.DoAfterSeconds(Mod, 0.1f * i, () =>
@@ -146,7 +156,7 @@ namespace WrongWarp.Modules
         GameObject cameraSpawnEffectPrefab;
         GameObject shipSpawnEffectPrefab;
 
-        public void MakeBodyParticles(float duration)
+        public TeleporterEffect MakeBodyParticles(float duration)
         {
             if (!playerSpawnEffectPrefab)
             {
@@ -159,9 +169,11 @@ namespace WrongWarp.Modules
             var teleporterFx = playerSpawnEffect.GetComponent<TeleporterEffect>();
             teleporterFx.Duration = duration;
             playerSpawnEffect.SetActive(true);
+
+            return teleporterFx;
         }
 
-        public void MakeCameraParticles(float duration)
+        public TeleporterEffect MakeCameraParticles(float duration)
         {
             if (!cameraSpawnEffectPrefab)
             {
@@ -174,9 +186,14 @@ namespace WrongWarp.Modules
             var teleporterFx = cameraSpawnEffect.GetComponent<TeleporterEffect>();
             teleporterFx.Duration = duration;
             cameraSpawnEffect.SetActive(true);
+
+            return teleporterFx;
         }
 
         public void MakeShipParticles(float duration)
+            => MakeShipParticles(duration, Locator.GetShipBody().transform);
+
+        public TeleporterEffect MakeShipParticles(float duration, Transform target)
         {
             if (!shipSpawnEffectPrefab)
             {
@@ -184,11 +201,12 @@ namespace WrongWarp.Modules
                 shipSpawnEffectPrefab.SetActive(false);
             }
 
-            var shipBody = Locator.GetShipBody();
-            var shipSpawnEffect = GameObject.Instantiate(shipSpawnEffectPrefab, shipBody.transform, false);
+            var shipSpawnEffect = GameObject.Instantiate(shipSpawnEffectPrefab, target, false);
             var teleporterFx = shipSpawnEffect.GetComponent<TeleporterEffect>();
             teleporterFx.Duration = duration;
             shipSpawnEffect.SetActive(true);
+
+            return teleporterFx;
         }
     }
 }

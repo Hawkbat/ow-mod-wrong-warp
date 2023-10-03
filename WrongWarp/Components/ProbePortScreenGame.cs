@@ -9,7 +9,7 @@ namespace WrongWarp.Components
 {
     public class ProbePortScreenGame : ProbePortScreen
     {
-        public List<EntityConfig> Entities;
+        public List<EntityConfig> Entities = new();
         public ProbeGame CurrentGame;
 
         public override string GetText()
