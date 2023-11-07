@@ -35,15 +35,24 @@ namespace WrongWarp.Components
                     if (sensor == nextSensor)
                     {
                         index++;
-                        if (index >= Sensors.Count) Activated = true;
+                        LogUtils.Log($"Correct Signal Activated ({index}/{Sensors.Count}) - {name}");
+                        if (index >= Sensors.Count)
+                        {
+                            Activated = true;
+                            LogUtils.Log($"Sequence Complete - {name}");
+                            Locator.GetPlayerAudioController()._oneShotExternalSource.PlayOneShot(AudioType.NomaiTractorBeamActivate);
+                        }
                         return;
                     }
                     else
                     {
                         index = 0;
+                        LogUtils.Log($"Wrong Signal Activated - {name}");
+                        Locator.GetPlayerAudioController()._oneShotExternalSource.PlayOneShot(AudioType.NomaiTractorBeamDeactivate);
                         if (sensor == Sensors[0])
                         {
                             index++;
+                            LogUtils.Log($"Correct Signal Activated ({index}/{Sensors.Count}) - {name}");
                         }
                     }
                 }

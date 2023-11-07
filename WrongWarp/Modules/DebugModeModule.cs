@@ -71,6 +71,10 @@ namespace WrongWarp.Modules
                 {
                     Mod.SaveData.HasDoneIntroTour = !Mod.SaveData.HasDoneIntroTour;
                 }
+                if (Keyboard.current[Key.Numpad9].wasPressedThisFrame)
+                {
+                    Mod.SaveData.RespawnDisabled = !Mod.SaveData.RespawnDisabled;
+                }
             }
             else if (inputMode == DebugInputMode.Spawn)
             {
@@ -170,6 +174,7 @@ namespace WrongWarp.Modules
                 GUILayout.Label($"{nameof(Key.Numpad6)} = {nameof(Mod.SaveData.ExhibitRestored)} ({Mod.SaveData.ExhibitRestored})");
                 GUILayout.Label($"{nameof(Key.Numpad7)} = {nameof(Mod.SaveData.ShipSpawnChanged)} ({Mod.SaveData.ShipSpawnChanged})");
                 GUILayout.Label($"{nameof(Key.Numpad8)} = {nameof(Mod.SaveData.HasDoneIntroTour)} ({Mod.SaveData.HasDoneIntroTour})");
+                GUILayout.Label($"{nameof(Key.Numpad9)} = {nameof(Mod.SaveData.RespawnDisabled)} ({Mod.SaveData.RespawnDisabled})");
             }
             else if (inputMode == DebugInputMode.Spawn)
             {

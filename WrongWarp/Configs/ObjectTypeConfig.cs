@@ -21,7 +21,6 @@ namespace WrongWarp.Configs
         public ScanPulseConfig scanPulse = null;
         public SignalBarrierConfig signalBarrier = null;
         public SignalDoorConfig signalDoor = null;
-        public SignalEmitterConfig signalEmitter = null;
         public SignalLightConfig signalLight = null;
     }
 }

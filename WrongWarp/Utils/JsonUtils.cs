@@ -38,6 +38,11 @@ namespace WrongWarp.Utils
             }
         }
 
+        public static T FromJson<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json);
+        }
+
         public class SafeStringEnumConverter : StringEnumConverter
         {
             public SafeStringEnumConverter() : base(typeof(CamelCaseNamingStrategy)) { }

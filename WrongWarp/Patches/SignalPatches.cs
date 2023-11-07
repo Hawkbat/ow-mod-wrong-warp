@@ -34,12 +34,6 @@ namespace WrongWarp.Patches
             return true;
         }
 
-        [HarmonyPostfix, HarmonyPatch(typeof(AudioSignal), nameof(AudioSignal.SignalNameToString))]
-        public static void AudioSignal_SignalNameToString(ref string __result)
-        {
-            __result = WrongWarpMod.Instance.DeviceSignals.GetCustomDisplayName(__result);
-        }
-
         [HarmonyPostfix, HarmonyPatch(typeof(AudioSignal), nameof(AudioSignal.UpdateSignalStrength))]
         public static void AudioSignal_UpdateSignalStrength(AudioSignal __instance, Signalscope scope, float distToClosestScopeObstruction)
         {

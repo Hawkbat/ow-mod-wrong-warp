@@ -29,9 +29,9 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
-            Sensors = GetComponentsAtPaths<Sensor>(SensorPaths);
-            LightOn = GetTransformAtPath("LightOn").GetComponent<MeshRenderer>();
-            LightOff = GetTransformAtPath("LightOff").GetComponent<MeshRenderer>();
+            if (!Sensors.Any() && SensorPaths.Any()) Sensors = GetComponentsAtPaths<Sensor>(SensorPaths);
+            if (!LightOn) LightOn = GetTransformAtPath("LightOn").GetComponent<MeshRenderer>();
+            if (!LightOff) LightOff = GetTransformAtPath("LightOff").GetComponent<MeshRenderer>();
             if (LightOn) matOn = LightOn.sharedMaterial;
             if (LightOff) matOff = LightOff.sharedMaterial;
             if (matOff) mat = new Material(matOff);

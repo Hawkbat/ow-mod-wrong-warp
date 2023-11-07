@@ -248,7 +248,6 @@ namespace WrongWarp
             ApplyModComponent(mo, config.scanPulse, (ScanPulse)null);
             ApplyModComponent(mo, config.signalBarrier, (SensorBarrier)null);
             ApplyModComponent(mo, config.signalDoor, (SensorDoor)null);
-            ApplyModComponent(mo, config.signalEmitter, (SensorEmitter)null);
             ApplyModComponent(mo, config.signalLight, (SensorLight)null);
         }
 

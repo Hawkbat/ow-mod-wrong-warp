@@ -20,5 +20,6 @@ namespace WrongWarp.Objects
         public bool playedMuseumMelody = false;
         public bool jammerActive = false;
         public bool exhibitRestored = false;
+        public bool respawnDisabled = false;
     }
 }

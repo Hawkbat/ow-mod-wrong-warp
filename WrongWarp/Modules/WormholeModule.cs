@@ -12,14 +12,16 @@ namespace WrongWarp.Modules
     {
         GameObject whiteHole;
         GameObject blackHole;
+        GameObject blackHoleWarpVolume;
 
         public WormholeModule(WrongWarpMod mod) : base(mod) { }
 
         public override void OnSystemLoad()
         {
             var core = Mod.NewHorizonsApi.GetPlanet("WW_CORE");
-            blackHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/Black Hole").gameObject;
-            whiteHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/White Hole").gameObject;
+            blackHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/WW_C_BLACK_HOLE").gameObject;
+            whiteHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/WW_C_WHITE_HOLE").gameObject;
+            blackHoleWarpVolume = UnityUtils.GetTransformAtPath(blackHole.transform, "./DestructionVolume").gameObject;
         }
 
         public override void OnSystemUnload()
@@ -46,6 +48,15 @@ namespace WrongWarp.Modules
             if (whiteHole && whiteHole.activeSelf && blackHoleActive)
             {
                 whiteHole.SetActive(false);
+            }
+            var warpVolumeActive = blackHoleActive && Mod.SaveData.RespawnDisabled;
+            if (blackHoleWarpVolume && !blackHoleWarpVolume.activeSelf && warpVolumeActive)
+            {
+                blackHoleWarpVolume.SetActive(true);
+            }
+            if (blackHoleWarpVolume && blackHoleWarpVolume.activeSelf && !warpVolumeActive)
+            {
+                blackHoleWarpVolume.SetActive(false);
             }
         }
     }

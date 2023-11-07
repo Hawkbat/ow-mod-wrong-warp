@@ -4,13 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
-    public class ProbePortScreenGame : ProbePortScreen
+    public class ProbePortScreenGame : ProbePortScreen, ISerializationCallbackReceiver
     {
-        public List<EntityConfig> Entities = new();
+        public GameConfig Config;
         public ProbeGame CurrentGame;
+
+        public string configJson;
+
+        public override void WireUp()
+        {
+            base.WireUp();
+            if (!string.IsNullOrEmpty(configJson))
+                Config = JsonUtils.FromJson<GameConfig>(configJson);
+        }
 
         public override string GetText()
         {
@@ -37,6 +47,24 @@ namespace WrongWarp.Components
             if (CurrentGame == null || CurrentGame.GameOver) return false;
             CurrentGame.Tick(dx, dy);
             return true;
+        }
+
+        public void OnBeforeSerialize()
+        {
+            if (Config != null && Config.Entities != null && Config.Entities.Length > 0)
+                configJson = JsonUtility.ToJson(Config);
+        }
+
+        public void OnAfterDeserialize()
+        {
+            if (Config != null && Config.Entities != null && Config.Entities.Length > 0)
+                configJson = JsonUtility.ToJson(Config);
+        }
+
+        [Serializable]
+        public class GameConfig
+        {
+            public EntityConfig[] Entities;
         }
 
         [Serializable]
@@ -101,7 +129,7 @@ namespace WrongWarp.Components
             public ProbeGame(ProbePort port, ProbePortScreenGame config)
             {
                 Port = port;
-                foreach (var entity in config.Entities)
+                foreach (var entity in config.Config.Entities)
                 {
                     Entities.Add(new Entity()
                     {
@@ -359,7 +387,8 @@ namespace WrongWarp.Components
                 => type >= EntityType.WallFull && type <= EntityType.WallSpiral;
 
             public bool IsWalkable(int x, int y)
-                => !Entities.Where(e => e.Type != EntityType.Probe && e.Type != EntityType.Crystal && e.Type != EntityType.GhostMatter).Any(e => e.Contains(x, y));
+                => Entities.Any(e => e.Type == EntityType.BlackHole && e.Contains(x, y))
+                || !Entities.Where(e => e.Type != EntityType.Probe && e.Type != EntityType.Crystal && e.Type != EntityType.GhostMatter).Any(e => e.Contains(x, y));
 
             public bool IsHazard(int x, int y)
                 => Entities.Any(e => e.Contains(x, y) && IsHazard(e.Type));

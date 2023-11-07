@@ -70,6 +70,12 @@ namespace WrongWarp.Modules
             set => SetAndSave(ref data.exhibitRestored, nameof(ExhibitRestored), value);
         }
 
+        public bool RespawnDisabled
+        {
+            get => data.respawnDisabled;
+            set => SetAndSave(ref data.respawnDisabled, nameof(RespawnDisabled), value);
+        }
+
         private void SetAndSave<T>(ref T data, string name, T value) where T : IEquatable<T>
         {
             if (!value.Equals(data))

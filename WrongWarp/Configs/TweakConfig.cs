@@ -16,6 +16,5 @@ namespace WrongWarp.Configs
         public IntroTourConfig introTour = new IntroTourConfig();
         public EyeSequenceConfig eyeSequence = new EyeSequenceConfig();
         public Dictionary<string, ObjectTypeConfig> objectTypes = new Dictionary<string, ObjectTypeConfig>();
-        public Dictionary<string, SignalConfig> signalPool = new Dictionary<string, SignalConfig>();
     }
 }

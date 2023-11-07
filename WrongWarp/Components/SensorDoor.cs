@@ -43,10 +43,10 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
-            Sensors = GetComponentsAtPaths<Sensor>(SensorPaths);
-            Pivot = GetTransformAtPath("Pivot");
-            StartPoint = GetTransformAtPath("Start");
-            EndPoint = GetTransformAtPath("End");
+            if (!Sensors.Any()) Sensors = GetComponentsAtPaths<Sensor>(SensorPaths);
+            if (!Pivot) Pivot = GetTransformAtPath("Pivot");
+            if (!StartPoint) StartPoint = GetTransformAtPath("Start");
+            if (!EndPoint) EndPoint = GetTransformAtPath("End");
         }
 
         public void Update()
