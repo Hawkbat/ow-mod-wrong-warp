@@ -16,6 +16,8 @@ namespace WrongWarp.Components
             {
                 if (WrongWarpMod.Instance.SaveData.HasPlayedMuseumMelody && !WrongWarpMod.Instance.SaveData.RespawnDisabled)
                 {
+                    var notification = new NotificationData(NotificationTarget.All, $"EMERGENCY RESPAWN ACTIVATED");
+                    NotificationManager.SharedInstance.PostNotification(notification);
                     WrongWarpMod.Instance.Respawner.RespawnPlayer();
                     WrongWarpMod.Instance.Respawner.RespawnShip();
                 }

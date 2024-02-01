@@ -14,6 +14,8 @@ namespace WrongWarp.Components
 
         int index;
 
+        public int GetCurrentStep() => index;
+
         public override float ComputeStrength() => Activated ? 1f : 0f;
 
         public override void WireUp()
@@ -48,7 +50,6 @@ namespace WrongWarp.Components
                     {
                         index = 0;
                         LogUtils.Log($"Wrong Signal Activated - {name}");
-                        Locator.GetPlayerAudioController()._oneShotExternalSource.PlayOneShot(AudioType.NomaiTractorBeamDeactivate);
                         if (sensor == Sensors[0])
                         {
                             index++;

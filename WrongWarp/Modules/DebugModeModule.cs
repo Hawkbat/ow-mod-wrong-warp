@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using WrongWarp.Objects;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
@@ -91,6 +92,22 @@ namespace WrongWarp.Modules
                     if (Keyboard.current[Key.Numpad2].wasPressedThisFrame)
                     {
                         Mod.Respawner.RespawnShip();
+                    }
+                    if (Keyboard.current[Key.Numpad4].wasPressedThisFrame)
+                    {
+                        WarpToSpawnPoint("SPAWN_Guide");
+                    }
+                    if (Keyboard.current[Key.Numpad5].wasPressedThisFrame)
+                    {
+                        WarpToSpawnPoint("SPAWN_Archivist");
+                    }
+                    if (Keyboard.current[Key.Numpad6].wasPressedThisFrame)
+                    {
+                        WarpToSpawnPoint("SPAWN_Curator");
+                    }
+                    if (Keyboard.current[Key.Numpad7].wasPressedThisFrame)
+                    {
+                        WarpToSpawnPoint("SPAWN_Direlict");
                     }
                 }
                 else if (LoadManager.GetCurrentScene() == OWScene.SolarSystem)
@@ -183,6 +200,10 @@ namespace WrongWarp.Modules
                 {
                     GUILayout.Label($"{nameof(Key.Numpad1)} = Respawn Player");
                     GUILayout.Label($"{nameof(Key.Numpad2)} = Respawn Ship");
+                    GUILayout.Label($"{nameof(Key.Numpad4)} = SPAWN_Guide");
+                    GUILayout.Label($"{nameof(Key.Numpad5)} = SPAWN_Archivist");
+                    GUILayout.Label($"{nameof(Key.Numpad6)} = SPAWN_Curator");
+                    GUILayout.Label($"{nameof(Key.Numpad7)} = SPAWN_Direlict");
                 }
                 else if (LoadManager.GetCurrentScene() == OWScene.SolarSystem)
                 {
@@ -209,7 +230,9 @@ namespace WrongWarp.Modules
         void WarpToSpawnPoint(string spawnPointName)
         {
             var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
-            var spawnPoint = spawner._spawnList.FirstOrDefault(s => s.name == spawnPointName);
+            var spawnPoints = GameObject.FindObjectsOfType<SpawnPoint>();
+            LogUtils.Log(string.Join(", ", spawnPoints.Select(s => s.name)));
+            var spawnPoint = spawnPoints.First(s => s.name == spawnPointName);
             if (spawnPoint is EyeSpawnPoint eyeSpawn)
             {
                 Locator.GetEyeStateManager().SetState(eyeSpawn.GetEyeState());

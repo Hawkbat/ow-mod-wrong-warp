@@ -38,6 +38,11 @@ namespace WrongWarp.Modules
                 DeactivateNotification();
         }
 
+        public OverheatHazardVolume GetOverheatVolume()
+        {
+            return overheatVolume;
+        }
+
         private bool IsNotificationActivated() => notification != null;
 
         private bool ShouldActivateNotification() => overheatVolume;

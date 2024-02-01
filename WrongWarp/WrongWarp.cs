@@ -41,6 +41,7 @@ namespace WrongWarp
         public QuantumExhibitModule QuantumExhibit;
         public RespawnerModule Respawner;
         public SignalTowerModule SignalTowers;
+        public TumbleLockModule TumbleLocks;
         public WarpModule Warp;
         public WormholeModule Wormhole;
         public int SystemLoadCounter;
@@ -72,6 +73,7 @@ namespace WrongWarp
             QuantumExhibit = new QuantumExhibitModule(this);
             Respawner = new RespawnerModule(this);
             SignalTowers = new SignalTowerModule(this);
+            TumbleLocks = new TumbleLockModule(this);
             Warp = new WarpModule(this);
             Wormhole = new WormholeModule(this);
 
@@ -111,8 +113,8 @@ namespace WrongWarp
                 UnityUtils.DoAfterFrames(this, 2, () =>
                 {
                     var playerCam = Locator.GetPlayerCamera();
-                    if (playerCam && playerCam.mainCamera)
-                        playerCam.mainCamera.depthTextureMode = DepthTextureMode.DepthNormals;
+
+                    playerCam.mainCamera.gameObject.AddComponent<HeatImageEffect>();
 
                     foreach (var planet in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects().Where(o => o.name.StartsWith("WW_COREAsteroid")))
                     {

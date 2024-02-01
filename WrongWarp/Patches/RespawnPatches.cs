@@ -17,13 +17,30 @@ namespace WrongWarp.Patches
         [HarmonyPrefix, HarmonyPatch(typeof(DeathManager), nameof(DeathManager.KillPlayer))]
         public static bool DeathManager_KillPlayer(DeathManager __instance, DeathType __0)
         {
+            isRespawn = false;
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
             if (!WrongWarpMod.Instance.SaveData.HasDoneIntroTour) return true;
+            WrongWarpMod.Instance.Respawner.OverwriteFlashback();
             if (WrongWarpMod.Instance.SaveData.RespawnDisabled) return true;
             if (__0 == DeathType.Dream || __0 == DeathType.DreamExplosion || __0 == DeathType.Supernova || __0 == DeathType.TimeLoop || __0 == DeathType.Meditation)
             {
                 return true;
             }
+
+            if (__0 == DeathType.Default)
+            {
+                var spawnPoint = WrongWarpMod.Instance.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
+                .GetComponentsInChildren<SpawnPoint>(true)
+                .FirstOrDefault(s => !s.IsShipSpawn());
+
+                var overheatVolume = GameObject.FindObjectOfType<Components.OverheatHazardVolume>();
+                var damage = overheatVolume.GetRawDamageAt(spawnPoint.transform.position);
+                if (damage > overheatVolume.SuitlessDamageReduction)
+                {
+                    return true;
+                }
+            }
+
             isRespawn = true;
             __instance._isDying = true;
             __instance._deathType = __0;

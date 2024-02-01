@@ -40,6 +40,12 @@ namespace WrongWarp.Components
 
         void Update()
         {
+            var cam = Locator.GetPlayerCamera();
+            if (cam)
+            {
+                transform.localPosition = transform.parent.InverseTransformDirection(cam.mainCamera.transform.forward);
+            }
+
             var radius = GetRadius();
             shape.radius = radius;
             foreach (var o in ScaledObjects)

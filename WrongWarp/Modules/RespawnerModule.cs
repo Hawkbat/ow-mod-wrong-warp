@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ModDataTools.Utilities;
+using Steamworks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +13,8 @@ namespace WrongWarp.Modules
 {
     public class RespawnerModule : WrongWarpModule
     {
+        AssetBundle flashbackAssetBundle;
+
         bool isRespawningPlayer;
         bool isRespawningShip;
 
@@ -41,7 +45,7 @@ namespace WrongWarp.Modules
 
         private void OnPlayerDeath(DeathType deathType)
         {
-            if (Mod.IsInWrongWarpSystem)
+            if (Mod.IsInWrongWarpSystem && !Mod.SaveData.RespawnDisabled)
             {
                 MakeCameraParticles(3f);
                 MakeBodyParticles(3f);
@@ -50,6 +54,7 @@ namespace WrongWarp.Modules
         }
 
         Texture2D flashbackTex;
+        GameObject maskReplacementPrefab;
 
         private void FlashbackStart()
         {
@@ -68,8 +73,58 @@ namespace WrongWarp.Modules
                 flashback._matPropBlock_Streams.SetColor("_EmissionColor", Mod.TweakConfig.flashbackColor);
                 flashback._matPropBlock_Streams.SetTexture("_MainTex", flashbackTex);
 
-                flashback._maskTransform.gameObject.SetActive(false);
+                var mask = flashback._maskTransform.Find("Props_NOM_Mask");
+                mask.gameObject.SetActive(false);
+
+                if (!maskReplacementPrefab)
+                {
+                    maskReplacementPrefab = Mod.SystemAssetBundle.LoadAsset<GameObject>("Assets/ModAssets/Shared/Objects/FlashbackMaskReplacement.prefab");
+                    maskReplacementPrefab.SetActive(false);
+                }
+
+                var maskReplacement = UnityEngine.Object.Instantiate(maskReplacementPrefab);
+                maskReplacement.transform.parent = flashback._maskTransform;
+                maskReplacement.transform.localPosition = Vector3.zero;
+                maskReplacement.transform.localRotation = Quaternion.identity;
+                maskReplacement.layer = (int)OuterWildsLayer.Flashback;
+                maskReplacement.SetActive(true);
+
+                var snapshotDuration = 0f;
+                var snapshotCount = GetFinalFlashbackImageCount();
+                for (int i = 0; i < snapshotCount; i++)
+                {
+                    snapshotDuration += GetFinalFlashbackImageDuration();
+                    flashback._imageDisplayTimes[snapshotCount - 1 - i] = snapshotDuration;
+                }
+                flashback._snapshotIndex = snapshotCount - 1;
+                flashback._flashbackTimer = new Timer(flashback._flashbackStartDelay + flashback._playbackDelay + snapshotDuration);
             }
+            Mod.StartCoroutine(DoPlayFinalFlashbackSong());
+        }
+
+        System.Collections.IEnumerator DoPlayFinalFlashbackSong()
+        {
+            var flashback = UnityEngine.Object.FindObjectOfType<Flashback>();
+            var startDelay = flashback._flashbackStartDelay + flashback._playbackDelay;
+            var finalSongClip = Mod.SystemAssetBundle.LoadAsset<AudioClip>("Assets/ModAssets/Shared/Audio/FinalFlashback.ogg");
+            yield return new WaitForSeconds(startDelay);
+            flashback._audioController._oneShotSource.PlayOneShot(finalSongClip);
+        }
+
+        float GetFinalFlashbackImageDuration()
+        {
+            var beatsPerMinute = 92f;
+            var secondsPerBeat = 60f / beatsPerMinute;
+            return secondsPerBeat;
+        }
+
+        int GetFinalFlashbackImageCount()
+        {
+            var beatsPerMeasure = 4;
+            var totalMeasures = 68;
+            var totalBeats = beatsPerMeasure * totalMeasures;
+            var imageCount = totalBeats;
+            return imageCount;
         }
 
         public void RespawnPlayer()
@@ -149,7 +204,6 @@ namespace WrongWarp.Modules
                     isRespawningShip = false;
                 });
             });
-
         }
 
         GameObject playerSpawnEffectPrefab;
@@ -207,6 +261,82 @@ namespace WrongWarp.Modules
             shipSpawnEffect.SetActive(true);
 
             return teleporterFx;
+        }
+
+        public void OverwriteFlashback()
+        {
+            if (flashbackAssetBundle == null)
+            {
+                flashbackAssetBundle = Mod.ModHelper.Assets.LoadBundle("assetbundles/flashback");
+            }
+
+            var textures = flashbackAssetBundle.LoadAllAssets<Texture2D>();
+
+            var flashback = GameObject.FindObjectOfType<Flashback>();
+            var recorder = flashback._flashbackRecorder;
+
+            var oldArray = recorder._renderTextureArray;
+            var newArray = new RenderTexture[oldArray.Length];
+
+            var oldDreamWorldArray = recorder._isSnapshotInDreamWorld;
+            var newDreamWorldArray = new bool[newArray.Length];
+
+            int oldFlashbackLength = recorder._numCapturedSnapshots;
+            int newFlashbackLength = GetFinalFlashbackImageCount();
+
+            float dstH = (PlayerData.GetGraphicSettings().textureQuality == TextureQuality.FULL) ? 270 : 135;
+            float screenAspect = (float)Screen.width / Screen.height;
+            float dstW = Mathf.Round(dstH * screenAspect);
+
+            int originalStride = 2;
+
+            int overwriteIndex = 0;
+            int originalIndex = oldFlashbackLength - 1;
+            int outputIndex = newArray.Length - 1;
+            int sparesIndex = oldFlashbackLength;
+
+            while (outputIndex >= 0)
+            {
+                if (outputIndex % originalStride == 0 || originalIndex < 0)
+                {
+                    RenderTexture renderTexture;
+                    if (sparesIndex < oldArray.Length)
+                    {
+                        renderTexture = oldArray[sparesIndex++];
+                    } else
+                    {
+                        renderTexture = new RenderTexture(Mathf.RoundToInt(dstW), Mathf.RoundToInt(dstH), 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+                        renderTexture.name = "FlashbackRenderTex_" + outputIndex;
+                    }
+
+                    var texture = textures[overwriteIndex++];
+                    overwriteIndex %= textures.Length;
+
+                    newDreamWorldArray[outputIndex] = true;
+                    newArray[outputIndex--] = renderTexture;
+
+                    float srcW = texture.width;
+                    float srcH = texture.height;
+
+                    float scaleFactor = Mathf.Max(dstW / srcW, dstH / srcH);
+
+                    Vector2 scale = Vector2.one;
+                    Vector2 offset = Vector2.zero;
+
+                    Graphics.Blit(texture, renderTexture, scale, offset);
+                }
+                else
+                {
+                    newDreamWorldArray[outputIndex] = oldDreamWorldArray[outputIndex];
+                    newArray[outputIndex--] = oldArray[originalIndex--];
+                }
+            }
+
+            recorder._renderTextureArray = newArray;
+            recorder._isSnapshotInDreamWorld = newDreamWorldArray;
+            recorder._numCapturedSnapshots = newFlashbackLength;
+
+            flashbackAssetBundle.Unload(true);
         }
     }
 }

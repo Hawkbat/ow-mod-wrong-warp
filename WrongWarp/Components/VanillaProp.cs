@@ -71,7 +71,6 @@ namespace WrongWarp.Components
                 prop.transform.localEulerAngles = Vector3.zero;
                 prop.transform.localScale = Vector3.one;
 
-
                 var pictureFrameInterface = prop.GetComponentInChildren<PictureFrameDoorInterface>();
                 if (pictureFrameInterface != null)
                 {
