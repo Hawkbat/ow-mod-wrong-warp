@@ -47,8 +47,8 @@ namespace WrongWarp.Components
         {
             AudioSource = GetComponent<OWAudioSource>();
             var probe = Locator.GetProbe();
-            probe.OnAnchorProbe += ProbePort_OnAnchorProbe;
-            probe.OnUnanchorProbe += ProbePort_OnUnanchorProbe;
+            probe.OnAnchorProbe += SurveyorProbe_OnAnchorProbe;
+            probe.OnStartRetrieveProbe += SurveyorProbe_OnStartRetrieveProbe;
             GlobalMessenger<ProbeCamera>.AddListener("ProbeSnapshot", cam =>
             {
                 if (cam == probe.GetRotatingCamera() && IsProbeInPort())
@@ -107,7 +107,7 @@ namespace WrongWarp.Components
             return anchor?._probeBody.transform.parent == Socket;
         }
 
-        private void ProbePort_OnAnchorProbe()
+        private void SurveyorProbe_OnAnchorProbe()
         {
             var probe = Locator.GetProbe();
             var anchor = probe?.GetAnchor();
@@ -132,7 +132,7 @@ namespace WrongWarp.Components
             }
         }
 
-        private void ProbePort_OnUnanchorProbe()
+        private void SurveyorProbe_OnStartRetrieveProbe(float retrieveLength)
         {
             if (InterfaceCanvas)
             {
