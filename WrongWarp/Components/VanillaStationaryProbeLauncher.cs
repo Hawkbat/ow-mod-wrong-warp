@@ -11,7 +11,7 @@ namespace WrongWarp.Components
 {
     public class VanillaStationaryProbeLauncher : WrongWarpBehaviour
     {
-        public string PropPath;
+        public string PropPath = "TimberHearth_Body/Sector_TH/Sector_Village/Interactables_Village/TutorialCamera_Base/";
         public float InitialDegreesY;
         public bool LockInputY;
         public bool PhotosOnly;
@@ -31,9 +31,10 @@ namespace WrongWarp.Components
                 prop.transform.localScale = Vector3.one;
                 var launcher = prop.GetComponent<StationaryProbeLauncher>();
                 if (launcher != null) {
+                    var RealY = InitialDegreesY - 10;
                     launcher._verticalPivot.localEulerAngles = new Vector3(350, 0, 0);
                     launcher._photosOnly = PhotosOnly;
-                    launcher._initialDegreesY = InitialDegreesY;
+                    launcher._initialDegreesY = RealY;
                     launcher._lockInputY= LockInputY;
                     launcher._returnToStartPos = ReturnToStartPos;
                     launcher._interactVolume.transform.localPosition += interactPointOffset;
@@ -41,11 +42,11 @@ namespace WrongWarp.Components
                     launcher._initRotX = launcher.transform.localRotation;
                     launcher._initRotY = launcher._verticalPivot.localRotation;
                     launcher._localUpAxis = launcher.transform.parent.InverseTransformDirection(launcher.transform.up);
-                    launcher._degreesY = InitialDegreesY;
+                    launcher._degreesY = RealY;
                     launcher.transform.localRotation = Quaternion.AngleAxis(launcher._degreesX, launcher._localUpAxis) * launcher._initRotX;
                     launcher._verticalPivot.localRotation = Quaternion.AngleAxis(launcher._degreesY, -Vector3.right) * launcher._initRotY;
-
-                    launcher._attachPoint.enabled = false;
+                    launcher._attachPoint.enabled= true;        //not sure if neccessary, but works
+                    UnityUtils.DoAfterFrames(Mod, 1, () => launcher._attachPoint.enabled = false);
 
 
 
