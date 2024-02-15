@@ -44,6 +44,11 @@ namespace WrongWarp.Components
                     launcher._degreesY = InitialDegreesY;
                     launcher.transform.localRotation = Quaternion.AngleAxis(launcher._degreesX, launcher._localUpAxis) * launcher._initRotX;
                     launcher._verticalPivot.localRotation = Quaternion.AngleAxis(launcher._degreesY, -Vector3.right) * launcher._initRotY;
+
+                    launcher._attachPoint.enabled = false;
+
+
+
                 }
             }
         }
