@@ -82,7 +82,7 @@ namespace WrongWarp.Modules
 
         public bool IsApostateEnding()
         {
-            return Mod.SaveData.ExhibitRestored;
+            return Mod.SaveData[SaveDataFlag.ExhibitRestored];
         }
 
         public void SetupEyeSequence()

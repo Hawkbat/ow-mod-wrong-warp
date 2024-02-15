@@ -64,7 +64,7 @@ namespace WrongWarp.Modules
 
         private bool IsNotificationActivated() => notification != null;
 
-        private bool ShouldActivateNotification() => Mod.SaveData.ArchivistSignalActive || Mod.SaveData.GuideSignalActive || Mod.SaveData.CuratorSignalActive;
+        private bool ShouldActivateNotification() => Mod.SaveData[SaveDataFlag.ArchivistSignalActive] || Mod.SaveData[SaveDataFlag.GuideSignalActive] || Mod.SaveData[SaveDataFlag.CuratorSignalActive];
 
         private void ActivateNotification()
         {
@@ -86,17 +86,17 @@ namespace WrongWarp.Modules
         public string GetNotificationText()
         {
             string displayMessage = "";
-            if (Mod.SaveData.ArchivistSignalActive || Mod.SaveData.GuideSignalActive || Mod.SaveData.CuratorSignalActive)
+            if (Mod.SaveData[SaveDataFlag.ArchivistSignalActive] || Mod.SaveData[SaveDataFlag.GuideSignalActive] || Mod.SaveData[SaveDataFlag.CuratorSignalActive])
             {
-                if (Mod.SaveData.ArchivistSignalActive)
+                if (Mod.SaveData[SaveDataFlag.ArchivistSignalActive])
                 {
                     displayMessage += $"{GetSignalTowerStatusText(SignalTowerType.Archivist)}\n";
                 }
-                if (Mod.SaveData.GuideSignalActive)
+                if (Mod.SaveData[SaveDataFlag.GuideSignalActive])
                 {
                     displayMessage += $"{GetSignalTowerStatusText(SignalTowerType.Guide)}\n";
                 }
-                if (Mod.SaveData.CuratorSignalActive)
+                if (Mod.SaveData[SaveDataFlag.CuratorSignalActive])
                 {
                     displayMessage += $"{GetSignalTowerStatusText(SignalTowerType.Curator)}\n";
                 }
@@ -122,9 +122,9 @@ namespace WrongWarp.Modules
         {
             switch (type)
             {
-                case SignalTowerType.Archivist: return Mod.SaveData.ArchivistSignalActive;
-                case SignalTowerType.Curator: return Mod.SaveData.CuratorSignalActive;
-                case SignalTowerType.Guide: return Mod.SaveData.GuideSignalActive;
+                case SignalTowerType.Archivist: return Mod.SaveData[SaveDataFlag.ArchivistSignalActive];
+                case SignalTowerType.Curator: return Mod.SaveData[SaveDataFlag.CuratorSignalActive];
+                case SignalTowerType.Guide: return Mod.SaveData[SaveDataFlag.GuideSignalActive];
             }
             return false;
         }
@@ -134,13 +134,13 @@ namespace WrongWarp.Modules
             switch (type)
             {
                 case SignalTowerType.Archivist:
-                    Mod.SaveData.ArchivistSignalActive = active;
+                    Mod.SaveData[SaveDataFlag.ArchivistSignalActive] = active;
                     return;
                 case SignalTowerType.Curator:
-                    Mod.SaveData.CuratorSignalActive = active;
+                    Mod.SaveData[SaveDataFlag.CuratorSignalActive] = active;
                     return;
                 case SignalTowerType.Guide:
-                    Mod.SaveData.GuideSignalActive = active;
+                    Mod.SaveData[SaveDataFlag.GuideSignalActive] = active;
                     return;
             }
         }

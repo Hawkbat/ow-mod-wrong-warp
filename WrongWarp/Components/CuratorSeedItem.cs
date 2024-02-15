@@ -24,13 +24,13 @@ namespace WrongWarp.Components
         {
             base.Awake();
             _type = customItemType;
-            WrongWarpMod.Instance.SaveData.RespawnDisabled = false;
+            WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled] = false;
         }
 
         public override void PickUpItem(Transform holdTranform)
         {
             base.PickUpItem(holdTranform);
-            WrongWarpMod.Instance.SaveData.RespawnDisabled = true;
+            WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled] = true;
         }
 
         public override string GetDisplayName()

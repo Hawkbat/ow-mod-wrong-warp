@@ -17,72 +17,17 @@ namespace WrongWarp.Modules
         private SaveData data = null;
         private bool saveNextFrame;
 
-        public bool WrongWarpTaken
+        public bool this[SaveDataFlag flag]
         {
-            get => data.wrongWarpTaken;
-            set => SetAndSave(ref data.wrongWarpTaken, nameof(WrongWarpTaken), value);
-        }
-
-        public bool HasDoneIntroTour
-        {
-            get => data.doneIntroTour;
-            set => SetAndSave(ref data.doneIntroTour, nameof(HasDoneIntroTour), value);
-        }
-
-        public bool ShipSpawnChanged
-        {
-            get => data.shipSpawnChanged;
-            set => SetAndSave(ref data.shipSpawnChanged, nameof(ShipSpawnChanged), value);
-        }
-
-        public bool ArchivistSignalActive
-        {
-            get => data.archivistSignalActive;
-            set => SetAndSave(ref data.archivistSignalActive, nameof(ArchivistSignalActive), value);
-        }
-
-        public bool GuideSignalActive
-        {
-            get => data.guideSignalActive;
-            set => SetAndSave(ref data.guideSignalActive, nameof(GuideSignalActive), value);
-        }
-        public bool CuratorSignalActive
-        {
-            get => data.curatorSignalActive;
-            set => SetAndSave(ref data.curatorSignalActive, nameof(CuratorSignalActive), value);
-        }
-
-        public bool HasPlayedMuseumMelody
-        {
-            get => data.playedMuseumMelody;
-            set => SetAndSave(ref data.playedMuseumMelody, nameof(HasPlayedMuseumMelody), value);
-        }
-
-        public bool SignalJammerDisabled
-        {
-            get => data.jammerActive;
-            set => SetAndSave(ref data.jammerActive, nameof(SignalJammerDisabled), value);
-        }
-
-        public bool ExhibitRestored
-        {
-            get => data.exhibitRestored;
-            set => SetAndSave(ref data.exhibitRestored, nameof(ExhibitRestored), value);
-        }
-
-        public bool RespawnDisabled
-        {
-            get => data.respawnDisabled;
-            set => SetAndSave(ref data.respawnDisabled, nameof(RespawnDisabled), value);
-        }
-
-        private void SetAndSave<T>(ref T data, string name, T value) where T : IEquatable<T>
-        {
-            if (!value.Equals(data))
-            {
-                LogUtils.Success($"Changing {name} from {data} to {value}");
-                data = value;
-                Save();
+            get => data[flag];
+            set {
+                var oldValue = data[flag];
+                if (!value.Equals(oldValue))
+                {
+                    LogUtils.Success($"Changing {flag} from {oldValue} to {value}");
+                    data[flag] = value;
+                    Save();
+                }
             }
         }
 

@@ -14,7 +14,7 @@ namespace WrongWarp.Components
         {
             if (hitObj.CompareTag("PlayerDetector"))
             {
-                if (WrongWarpMod.Instance.SaveData.HasPlayedMuseumMelody && !WrongWarpMod.Instance.SaveData.RespawnDisabled)
+                if (WrongWarpMod.Instance.SaveData[SaveDataFlag.HasPlayedMuseumMelody] && !WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
                 {
                     var notification = new NotificationData(NotificationTarget.All, $"EMERGENCY RESPAWN ACTIVATED");
                     NotificationManager.SharedInstance.PostNotification(notification);

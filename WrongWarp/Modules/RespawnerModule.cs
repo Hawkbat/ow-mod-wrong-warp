@@ -27,7 +27,7 @@ namespace WrongWarp.Modules
         {
             GlobalMessenger<DeathType>.AddListener("PlayerDeath", OnPlayerDeath);
             GlobalMessenger.AddListener("FlashbackStart", FlashbackStart);
-            if (Mod.SaveData.HasDoneIntroTour)
+            if (Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
             {
                 DoAfterSeconds(0.1f, () =>
                 {
@@ -45,7 +45,7 @@ namespace WrongWarp.Modules
 
         private void OnPlayerDeath(DeathType deathType)
         {
-            if (Mod.IsInWrongWarpSystem && !Mod.SaveData.RespawnDisabled)
+            if (Mod.IsInWrongWarpSystem && !Mod.SaveData[SaveDataFlag.RespawnDisabled])
             {
                 MakeCameraParticles(3f);
                 MakeBodyParticles(3f);
@@ -153,7 +153,7 @@ namespace WrongWarp.Modules
             isRespawningShip = true;
 
             SpawnPoint spawnPoint;
-            if (Mod.SaveData.ShipSpawnChanged)
+            if (Mod.SaveData[SaveDataFlag.ShipSpawnChanged])
             {
                 spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_SEEKERS_EXHIBIT")
                     .GetComponentsInChildren<SpawnPoint>(true)

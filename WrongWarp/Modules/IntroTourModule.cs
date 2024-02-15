@@ -25,7 +25,7 @@ namespace WrongWarp.Modules
                 {
                     vesselBody = vessel.GetAttachedOWRigidbody();
                     GlobalMessenger<DeathType>.AddListener("PlayerDeath", OnDiedInIntroTour);
-                    Mod.SaveData.HasDoneIntroTour = false;
+                    Mod.SaveData[SaveDataFlag.HasDoneIntroTour] = false;
                     DoAfterSeconds(0.1f, () => {
                         StartSequence();
                     });
@@ -49,7 +49,7 @@ namespace WrongWarp.Modules
 
         private void OnDiedInIntroTour(DeathType deathType)
         {
-            Mod.SaveData.HasDoneIntroTour = true;
+            Mod.SaveData[SaveDataFlag.HasDoneIntroTour] = true;
             GlobalMessenger<DeathType>.RemoveListener("PlayerDeath", OnDiedInIntroTour);
         }
 

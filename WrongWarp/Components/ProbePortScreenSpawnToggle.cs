@@ -8,7 +8,7 @@ namespace WrongWarp.Components
 {
     public class ProbePortScreenSpawnToggle : ProbePortScreen
     {
-        public bool IsActive => Mod.SaveData.ShipSpawnChanged;
+        public bool IsActive => Mod.SaveData[SaveDataFlag.ShipSpawnChanged];
 
         public override string GetText() => $"[EXHIBIT_OWNERSHIP]\nOBJ_SHIP_HEARTHIAN=\n< {(IsActive ? "EXH_SEEKER" : "EXH_HEARTHIAN")} >{(Mod.Respawner.IsRespawningShip ? "\nPROCESSING..." : "")}";
 
@@ -17,7 +17,7 @@ namespace WrongWarp.Components
             if (dy == 0)
             {
                 if (Mod.Respawner.IsRespawningShip) return false;
-                Mod.SaveData.ShipSpawnChanged = !Mod.SaveData.ShipSpawnChanged;
+                Mod.SaveData[SaveDataFlag.ShipSpawnChanged] = !Mod.SaveData[SaveDataFlag.ShipSpawnChanged];
                 Mod.Respawner.RespawnShip();
                 return true;
             }

@@ -32,7 +32,7 @@ namespace WrongWarp.Modules
 
         public void TriggerNote(Exhibit exhibit)
         {
-            if (!Mod.SaveData.ExhibitRestored) return;
+            if (!Mod.SaveData[SaveDataFlag.ExhibitRestored]) return;
             
             var note = exhibit.Note;
 
@@ -60,7 +60,7 @@ namespace WrongWarp.Modules
 
         private void NoteSequenceComplete()
         {
-            Mod.SaveData.HasPlayedMuseumMelody = true;
+            Mod.SaveData[SaveDataFlag.HasPlayedMuseumMelody] = true;
             LogUtils.Success($"Played right note sequence!");
         }
     }

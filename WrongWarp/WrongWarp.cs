@@ -105,7 +105,7 @@ namespace WrongWarp
             if (system == SOLAR_SYSTEM_NAME)
             {
                 IsInWrongWarpSystem = true;
-                SaveData.WrongWarpTaken = true;
+                SaveData[SaveDataFlag.WrongWarpTaken] = true;
                 SystemLoadCounter++;
                 SetupNewHorizonsConfigObjectTypes();
                 foreach (var module in Modules) module.OnSystemLoad();
@@ -126,11 +126,11 @@ namespace WrongWarp
             } else if (wasSystemChange)
             {
                 IsInWrongWarpSystem = false;
-                SaveData.WrongWarpTaken = false;
+                SaveData[SaveDataFlag.WrongWarpTaken] = false;
             } else
             {
                 IsInWrongWarpSystem = false;
-                if (SaveData.WrongWarpTaken)
+                if (SaveData[SaveDataFlag.WrongWarpTaken])
                 {
                     Warp.WarpToWrongWarpSystem();
                 }

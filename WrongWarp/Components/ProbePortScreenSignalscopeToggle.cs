@@ -8,7 +8,7 @@ namespace WrongWarp.Components
 {
     public class ProbePortScreenSignalscopeToggle : ProbePortScreen
     {
-        public bool IsActive => Mod.SaveData.SignalJammerDisabled;
+        public bool IsActive => Mod.SaveData[SaveDataFlag.SignalJammerDisabled];
 
         public override string GetText()
             => $"[QUANTUM SIGNALSCOPE]\n< {(IsActive ? "ENABLED" : "DISABLED")} >";
@@ -17,7 +17,7 @@ namespace WrongWarp.Components
         {
             if (dy == 0)
             {
-                Mod.SaveData.SignalJammerDisabled = !Mod.SaveData.SignalJammerDisabled;
+                Mod.SaveData[SaveDataFlag.SignalJammerDisabled] = !Mod.SaveData[SaveDataFlag.SignalJammerDisabled];
                 return true;
             }
             return false;

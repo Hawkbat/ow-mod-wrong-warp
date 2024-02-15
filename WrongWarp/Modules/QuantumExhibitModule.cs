@@ -36,7 +36,7 @@ namespace WrongWarp.Modules
         {
             if (quantumExhibit == null) return;
             bool isQuantum = quantumExhibit.IsQuantum();
-            bool shouldBeQuantum = Mod.SaveData.SignalJammerDisabled;
+            bool shouldBeQuantum = Mod.SaveData[SaveDataFlag.SignalJammerDisabled];
             if (isQuantum != shouldBeQuantum)
             {
                 UpdateQuantumState(shouldBeQuantum);
@@ -57,7 +57,7 @@ namespace WrongWarp.Modules
             tempLock--;
             if (tempLock == 0)
             {
-                bool shouldBeQuantum = Mod.SaveData.SignalJammerDisabled;
+                bool shouldBeQuantum = Mod.SaveData[SaveDataFlag.SignalJammerDisabled];
                 quantumExhibit.SetIsQuantum(shouldBeQuantum);
             }
         }

@@ -32,7 +32,7 @@ namespace WrongWarp.Modules
 
         public override void OnLateUpdate()
         {
-            var blackHoleActive = Mod.SaveData.HasPlayedMuseumMelody;
+            var blackHoleActive = Mod.SaveData[SaveDataFlag.HasPlayedMuseumMelody];
             if (blackHole && !blackHole.activeSelf && blackHoleActive)
             {
                 blackHole.SetActive(true);
@@ -49,7 +49,7 @@ namespace WrongWarp.Modules
             {
                 whiteHole.SetActive(false);
             }
-            var warpVolumeActive = blackHoleActive && Mod.SaveData.RespawnDisabled;
+            var warpVolumeActive = blackHoleActive && Mod.SaveData[SaveDataFlag.RespawnDisabled];
             if (blackHoleWarpVolume && !blackHoleWarpVolume.activeSelf && warpVolumeActive)
             {
                 blackHoleWarpVolume.SetActive(true);

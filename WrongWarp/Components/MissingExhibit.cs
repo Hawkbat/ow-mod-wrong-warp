@@ -21,7 +21,7 @@ namespace WrongWarp.Components
 
         void Update()
         {
-            bool restored = Mod.SaveData.ExhibitRestored;
+            bool restored = Mod.SaveData[SaveDataFlag.ExhibitRestored];
             if (Debris.activeSelf != !restored) Debris.SetActive(!restored);
             if (Exhibit.activeSelf != restored) Exhibit.SetActive(restored);
             if (gravityWell != null && gravityWell.IsVolumeActive() != restored)
