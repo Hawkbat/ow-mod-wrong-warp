@@ -89,17 +89,20 @@ namespace WrongWarp.Modules
                 maskReplacement.layer = (int)OuterWildsLayer.Flashback;
                 maskReplacement.SetActive(true);
 
-                var snapshotDuration = 0f;
-                var snapshotCount = GetFinalFlashbackImageCount();
-                for (int i = 0; i < snapshotCount; i++)
+                if (Mod.SaveData[SaveDataFlag.RespawnDisabled])
                 {
-                    snapshotDuration += GetFinalFlashbackImageDuration();
-                    flashback._imageDisplayTimes[snapshotCount - 1 - i] = snapshotDuration;
+                    var snapshotDuration = 0f;
+                    var snapshotCount = GetFinalFlashbackImageCount();
+                    for (int i = 0; i < snapshotCount; i++)
+                    {
+                        snapshotDuration += GetFinalFlashbackImageDuration();
+                        flashback._imageDisplayTimes[snapshotCount - 1 - i] = snapshotDuration;
+                    }
+                    flashback._snapshotIndex = snapshotCount - 1;
+                    flashback._flashbackTimer = new Timer(flashback._flashbackStartDelay + flashback._playbackDelay + snapshotDuration);
+                    Mod.StartCoroutine(DoPlayFinalFlashbackSong());
                 }
-                flashback._snapshotIndex = snapshotCount - 1;
-                flashback._flashbackTimer = new Timer(flashback._flashbackStartDelay + flashback._playbackDelay + snapshotDuration);
             }
-            Mod.StartCoroutine(DoPlayFinalFlashbackSong());
         }
 
         System.Collections.IEnumerator DoPlayFinalFlashbackSong()

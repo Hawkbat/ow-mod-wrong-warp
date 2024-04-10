@@ -30,7 +30,7 @@ namespace WrongWarp.Components
         {
             if (!Character && !string.IsNullOrEmpty(CharacterPath))
             {
-                Character = Mod.NewHorizonsApi.SpawnObject(transform.root.gameObject, gameObject.GetComponentInParent<Sector>(), CharacterPath, transform.position, transform.eulerAngles, 1f, false);
+                Character = Mod.NewHorizonsApi.SpawnObject(Mod, transform.root.gameObject, gameObject.GetComponentInParent<Sector>(), CharacterPath, transform.position, transform.eulerAngles, 1f, false);
             }
             var t = Character ? Character.transform : null;
             if (t)

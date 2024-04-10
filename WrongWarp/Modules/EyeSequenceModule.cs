@@ -185,7 +185,7 @@ namespace WrongWarp.Modules
                     var d = UnityEngine.Random.insideUnitCircle.normalized;
                     var r = Mathf.Lerp(maxRadius, minRadius, Mathf.InverseLerp(0, beatCount - 1, i));
                     r += UnityEngine.Random.Range(-10f, 10f);
-                    var o = Mod.NewHorizonsApi.SpawnObject(planet, sector, "EyeOfTheUniverse_Body/Sector_EyeOfTheUniverse/Sector_Campfire/QuantumCampfire/Prefab_HEA_Campfire", offset + new Vector3(d.x * r, 0f, d.y * r), Vector3.up * UnityEngine.Random.value * 360f, 1f, false);
+                    var o = Mod.NewHorizonsApi.SpawnObject(Mod, planet, sector, "EyeOfTheUniverse_Body/Sector_EyeOfTheUniverse/Sector_Campfire/QuantumCampfire/Prefab_HEA_Campfire", offset + new Vector3(d.x * r, 0f, d.y * r), Vector3.up * UnityEngine.Random.value * 360f, 1f, false);
                     var campfire = o.AddComponent<EyeCampfire>();
                     var shadowPuppets = GameObject.Instantiate(shadowPuppetPrefabs[UnityEngine.Random.Range(0, shadowPuppetPrefabs.Count)], o.transform, false);
                     shadowPuppets.SetActive(true);

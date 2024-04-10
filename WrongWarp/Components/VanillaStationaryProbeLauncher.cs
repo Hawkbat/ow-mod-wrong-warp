@@ -24,7 +24,7 @@ namespace WrongWarp.Components
         {
             if (!string.IsNullOrEmpty(PropPath))
             {
-                prop = Mod.NewHorizonsApi.SpawnObject(transform.root.gameObject, GetComponentInParent<Sector>(), PropPath, Vector3.zero, Vector3.zero, 1f, false);
+                prop = Mod.NewHorizonsApi.SpawnObject(Mod, transform.root.gameObject, GetComponentInParent<Sector>(), PropPath, Vector3.zero, Vector3.zero, 1f, false);
                 prop.transform.SetParent(transform, false);
                 prop.transform.localPosition = Vector3.zero;
                 prop.transform.localEulerAngles = Vector3.zero;

@@ -24,7 +24,6 @@ namespace WrongWarp.Components
         {
             base.Awake();
             _type = customItemType;
-            WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled] = false;
         }
 
         public override void PickUpItem(Transform holdTranform)
@@ -35,8 +34,7 @@ namespace WrongWarp.Components
 
         public override string GetDisplayName()
         {
-            // Can update to use NH translation API once that gets merged
-            return NameAsset.FullName;
+            return WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(NameAsset.FullID);
         }
     }
 }

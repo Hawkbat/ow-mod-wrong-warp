@@ -20,8 +20,11 @@ namespace WrongWarp.Patches
             isRespawn = false;
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
             if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.HasDoneIntroTour]) return true;
-            WrongWarpMod.Instance.Respawner.OverwriteFlashback();
-            if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled]) return true;
+            if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
+            {
+                WrongWarpMod.Instance.Respawner.OverwriteFlashback();
+                return true;
+            }
             if (__0 == DeathType.Dream || __0 == DeathType.DreamExplosion || __0 == DeathType.Supernova || __0 == DeathType.TimeLoop || __0 == DeathType.Meditation)
             {
                 return true;

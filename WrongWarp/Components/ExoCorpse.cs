@@ -10,6 +10,10 @@ namespace WrongWarp.Components
 {
     public class ExoCorpse : WrongWarpBehaviour, IConfigurable<ExoCorpseConfig>
     {
+        AntiTechSensor scrambleSensor;
+
+        public bool IsScrambled => Sensor.IsActivated(scrambleSensor);
+
         public void ApplyConfig(ExoCorpseConfig config)
         {
 
@@ -18,6 +22,7 @@ namespace WrongWarp.Components
         public override void WireUp()
         {
             Mod.ExoCorpses.All.Add(this);
+            scrambleSensor = GetComponentInChildren<AntiTechSensor>();
         }
     }
 }

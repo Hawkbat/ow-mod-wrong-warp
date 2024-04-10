@@ -54,7 +54,7 @@ namespace WrongWarp.Components
         {
             if (!string.IsNullOrEmpty(PropPath))
             {
-                prop = Mod.NewHorizonsApi.SpawnObject(transform.root.gameObject, GetComponentInParent<Sector>(), PropPath, Vector3.zero, Vector3.zero, 1f, false);
+                prop = Mod.NewHorizonsApi.SpawnObject(Mod, transform.root.gameObject, GetComponentInParent<Sector>(), PropPath, Vector3.zero, Vector3.zero, 1f, false);
 
                 foreach (StreamingMeshHandle handle in prop.GetComponentsInChildren<StreamingMeshHandle>())
                 {

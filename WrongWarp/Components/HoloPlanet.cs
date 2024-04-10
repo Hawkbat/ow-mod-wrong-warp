@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModDataTools.Assets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,14 +12,16 @@ namespace WrongWarp.Components
 {
     public class HoloPlanet : WrongWarpBehaviour, IConfigurable<HoloPlanetConfig>
     {
+        public PlanetAsset Planet;
         public string PlanetName;
-        public Transform Planet;
+        public PlanetAsset CenterBody;
         public string CenterBodyName;
-        public Transform CenterBody;
         public float Radius;
         public float ScaleFactor;
         public float DistanceFactor;
 
+        public Transform planetTransform;
+        public Transform centerBodyTransform;
         Renderer renderer;
         Exhibit exhibit;
         Material mat;
@@ -36,11 +39,11 @@ namespace WrongWarp.Components
             var planet = Mod.NewHorizonsApi.GetPlanet(PlanetName);
             if (planet)
             {
-                Planet = planet.transform;
+                planetTransform = planet.transform;
                 Radius = Mathf.Max(200f, UnityUtils.GetComponentAtPath<SphereShape>(planet.transform, "Volumes/Ruleset")?.radius ?? 0f) * 0.5f;
                 exhibit = planet.GetComponentInChildren<Exhibit>();
             }
-            CenterBody = Mod.NewHorizonsApi.GetPlanet(CenterBodyName)?.transform;
+            centerBodyTransform = Mod.NewHorizonsApi.GetPlanet(CenterBodyName)?.transform;
 
             renderer = GetComponent<Renderer>();
             if (renderer)
@@ -58,9 +61,9 @@ namespace WrongWarp.Components
                 mat.SetVector("_ObjectPosition", transform.parent.parent.position);
                 mat.SetFloat("_ObjectHeight", transform.parent.localPosition.y + transform.localPosition.y);
             }
-            if (CenterBody && Planet)
+            if (centerBodyTransform && planetTransform)
             {
-                var diff = Planet.position - CenterBody.position;
+                var diff = planetTransform.position - centerBodyTransform.position;
 
                 transform.localPosition = diff * DistanceFactor * ScaleFactor;
                 transform.localScale = Vector3.one * Radius * ScaleFactor;

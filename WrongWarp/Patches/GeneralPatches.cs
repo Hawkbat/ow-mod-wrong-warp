@@ -34,10 +34,12 @@ namespace WrongWarp.Patches
             if (WrongWarpMod.Instance.SignalTowers.IsActiveNotification(__instance.Data))
             {
                 __instance.TextToDisplay = WrongWarpMod.Instance.SignalTowers.GetNotificationText();
-            } else if (WrongWarpMod.Instance.Heat.IsActiveNotification(__instance.Data))
+            }
+            else if (WrongWarpMod.Instance.Heat.IsActiveNotification(__instance.Data))
             {
                 __instance.TextToDisplay = WrongWarpMod.Instance.Heat.GetNotificationText();
-            } else
+            }
+            else
             {
                 isRealtimeNotification = false;
             }
@@ -83,6 +85,44 @@ namespace WrongWarp.Patches
                 {
                     __result = Sensor.IsActivated(exoText) ? exoText.ActiveColor : exoText.InactiveColor;
                 }
+            }
+        }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(NomaiText), nameof(NomaiText.GetTextNode), [typeof(int)])]
+        public static void NomaiText_GetTextNode(NomaiText __instance, ref string __result)
+        {
+            var exoCorpse = __instance.gameObject.GetComponentInParent<ExoCorpse>();
+            if (exoCorpse != null)
+            {
+                var scrambling = true;
+                var ignoringTag = false;
+                var s = string.Empty;
+                for (int i = 0; i < __result.Length; i++)
+                {
+                    var c = __result[i];
+                    if (c == '~')
+                    {
+                        scrambling = !scrambling;
+                    }
+                    else if (c == '<')
+                    {
+                        ignoringTag = true;
+                    }
+                    else if (c == '>')
+                    {
+                        ignoringTag = false;
+                    }
+                    else if (scrambling && exoCorpse.IsScrambled && !ignoringTag && !char.IsWhiteSpace(c))
+                    {
+                        var ascii = (byte)UnityEngine.Random.Range(32, 127);
+                        c = Encoding.ASCII.GetString([ascii])[0];
+                    }
+                    if (c != '~')
+                    {
+                        s += c;
+                    }
+                }
+                __result = s;
             }
         }
     }
