@@ -18,7 +18,7 @@ namespace WrongWarp.Components
 
         public MaterialType Type;
         public int MaterialSlot;
-        [ConditionalField(nameof(MaterialType), MaterialType.Vanilla)]
+        [ConditionalField(nameof(Type), MaterialType.Vanilla)]
         public string MaterialName;
 
         public enum MaterialType
