@@ -13,64 +13,89 @@ namespace WrongWarp.Components
     public class HoloPlanet : WrongWarpBehaviour, IConfigurable<HoloPlanetConfig>
     {
         public PlanetAsset Planet;
-        public string PlanetName;
         public PlanetAsset CenterBody;
-        public string CenterBodyName;
-        public float Radius;
         public float ScaleFactor;
         public float DistanceFactor;
+        public Color ErrorColor;
 
-        public Transform planetTransform;
-        public Transform centerBodyTransform;
+        [SerializeField]
+        Transform planetTransform;
+        [SerializeField]
+        Transform centerBodyTransform;
+        [SerializeField]
+        float radius;
+
         Renderer renderer;
-        Exhibit exhibit;
         Material mat;
+        Color originalColor;
+
+        MissingExhibit missingExhibit;
+        EyeExhibitState quantumState;
 
         public void ApplyConfig(HoloPlanetConfig config)
         {
-            if (config.planet != null) PlanetName = config.planet;
             if (config.scaleFactor.HasValue) ScaleFactor = config.scaleFactor.Value;
             if (config.distanceFactor.HasValue) DistanceFactor = config.distanceFactor.Value;
-            if (config.centerBody != null) CenterBodyName = config.centerBody;
         }
 
         public override void WireUp()
         {
-            var planet = Mod.NewHorizonsApi.GetPlanet(PlanetName);
+            var planet = Mod.NewHorizonsApi.GetPlanet(Planet.FullID);
             if (planet)
             {
                 planetTransform = planet.transform;
-                Radius = Mathf.Max(200f, UnityUtils.GetComponentAtPath<SphereShape>(planet.transform, "Volumes/Ruleset")?.radius ?? 0f) * 0.5f;
-                exhibit = planet.GetComponentInChildren<Exhibit>();
+                radius = Mathf.Max(200f, UnityUtils.GetComponentAtPath<SphereShape>(planet.transform, "Volumes/Ruleset")?.radius ?? 0f) * 0.5f;
+                missingExhibit = planet.GetComponentInChildren<MissingExhibit>(true);
+                quantumState = planet.GetComponentInChildren<EyeExhibitState>(true);
             }
-            centerBodyTransform = Mod.NewHorizonsApi.GetPlanet(CenterBodyName)?.transform;
+            centerBodyTransform = Mod.NewHorizonsApi.GetPlanet(CenterBody.FullID)?.transform;
 
             renderer = GetComponent<Renderer>();
             if (renderer)
             {
                 mat = new Material(renderer.sharedMaterial);
                 renderer.sharedMaterial = mat;
+                originalColor = mat.color;
             }
+
         }
 
         public void LateUpdate()
         {
-            if (mat)
-            {
-                mat.SetVector("_ObjectNormal", transform.parent.up);
-                mat.SetVector("_ObjectPosition", transform.parent.parent.position);
-                mat.SetFloat("_ObjectHeight", transform.parent.localPosition.y + transform.localPosition.y);
-            }
             if (centerBodyTransform && planetTransform)
             {
                 var diff = planetTransform.position - centerBodyTransform.position;
 
                 transform.localPosition = diff * DistanceFactor * ScaleFactor;
-                transform.localScale = Vector3.one * Radius * ScaleFactor;
+                transform.localScale = Vector3.one * radius * ScaleFactor;
             }
-            if (exhibit)
+
+            if (renderer && mat)
             {
-                renderer.enabled = exhibit.gameObject.activeInHierarchy;
+                renderer.enabled = true;
+                mat.color = originalColor;
+
+                mat.SetVector("_ObjectNormal", transform.parent.up);
+                mat.SetVector("_ObjectPosition", transform.parent.parent.position);
+                mat.SetFloat("_ObjectHeight", transform.parent.localPosition.y + transform.localPosition.y);
+
+                if (missingExhibit && !missingExhibit.IsRestored())
+                {
+                    mat.color = ErrorColor;
+                    if (((Time.time + 0.25f) % 1f) < 0.5f)
+                    {
+                        renderer.enabled = false;
+                    }
+                }
+
+                if (quantumState && !quantumState.IsStateActive())
+                {
+                    mat.color = ErrorColor;
+                    if ((Time.time % 1f) < 0.5f)
+                    {
+                        renderer.enabled = false;
+                    }
+                }
             }
         }
     }

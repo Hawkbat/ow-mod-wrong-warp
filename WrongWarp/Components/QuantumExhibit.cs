@@ -29,7 +29,9 @@ namespace WrongWarp.Components
         {
             if (!transform.localPosition.ApproxEquals(Vector3.zero))
             {
-                LogUtils.Warn("Quantum Exhibit is out of position: " + transform.localPosition);
+                LogUtils.Warn("Quantum Exhibit is out of position: " + transform.localPosition + " parent: " + transform.parent + " socket: " + _occupiedSocket);
+                transform.parent = _occupiedSocket.transform;
+                transform.localPosition = Vector3.zero;
             }
 
             var dist = Vector3.Distance(transform.position, Locator.GetPlayerCamera().transform.position);
@@ -58,10 +60,19 @@ namespace WrongWarp.Components
 
         public override bool ChangeQuantumState(bool skipInstantVisibilityCheck)
         {
+            if (!IsQuantum()) return false;
             var changed = base.ChangeQuantumState(skipInstantVisibilityCheck);
             if (changed && _occupiedSocket != null)
             {
                 transform.parent = _occupiedSocket.transform;
+                transform.position = _occupiedSocket.transform.TransformPoint(_localOffset);
+            }
+            if (changed)
+            {
+                LogUtils.Warn("Quantum exhibit changed state to " + _occupiedSocket);
+            } else
+            {
+                LogUtils.Warn("Quantum exhibit failed to change state");
             }
             return changed;
         }

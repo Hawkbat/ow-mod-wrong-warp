@@ -17,6 +17,7 @@ namespace WrongWarp.Components
         Light ambientLight;
 
         public QuantumSocket QuantumSocket => socket;
+        public bool IsStateActive() => socket.IsOccupied();
 
         void OnEnable()
         {
@@ -39,10 +40,9 @@ namespace WrongWarp.Components
 
         void Update()
         {
-            bool active = socket.IsOccupied();
-            if (gravityWell != null && gravityWell.IsVolumeActive() != active)
+            if (gravityWell != null && gravityWell.IsVolumeActive() != IsStateActive())
             {
-                gravityWell.SetVolumeActivation(active);
+                gravityWell.SetVolumeActivation(IsStateActive());
             }
         }
     }

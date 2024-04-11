@@ -14,6 +14,8 @@ namespace WrongWarp.Components
 
         GravityVolume gravityWell;
 
+        public bool IsRestored() => Mod.SaveData[SaveDataFlag.ExhibitRestored];
+
         public override void WireUp()
         {
             gravityWell = transform.root.Find("GravityWell").GetComponent<GravityVolume>();
@@ -21,7 +23,7 @@ namespace WrongWarp.Components
 
         void Update()
         {
-            bool restored = Mod.SaveData[SaveDataFlag.ExhibitRestored];
+            bool restored = IsRestored();
             if (Debris.activeSelf != !restored) Debris.SetActive(!restored);
             if (Exhibit.activeSelf != restored) Exhibit.SetActive(restored);
             if (gravityWell != null && gravityWell.IsVolumeActive() != restored)
