@@ -32,10 +32,6 @@
       <HintPath>..\..\ow-mod-data-tools\ModDataToolsUnityEditor\Assets\ModDataTools\Plugins\ModDataTools.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NewHorizons">
-      <HintPath>C:\Users\Hawkbar\AppData\Roaming\OuterWildsModManager\OWML\Mods\xen.NewHorizons\NewHorizons.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Update="tweak.json">
