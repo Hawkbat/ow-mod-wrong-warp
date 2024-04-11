@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ModDataTools.Assets;
+using NewHorizons.Components;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +14,10 @@ namespace WrongWarp.Modules
         Queue<NotificationData> notifications = new Queue<NotificationData>();
         NotificationData currentNotification = null;
         ScanPulse scanPulse;
+
+        Queue<DialogueAsset> dialogueQueue = new Queue<DialogueAsset>();
+        DialogueAsset currentDialogue = null;
+        DialogueNodeAsset currentNode = null;
 
         public CuratorModule(WrongWarpMod mod) : base(mod) { }
 
@@ -46,7 +52,35 @@ namespace WrongWarp.Modules
             }
         }
 
-        public void QueueMessage(string msg, float duration)
+        public void TriggerDialogue(DialogueAsset dialogue)
+        {
+            if (currentDialogue != null || dialogueQueue.Any())
+            {
+                dialogueQueue.Enqueue(dialogue);
+            }
+            else
+            {
+                StartDialogue(dialogue);
+            }
+        }
+
+        void StartDialogue(DialogueAsset dialogue)
+        {
+            currentDialogue = dialogue;
+
+            DialogueNodeAsset entryNode;
+            for (int i = dialogue.Nodes.Count - 1; i >= 0; i--)
+            {
+                entryNode = dialogue.Nodes[i];
+            }
+        }
+
+        void StartNode(DialogueNodeAsset node)
+        {
+            currentNode = node;
+        }
+
+        void QueueMessage(string msg, float duration)
         {
             notifications.Enqueue(new NotificationData(NotificationTarget.All, msg.ToUpper(), duration, true));
         }

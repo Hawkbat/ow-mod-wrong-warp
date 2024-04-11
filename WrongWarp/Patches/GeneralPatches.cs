@@ -94,15 +94,31 @@ namespace WrongWarp.Patches
             var exoCorpse = __instance.gameObject.GetComponentInParent<ExoCorpse>();
             if (exoCorpse != null)
             {
+                var shouldScramble = exoCorpse.IsScrambled;
                 var scrambling = true;
                 var ignoringTag = false;
                 var s = string.Empty;
+                if (shouldScramble)
+                {
+                    s += "<color=grey>";
+                }
                 for (int i = 0; i < __result.Length; i++)
                 {
                     var c = __result[i];
+                    var skipChar = false;
                     if (c == '~')
                     {
-                        scrambling = !scrambling;
+                        skipChar = true;
+                        if (scrambling)
+                        {
+                            if (shouldScramble) s += "</color>";
+                            scrambling = false;
+                        }
+                        else
+                        {
+                            if (shouldScramble) s += "<color=grey>";
+                            scrambling = true;
+                        }
                     }
                     else if (c == '<')
                     {
@@ -111,16 +127,22 @@ namespace WrongWarp.Patches
                     else if (c == '>')
                     {
                         ignoringTag = false;
+                        if (scrambling) skipChar = true;
                     }
-                    else if (scrambling && exoCorpse.IsScrambled && !ignoringTag && !char.IsWhiteSpace(c))
+                    else if (shouldScramble && scrambling && !ignoringTag && !char.IsWhiteSpace(c))
                     {
                         var ascii = (byte)UnityEngine.Random.Range(32, 127);
                         c = Encoding.ASCII.GetString([ascii])[0];
                     }
-                    if (c != '~')
+                    if (ignoringTag && scrambling) skipChar = true;
+                    if (!skipChar)
                     {
                         s += c;
                     }
+                }
+                if (shouldScramble && scrambling)
+                {
+                    s += "</color>";
                 }
                 __result = s;
             }
