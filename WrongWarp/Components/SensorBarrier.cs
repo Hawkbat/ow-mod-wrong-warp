@@ -27,8 +27,8 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
-            Sensors = GetComponentsAtPaths<Sensor>(SensorPaths);
-            Barriers = GetComponentsAtPaths<Transform>(BarrierPaths);
+            Sensors.AddRange(GetComponentsAtPaths<Sensor>(SensorPaths));
+            Barriers.AddRange(GetComponentsAtPaths<Transform>(BarrierPaths));
         }
 
         public void Update()

@@ -19,5 +19,6 @@ namespace WrongWarp
         HasDoneIntroTour = 8,
         RespawnDisabled = 9,
         WrongWarpTaken = 10,
+        ShipBarrierDisabled = 11,
     }
 }

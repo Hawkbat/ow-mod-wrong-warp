@@ -34,6 +34,7 @@ namespace WrongWarp.Modules
             AddSaveDataCommand(Key.Numpad7, SaveDataFlag.ShipSpawnChanged);
             AddSaveDataCommand(Key.Numpad8, SaveDataFlag.HasDoneIntroTour);
             AddSaveDataCommand(Key.Numpad9, SaveDataFlag.RespawnDisabled);
+            AddSaveDataCommand(Key.NumpadDivide, SaveDataFlag.ShipBarrierDisabled);
 
             AddSpawnCommand(Key.Numpad1, "PlayerSpawnPoint", () => Mod.IsInWrongWarpSystem);
             AddSpawnCommand(Key.Numpad3, "SPAWN_Guide", () => Mod.IsInWrongWarpSystem);
@@ -57,12 +58,13 @@ namespace WrongWarp.Modules
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad1, () => "Warp to Hearthian System", () => Mod.Warp.WarpToHearthianSystem(), null));
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad2, () => "Warp to Eye of the Universe", () => Mod.Warp.WarpToEye(), null));
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad3, () => "Warp to Wrong Warp System", () => Mod.Warp.WarpToWrongWarpSystem(), null));
-            commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadPeriod, () => "Remove Suit", () => Locator.GetPlayerSuit().RemoveSuit(), () => Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
-            commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadPeriod, () => "Suit Up", () => Locator.GetPlayerSuit().SuitUp(), () => !Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
-            commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadDivide, () => "Kill Player", () => Locator.GetDeathManager().KillPlayer(DeathType.Default), null));
-            commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadMultiply, () => "Refill Resources", () => Locator.GetPlayerTransform().GetComponent<PlayerResources>().DebugRefillResources(), null));
-            commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadPlus, () => "Respawn Player", () => Mod.Respawner.RespawnPlayer(), () => Mod.IsInWrongWarpSystem));
-            commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadMinus, () => "Respawn Ship", () => Mod.Respawner.RespawnShip(), () => Mod.IsInWrongWarpSystem));
+
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPeriod, () => "Remove Suit", () => Locator.GetPlayerSuit().RemoveSuit(), () => Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPeriod, () => "Suit Up", () => Locator.GetPlayerSuit().SuitUp(), () => !Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadDivide, () => "Kill Player", () => Locator.GetDeathManager().KillPlayer(DeathType.Default), null));
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadMultiply, () => "Refill Resources", () => Locator.GetPlayerTransform().GetComponent<PlayerResources>().DebugRefillResources(), null));
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPlus, () => "Respawn Player", () => Mod.Respawner.RespawnPlayer(), () => Mod.IsInWrongWarpSystem));
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadMinus, () => "Respawn Ship", () => Mod.Respawner.RespawnShip(), () => Mod.IsInWrongWarpSystem));
 
             commands.Add(new DebugCommand(this, DebugInputMode.Any, Key.NumpadEnter, () => "Hide Debug Menu", () => visible = !visible, null));
 

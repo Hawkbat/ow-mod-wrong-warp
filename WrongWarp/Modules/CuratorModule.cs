@@ -93,6 +93,7 @@ namespace WrongWarp.Modules
 
         void StartNode(DialogueNodeAsset node)
         {
+            LogUtils.Log($"Starting node {node.name}");
             currentNode = node;
 
             if (!node.Pages.Any() || node.Pages.All(p => string.IsNullOrEmpty(p)))
@@ -140,6 +141,7 @@ namespace WrongWarp.Modules
 
         void StartOption(DialogueNodeAsset node, DialogueNodeAsset.Option option)
         {
+            LogUtils.Log($"Starting option {node.name}:{option.Text}");
             if (string.IsNullOrEmpty(option.Text))
             {
                 EndOption();
