@@ -52,16 +52,6 @@ namespace WrongWarp.Patches
             }
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(TabbedMenu), nameof(TabbedMenu.OnUpdateInputDevice))]
-        public static bool TabbedMenu_OnUpdateInputDevice(TabbedMenu __instance)
-        {
-            if (__instance == null)
-            {
-                return false;
-            }
-            return true;
-        }
-
         [HarmonyPostfix, HarmonyPatch(typeof(PlayerData), nameof(PlayerData.GetFreezeTimeWhileReadingTranslator))]
         public static void PlayerData_GetFreezeTimeWhileReadingTranslator(ref bool __result)
         {
