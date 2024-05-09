@@ -101,7 +101,7 @@ namespace WrongWarp.Patches
             UnityUtils.DoAfterSeconds(WrongWarpMod.Instance, 2f, () =>
             {
                 UnityUtils.DoWhen(WrongWarpMod.Instance, () =>
-                    (!warpedBody.CompareTag("Player") || Vector3.Distance(targetPlatform.transform.position, warpedBody.transform.position) > 10f) &&
+                    (!warpedBody || !warpedBody.CompareTag("Player") || Vector3.Distance(targetPlatform.transform.position, warpedBody.transform.position) > 10f) &&
                     !targetPlatform.IsPlayerOnPlatform() &&
                     !targetPlatform.IsProbeOnPlatform() &&
                     !targetPlatform.IsBlackHoleOpen(), () =>
