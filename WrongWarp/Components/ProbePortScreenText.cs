@@ -36,6 +36,7 @@ namespace WrongWarp.Components
 
         public override void OnEnter()
         {
+            base.OnEnter();
             ReadTextBlock();
         }
 

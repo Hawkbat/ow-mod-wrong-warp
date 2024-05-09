@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModDataTools.Assets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,7 @@ namespace WrongWarp.Components
         public ProbePort Port;
         public int X;
         public int Y;
+        public List<FactAsset> RevealFacts = new();
 
         public override void WireUp()
         {
@@ -23,8 +25,18 @@ namespace WrongWarp.Components
 
         public virtual bool CanNavigate() => true;
 
-        public virtual void OnEnter() { }
-        public virtual void OnExit() { }
+        public virtual void OnEnter()
+        {
+            foreach (var fact in RevealFacts)
+            {
+                Locator.GetShipLogManager().RevealFact(fact.FullID);
+            }
+        }
+
+        public virtual void OnExit() {
+        
+        }
+
         public virtual bool OnTick(int dx, int dy) => false;
     }
 }
