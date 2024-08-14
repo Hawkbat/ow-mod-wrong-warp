@@ -1,11 +1,14 @@
-﻿using OWML.Common;
+﻿using Mono.Cecil;
+using OWML.Common;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Eventing.Reader;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using WrongWarp.NewHorizons;
 using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
@@ -38,19 +41,11 @@ namespace WrongWarp.Modules
             vesselBody = null;
         }
 
-        public override void OnFixedUpdate()
-        {
-            if (vesselBody)
-            {
-                vesselBody.AddAcceleration(Mod.TweakConfig.introTour.vessel.acceleration * Time.fixedDeltaTime);
-                vesselBody.AddAngularAcceleration(Mod.TweakConfig.introTour.vessel.angularAcceleration * Time.fixedDeltaTime);
-            }
-        }
-
         private void OnDiedInIntroTour(DeathType deathType)
         {
-            Mod.SaveData[SaveDataFlag.HasDoneIntroTour] = true;
             GlobalMessenger<DeathType>.RemoveListener("PlayerDeath", OnDiedInIntroTour);
+            Mod.SaveData[SaveDataFlag.HasDoneIntroTour] = true;
+            NewHorizonsReflection.DidWarpFromVessel = false;
         }
 
         private void StartSequence()
@@ -85,12 +80,19 @@ namespace WrongWarp.Modules
 
             Locator.GetPlayerCamera().GetComponent<PlayerCameraEffectController>().OpenEyes(1f, false);
 
-            var plrRes = Locator.GetPlayerBody().GetComponentInChildren<PlayerResources>();
-            plrRes.ApplySuitPuncture();
-            plrRes._currentFuel = 10f;
-            plrRes._currentHealth = 50f;
+            var playerBody = Locator.GetPlayerBody();
 
-            TimeLoop.SetSecondsRemaining(60f);
+            var playerRes = playerBody.GetComponentInChildren<PlayerResources>();
+            playerRes.ApplySuitPuncture();
+            playerRes._currentFuel = 10f;
+            playerRes._currentHealth = 50f;
+
+            TimeLoop.SetSecondsRemaining(120f);
+
+            vesselBody.AddVelocityChange(Vector3.forward * 100f);
+            vesselBody.AddAngularVelocityChange(Vector3.forward * 0.05f);
+
+            playerBody.SetVelocity(vesselBody.GetPointVelocity(playerBody.GetPosition()));
         }
     }
 }

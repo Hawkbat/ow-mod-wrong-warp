@@ -18,6 +18,8 @@ namespace WrongWarp.Components
 
         public WrongWarpMod Mod => ModObject?.Mod;
 
+        public bool IsWiredUp { get; private set; }
+
         public abstract void WireUp();
 
         public virtual IEnumerator Start()
@@ -25,6 +27,7 @@ namespace WrongWarp.Components
             if (!ModObject) ModObject = gameObject.GetAddComponent<WrongWarpObject>();
             yield return null;
             WireUp();
+            IsWiredUp = true;
         }
 
         public Transform GetTransformAtPath(string path)

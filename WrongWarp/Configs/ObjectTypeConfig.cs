@@ -12,7 +12,6 @@ namespace WrongWarp.Configs
         public AntiTechSensorConfig antiTechSensor = null;
         public BioSensorConfig bioSensor = null;
         public ExhibitConfig exhibit = null;
-        public ExoCorpseConfig exoCorpse = null;
         public HoloGuideConfig holoGuide = null;
         public HoloPlanetConfig holoPlanet = null;
         public MotionShaftConfig motionShaft = null;

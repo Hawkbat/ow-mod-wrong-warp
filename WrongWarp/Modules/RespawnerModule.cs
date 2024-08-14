@@ -27,14 +27,14 @@ namespace WrongWarp.Modules
         {
             GlobalMessenger<DeathType>.AddListener("PlayerDeath", OnPlayerDeath);
             GlobalMessenger.AddListener("FlashbackStart", FlashbackStart);
-            if (Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
+            DoAfterSeconds(0.1f, () =>
             {
-                DoAfterSeconds(0.1f, () =>
+                if (Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
                 {
                     RespawnPlayer();
                     RespawnShip();
-                });
-            }
+                }
+            });
         }
 
         public override void OnSystemUnload()

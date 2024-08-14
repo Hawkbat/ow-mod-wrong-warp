@@ -1,10 +1,12 @@
-﻿using System;
+﻿using NAudio.CoreAudioApi;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using WrongWarp.Utils;
 
 namespace WrongWarp.Components
 {
@@ -30,7 +32,6 @@ namespace WrongWarp.Components
         public ProbePortScreen ScreenToLeft => Screens.Find(s =>
             s.X == CurrentScreen.X - 1 &&
             s.Y == CurrentScreen.Y);
-
         public ProbePortScreen ScreenToRight => Screens.Find(s =>
             s.X == CurrentScreen.X + 1 &&
             s.Y == CurrentScreen.Y);
@@ -42,6 +43,9 @@ namespace WrongWarp.Components
             s.Y == CurrentScreen.Y - 1);
 
         private Vector2 previousRotation;
+        private Vector3 initialOffset;
+        private Vector3 previousOffset;
+        private Vector3 currentOffset;
 
         public override void WireUp()
         {
@@ -58,6 +62,24 @@ namespace WrongWarp.Components
             });
             foreach (var screen in GetComponentsInChildren<ProbePortScreen>()) Screens.Add(screen);
             UpdateScreen();
+            initialOffset = Socket.localPosition;
+            previousOffset = initialOffset;
+        }
+
+        protected virtual void Update()
+        {
+            if (IsProbeInPort())
+            {
+                var t0 = Mathf.Repeat(Time.time - Time.deltaTime, 1f);
+                var t1 = Mathf.Repeat(Time.time, 1f);
+                if (t1 < t0)
+                {
+                    previousOffset = currentOffset;
+                    currentOffset = initialOffset + (Vector3)UnityEngine.Random.insideUnitCircle * 0.1f;
+                }
+                var t = Mathf.SmoothStep(0f, 1f, t1);
+                Socket.localPosition = Vector3.Lerp(previousOffset, currentOffset, t);
+            }
         }
 
         private void OnProbeSnapshot()
@@ -118,6 +140,10 @@ namespace WrongWarp.Components
                     anchor.UnanchorFromSurface();
                     anchor.AnchorToSocket(Socket);
                 }
+                foreach (var light in probe.GetLights())
+                {
+                    light.SetActivation(false);
+                }
                 if (InterfaceCanvas)
                 {
                     InterfaceCanvas.enabled = true;
@@ -134,6 +160,11 @@ namespace WrongWarp.Components
 
         private void SurveyorProbe_OnStartRetrieveProbe(float retrieveLength)
         {
+            var probe = Locator.GetProbe();
+            foreach (var light in probe.GetLights())
+            {
+                light.SetActivation(true);
+            }
             if (InterfaceCanvas)
             {
                 InterfaceCanvas.worldCamera = null;

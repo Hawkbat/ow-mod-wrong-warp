@@ -20,9 +20,9 @@ namespace WrongWarp.Components
         public float MinDamagePerSecond;
         public float MaxDamagePerSecond;
         public AnimationCurve DamageOverTemperatureCurve;
-        public float SuitlessDamageReduction;
         public float SuitedDamageReduction;
         public float InShipDamageReduction;
+        public float MinDamageThreshold;
         public List<Transform> ScaledObjects = new();
 
         public override HazardType GetHazardType() => HazardType.HEAT;
@@ -105,7 +105,7 @@ namespace WrongWarp.Components
             => Mathf.Lerp(MinDamagePerSecond, MaxDamagePerSecond, DamageOverTemperatureCurve.Evaluate(Mathf.InverseLerp(MinTemperature, MaxTemperature, GetCurrentMaxTemperature())));
         public float GetRawDamageAt(Vector3 point) =>
             Mathf.Lerp(MinDamagePerSecond, MaxDamagePerSecond, DamageOverTemperatureCurve.Evaluate(Mathf.InverseLerp(MinTemperature, MaxTemperature, GetTemperatureAt(point))));
-        
+
         public float GetEffectiveDamageToPlayer()
         {
             var damage = GetRawDamageAt(Locator.GetPlayerTransform().position);
@@ -113,12 +113,14 @@ namespace WrongWarp.Components
             if (Locator.GetPlayerSuit().IsWearingSuit())
             {
                 damage -= SuitedDamageReduction;
-            } else if (Locator.GetPlayerSectorDetector().IsWithinSector(Sector.Name.Ship))
+            }
+            if (Locator.GetPlayerSectorDetector().IsWithinSector(Sector.Name.Ship))
             {
                 damage -= InShipDamageReduction;
-            } else
+            }
+            if (damage < MinDamageThreshold)
             {
-                damage -= SuitlessDamageReduction;
+                damage = 0f;
             }
             return damage;
         }

@@ -19,16 +19,5 @@ namespace WrongWarp.Patches
             }
             return true;
         }
-
-        [HarmonyPrefix, HarmonyPatch(typeof(AlignToSurfaceFluidDetector), nameof(AlignToSurfaceFluidDetector.OnVolumeActivated))]
-        public static void AlignToSurfaceFluidDetector_OnVolumeActivated(AlignToSurfaceFluidDetector __instance, PriorityVolume volume)
-        {
-            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return;
-            if (__instance is not RaftFluidDetector) return;
-            if (volume is FluidVolume fluidVolume)
-            {
-                __instance._alignmentFluid = fluidVolume;
-            }
-        }
     }
 }

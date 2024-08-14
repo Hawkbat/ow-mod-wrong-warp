@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.InputSystem;
+using WrongWarp.NewHorizons;
 using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
@@ -23,11 +24,19 @@ namespace WrongWarp.Modules
 
         }
 
-        public void WarpToWrongWarpSystem()
+        public void WarpToWrongWarpSystem(bool forceIntroTour)
         {
+            if (PlayerData.GetWarpedToTheEye()) PlayerData.SaveEyeCompletion();
             LogUtils.Log($"Attempting to warp to {WrongWarpMod.SOLAR_SYSTEM_NAME}");
             Mod.NewHorizonsApi.SetDefaultSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
-            Mod.NewHorizonsApi.ChangeCurrentStarSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
+            if (forceIntroTour)
+            {
+                NewHorizonsReflection.ChangeCurrentStarSystem(WrongWarpMod.SOLAR_SYSTEM_NAME, false, true);
+            }
+            else
+            {
+                Mod.NewHorizonsApi.ChangeCurrentStarSystem(WrongWarpMod.SOLAR_SYSTEM_NAME);
+            }
         }
 
         public void WarpToHearthianSystem()

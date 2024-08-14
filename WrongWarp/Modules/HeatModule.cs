@@ -10,6 +10,8 @@ namespace WrongWarp.Modules
 {
     public class HeatModule : WrongWarpModule
     {
+        const bool ENABLE_DEBUG_NOTIFICATION = false;
+
         NotificationData notification;
         OverheatHazardVolume overheatVolume;
 
@@ -45,7 +47,7 @@ namespace WrongWarp.Modules
 
         private bool IsNotificationActivated() => notification != null;
 
-        private bool ShouldActivateNotification() => overheatVolume;
+        private bool ShouldActivateNotification() => overheatVolume && ENABLE_DEBUG_NOTIFICATION;
 
         private void ActivateNotification()
         {

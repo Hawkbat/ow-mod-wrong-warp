@@ -57,7 +57,8 @@ namespace WrongWarp.Modules
 
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad1, () => "Warp to Hearthian System", () => Mod.Warp.WarpToHearthianSystem(), null));
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad2, () => "Warp to Eye of the Universe", () => Mod.Warp.WarpToEye(), null));
-            commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad3, () => "Warp to Wrong Warp System", () => Mod.Warp.WarpToWrongWarpSystem(), null));
+            commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad3, () => "Warp to Wrong Warp System", () => Mod.Warp.WarpToWrongWarpSystem(false), null));
+            commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad4, () => "Warp to Wrong Warp System (Force Intro Tour)", () => Mod.Warp.WarpToWrongWarpSystem(true), null));
 
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPeriod, () => "Remove Suit", () => Locator.GetPlayerSuit().RemoveSuit(), () => Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPeriod, () => "Suit Up", () => Locator.GetPlayerSuit().SuitUp(), () => !Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));

@@ -132,7 +132,7 @@ namespace WrongWarp
                 IsInWrongWarpSystem = false;
                 if (SaveData[SaveDataFlag.WrongWarpTaken])
                 {
-                    Warp.WarpToWrongWarpSystem();
+                    Warp.WarpToWrongWarpSystem(!SaveData[SaveDataFlag.HasDoneIntroTour]);
                 }
             }
 
@@ -242,7 +242,6 @@ namespace WrongWarp
             ApplyModComponent(mo, config.antiTechSensor, (AntiTechSensor)null);
             ApplyModComponent(mo, config.bioSensor, (BioSensor)null);
             ApplyModComponent(mo, config.exhibit, (Exhibit)null);
-            ApplyModComponent(mo, config.exoCorpse, (ExoCorpse)null);
             ApplyModComponent(mo, config.holoGuide, (HoloGuide)null);
             ApplyModComponent(mo, config.holoPlanet, (HoloPlanet)null);
             ApplyModComponent(mo, config.motionShaft, (MotionShaft)null);

@@ -17,20 +17,38 @@ namespace WrongWarp.Patches
         [HarmonyPrefix, HarmonyPatch(typeof(DeathManager), nameof(DeathManager.KillPlayer))]
         public static bool DeathManager_KillPlayer(DeathManager __instance, DeathType __0)
         {
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem)
+            {
+                return true;
+            }
+            if (__instance._isDying)
+            {
+                return false;
+            }
+            if (__instance._invincible && __0 != DeathType.Supernova && __0 != DeathType.BigBang && __0 != DeathType.Meditation && __0 != DeathType.TimeLoop && __0 != DeathType.BlackHole)
+            {
+                LogUtils.Log($"Prevented death because player is invincible (death type: {__0})");
+                return false;
+            }
             isRespawn = false;
-            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
-            if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.HasDoneIntroTour]) return true;
+            if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.HasDoneIntroTour])
+            {
+                LogUtils.Log($"Forcing true death during intro tour (death type: {__0})");
+                return true;
+            }
             if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
             {
+                LogUtils.Log($"Forcing true death since respawner is disabled (death type: {__0})");
                 WrongWarpMod.Instance.Respawner.OverwriteFlashback();
                 return true;
             }
             if (__0 == DeathType.Dream || __0 == DeathType.DreamExplosion || __0 == DeathType.Supernova || __0 == DeathType.TimeLoop || __0 == DeathType.Meditation)
             {
+                LogUtils.Log($"Forcing true death because of unusual death type (death type: {__0})");
                 return true;
             }
 
-            if (__0 == DeathType.Default)
+            if (__0 == DeathType.Default || __0 == DeathType.Impact)
             {
                 var spawnPoint = WrongWarpMod.Instance.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
                 .GetComponentsInChildren<SpawnPoint>(true)
@@ -38,12 +56,14 @@ namespace WrongWarp.Patches
 
                 var overheatVolume = GameObject.FindObjectOfType<Components.OverheatHazardVolume>();
                 var damage = overheatVolume.GetRawDamageAt(spawnPoint.transform.position);
-                if (damage > overheatVolume.SuitlessDamageReduction)
+                if (damage > overheatVolume.MinDamageThreshold)
                 {
+                    LogUtils.Log($"Forcing true death because overheat volume has reached spawn point (death type: {__0})");
                     return true;
                 }
             }
 
+            LogUtils.Log($"Respawning player (death type: {__0})");
             isRespawn = true;
             __instance._isDying = true;
             __instance._deathType = __0;
