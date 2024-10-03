@@ -67,6 +67,7 @@ namespace WrongWarp.Components
                 var diff = planetTransform.position - centerBodyTransform.position;
 
                 transform.localPosition = diff * DistanceFactor * ScaleFactor;
+                transform.localRotation = planetTransform.rotation;
                 transform.localScale = Vector3.one * radius * ScaleFactor;
             }
 

@@ -72,7 +72,10 @@ namespace WrongWarp.Components
                     {
                         transform.localEulerAngles += Vector3.up * UnityEngine.Random.Range(-180f, 180f);
                     }
-                    ps.Emit(UnityEngine.Random.Range(MinBurstCount, MaxBurstCount + 1));
+                    if (ps)
+                    {
+                        ps.Emit(UnityEngine.Random.Range(MinBurstCount, MaxBurstCount + 1));
+                    }
                     if (BurstSound)
                     {
                         BurstSound.Play();
