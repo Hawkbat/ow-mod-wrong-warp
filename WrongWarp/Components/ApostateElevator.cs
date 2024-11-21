@@ -18,7 +18,7 @@ namespace WrongWarp.Components
         {
             Transform pt = gameObject.transform;
             LogUtils.Log("Setting Up Elevator");
-            if (SegQuantity < 0)
+            if (SegQuantity > 0)
             {
                 for (int i = 0; i < SegQuantity; i++)
                 {
@@ -30,6 +30,10 @@ namespace WrongWarp.Components
                     Animator anim = foo.GetComponent<Animator>();
                     if (anim) { anim.SetFloat("Cycle Offset", i / SegQuantity); } else LogUtils.Log("Animator not Found");
                 }
+            }
+            else
+            {
+                LogUtils.Log("SegQuantity must be greater than 0");
             }
         }
     }
