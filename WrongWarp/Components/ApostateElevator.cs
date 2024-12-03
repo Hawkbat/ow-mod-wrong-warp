@@ -13,6 +13,8 @@ namespace WrongWarp.Components
     {
         public GameObject Segment;
         public int SegQuantity;
+        float Offset;
+        Animator Anim;
 
         public override void WireUp()
         {
@@ -24,11 +26,12 @@ namespace WrongWarp.Components
                 {
                     LogUtils.Log("Setting Up Elevator Platform " + (i + 1));
                     GameObject foo = Instantiate(Segment, pt);
-                    foo.transform.position = Vector3.zero;
-                    foo.transform.rotation = Quaternion.identity;
+                    foo.transform.localPosition = Vector3.zero;
+                    foo.transform.localRotation = Quaternion.identity;
                     foo.transform.localScale = Vector3.one;
-                    Animator anim = foo.GetComponent<Animator>();
-                    if (anim) { anim.SetFloat("Cycle Offset", i / SegQuantity); } else LogUtils.Log("Animator not Found");
+                    Anim = foo.GetComponent<Animator>();
+                    Offset = (float)i / SegQuantity;
+                    if (Anim) { Anim.SetFloat("Offset", Offset); } else LogUtils.Log("Animator not Found");
                 }
             }
             else
