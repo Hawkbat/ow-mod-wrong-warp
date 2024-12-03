@@ -29,6 +29,7 @@ namespace WrongWarp.Modules
             GlobalMessenger.AddListener("FlashbackStart", FlashbackStart);
             DoAfterSeconds(0.1f, () =>
             {
+                TimeLoop.SetTimeLoopEnabled(true);
                 if (Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
                 {
                     RespawnPlayer();
