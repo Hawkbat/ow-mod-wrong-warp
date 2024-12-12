@@ -132,7 +132,10 @@ namespace WrongWarp
                 IsInWrongWarpSystem = false;
                 if (SaveData[SaveDataFlag.WrongWarpTaken])
                 {
-                    Warp.WarpToWrongWarpSystem(!SaveData[SaveDataFlag.HasDoneIntroTour]);
+                    UnityUtils.DoAfterFrames(this, 1, () =>
+                    {
+                        Warp.WarpToWrongWarpSystem(!SaveData[SaveDataFlag.HasDoneIntroTour]);
+                    });
                 }
             }
 
