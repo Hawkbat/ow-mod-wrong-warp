@@ -16,9 +16,8 @@ namespace WrongWarp.Components
         public override string GetText()
         {
             var output = "";
-            var block = Text.TextBlocks[BlockIndex];
-            output += block.Text + "\n\n";
-            output += $"[Page {BlockIndex + 1} / {Text.TextBlocks.Count}]";
+            output += Mod.NewHorizonsApi.GetTranslationForDialogue(Text.FullID + "_" + BlockIndex) + "\n\n";
+            output += $"[{BlockIndex + 1} / {Text.TextBlocks.Count}]";
             return output;
         }
 
