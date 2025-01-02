@@ -14,7 +14,6 @@ namespace WrongWarp.Components
     {
         public string AudioTypeName;
         public float Delay;
-        public float FadeDuration;
         public bool Continuous;
         public List<Sensor> Sensors = new List<Sensor>();
 
@@ -27,6 +26,7 @@ namespace WrongWarp.Components
             audioSource = gameObject.GetAddComponent<AudioSource>();
             audioSource.spatialBlend = 1f;
             owAudioSource = gameObject.GetAddComponent<OWAudioSource>();
+            owAudioSource.SetTrack(OWAudioMixer.TrackName.Environment_Unfiltered);
             owAudioSource.loop = Continuous;
             UnityUtils.DoAfterFrames(Mod, 1, () =>
             {
@@ -40,7 +40,7 @@ namespace WrongWarp.Components
             {
                 bool activated = Continuous ? Sensor.AreAllActivated(Sensors) : Sensor.WereAllActivatedThisFrame(Sensors);
                 if (activated) PlaySound();
-                else StopSound();
+                else if (Continuous) StopSound();
             }
         }
 
@@ -59,6 +59,7 @@ namespace WrongWarp.Components
         IEnumerator DoPlaySoundDelayed()
         {
             yield return new WaitForSeconds(Delay);
+            if (!Continuous && owAudioSource.isPlaying) owAudioSource.Stop();
             owAudioSource.Play();
         }
     }
