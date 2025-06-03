@@ -137,5 +137,15 @@ namespace WrongWarp.Patches
                 __result = s;
             }
         }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(NomaiTranslatorProp), nameof(NomaiTranslatorProp.DisplayTextNode))]
+        public static void NomaiTranslatorProp_DisplayTextNode(NomaiTranslatorProp __instance)
+        {
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return;
+            if (__instance._translationTimeElapsed == 0f && !__instance._nomaiTextComponent.IsTranslated(__instance._currentTextID))
+            {
+                __instance._textField.text = WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI("UNTRANSLATED_EXO_TEXT");
+            }
+        }
     }
 }

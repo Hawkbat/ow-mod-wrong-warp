@@ -29,6 +29,7 @@ namespace WrongWarp.Components
                 if (p != null) return p.gameObject;
                 return o;
             }).ToList();
+            wasActive = true;
             wiredUp = true;
         }
 
