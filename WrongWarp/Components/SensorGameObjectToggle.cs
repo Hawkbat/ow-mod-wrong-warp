@@ -14,29 +14,42 @@ namespace WrongWarp.Components
         public List<Sensor> Sensors = new();
         public bool Any;
         public bool Invert;
+        public float Delay;
 
         bool wiredUp;
+        float timer;
+        bool wasActive;
 
         public override void WireUp()
         {
             Objects = Objects.Select(o =>
             {
                 var c = o.GetComponent<PropDataComponent>();
-                var p = c.GetSpawnedProp();
+                var p = c != null ? c.GetSpawnedProp() : null;
                 if (p != null) return p.gameObject;
                 return o;
             }).ToList();
             wiredUp = true;
         }
 
-        void LateUpdate()
+        protected void LateUpdate()
         {
             if (!wiredUp) return;
             var activated = Any ? Sensor.AreAnyActivated(Sensors) : Sensor.AreAllActivated(Sensors);
             var active = Invert ? !activated : activated;
-            foreach (var obj in Objects)
+
+            if (active == wasActive) return;
+
+            timer += Time.deltaTime;
+
+            if (timer >= Delay)
             {
-                obj.SetActive(active);
+                foreach (var obj in Objects)
+                {
+                    obj.SetActive(active);
+                }
+                wasActive = active;
+                timer = 0f;
             }
         }
     }
