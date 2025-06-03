@@ -87,6 +87,7 @@ namespace WrongWarp.Modules
 
         public void SetupEyeSequence()
         {
+            /*
             var camp = GameObject.FindObjectOfType<QuantumCampsiteController>();
             var inflation = camp.transform.Find("InflationController").GetComponent<CosmicInflationController>();
             var campsite = camp.transform.Find("Campsite");
@@ -138,7 +139,7 @@ namespace WrongWarp.Modules
 
             inflation._travelers = inflation._travelers.Append(travelerController).ToArray();
             inflation._inflationObjects = inflation._inflationObjects.Append(pivot).ToArray();
-
+            */
             startedFinale = false;
         }
 

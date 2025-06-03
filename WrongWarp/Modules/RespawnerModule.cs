@@ -1,11 +1,11 @@
 ﻿using ModDataTools.Utilities;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 using WrongWarp.Components;
 using WrongWarp.Utils;
 
@@ -17,6 +17,8 @@ namespace WrongWarp.Modules
 
         bool isRespawningPlayer;
         bool isRespawningShip;
+
+        SubmitAction respawnButton;
 
         public bool IsRespawningPlayer => isRespawningPlayer;
         public bool IsRespawningShip => isRespawningShip;
@@ -30,10 +32,19 @@ namespace WrongWarp.Modules
             DoAfterSeconds(0.1f, () =>
             {
                 TimeLoop.SetTimeLoopEnabled(true);
+
                 if (Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
                 {
                     RespawnPlayer();
                     RespawnShip();
+
+                    if (!respawnButton)
+                    {
+                        respawnButton = Mod.ModHelper.MenuHelper.PauseMenuManager.MakeSimpleButton("Respawn", 4, true);
+                        respawnButton.OnSubmitAction += OnRespawnButtonSubmit;
+                        var probePort = UnityEngine.Object.FindObjectOfType<ProbePort>();
+                        respawnButton.GetComponentInChildren<Text>().font = probePort.InterfaceText.font;
+                    }
                 }
             });
         }
@@ -42,10 +53,29 @@ namespace WrongWarp.Modules
         {
             GlobalMessenger<DeathType>.RemoveListener("PlayerDeath", OnPlayerDeath);
             GlobalMessenger.RemoveListener("FlashbackStart", FlashbackStart);
+            if (respawnButton)
+            {
+                respawnButton.OnSubmitAction -= OnRespawnButtonSubmit;
+                respawnButton = null;
+            }
+        }
+
+        private void OnRespawnButtonSubmit()
+        {
+            var pauseMenu = UnityEngine.Object.FindObjectOfType<PauseMenuManager>();
+            pauseMenu._pauseMenu.EnableMenu(false);
+            DialogueConditionManager.SharedInstance.SetConditionState("WW_REACT_PAUSE_MENU_RESPAWN", true);
+            RespawnPlayer();
+            RespawnShip();
         }
 
         private void OnPlayerDeath(DeathType deathType)
         {
+            if (Mod.IsInWrongWarpSystem && deathType == DeathType.TimeLoop)
+            {
+                Locator.GetPlayerCamera().postProcessingSettings.eyeMask.edgeColor = new Color(0f, 1.5f, 0.5f);
+            }
+
             if (Mod.IsInWrongWarpSystem && !Mod.SaveData[SaveDataFlag.RespawnDisabled])
             {
                 MakeCameraParticles(3f);

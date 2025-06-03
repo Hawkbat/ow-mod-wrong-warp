@@ -1,10 +1,8 @@
 ﻿using ModDataTools.Assets;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UnityEngine;
 using WrongWarp.Components;
 using WrongWarp.Utils;
 
@@ -25,6 +23,7 @@ namespace WrongWarp.Modules
         DialogueNodeAsset.Option currentOption = null;
 
         ScanPulse scanPulse;
+        SuitNotificationDisplay suitNotifDisplay;
 
         public CuratorModule(WrongWarpMod mod) : base(mod) { }
 
@@ -36,6 +35,7 @@ namespace WrongWarp.Modules
                 scanPulse = curator.GetComponentInChildren<ScanPulse>(true);
                 scanPulse.Target = Mod.NewHorizonsApi.GetPlanet("WW_CORE").transform;
             });
+            suitNotifDisplay = UnityEngine.Object.FindObjectOfType<SuitNotificationDisplay>();
         }
 
         public override void OnSystemUnload()
@@ -49,11 +49,14 @@ namespace WrongWarp.Modules
             if (playerSuit && playerSuit.IsWearingSuit() && notifications.Count > 0 && currentNotification == null)
             {
                 currentNotification = notifications.Dequeue();
+                suitNotifDisplay._displaySpace.anchoredPosition = new Vector2(0f, -200f);
                 NotificationManager.SharedInstance.PostNotification(currentNotification, true);
                 DoAfterSeconds(currentNotification.minDuration, () =>
                 {
                     NotificationManager.SharedInstance.UnpinNotification(currentNotification);
+                    suitNotifDisplay._displaySpace.anchoredPosition = new Vector2(0f, 37.5f);
                     currentNotification = null;
+
                     if (!notifications.Any() && onNotificationsFinished != null)
                     {
                         onNotificationsFinished();
@@ -126,6 +129,7 @@ namespace WrongWarp.Modules
                 StartNode(node.Target);
                 return;
             }
+
             var firstOption = node.Options.FirstOrDefault(o =>
                 DialogueUtils.AllFactsRevealed(o.RequiredFacts) &&
                 DialogueUtils.AllConditionsMet(o.RequiredConditions) &&

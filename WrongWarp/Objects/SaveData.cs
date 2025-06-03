@@ -22,6 +22,7 @@ namespace WrongWarp.Objects
         public bool exhibitRestored = false;
         public bool respawnDisabled = false;
         public bool shipBarrierDisabled = false;
+        public bool visitorHatchOpen = false;
 
         public bool this[SaveDataFlag flag]
         {
@@ -38,6 +39,7 @@ namespace WrongWarp.Objects
                 SaveDataFlag.RespawnDisabled => respawnDisabled,
                 SaveDataFlag.WrongWarpTaken => wrongWarpTaken,
                 SaveDataFlag.ShipBarrierDisabled => shipBarrierDisabled,
+                SaveDataFlag.VisitorHatchOpen => visitorHatchOpen,
                 _ => throw new ArgumentOutOfRangeException(nameof(flag)),
             };
             set {
@@ -54,6 +56,7 @@ namespace WrongWarp.Objects
                     SaveDataFlag.RespawnDisabled => respawnDisabled = value,
                     SaveDataFlag.WrongWarpTaken => wrongWarpTaken = value,
                     SaveDataFlag.ShipBarrierDisabled => shipBarrierDisabled = value,
+                    SaveDataFlag.VisitorHatchOpen => visitorHatchOpen = value,
                     _ => throw new ArgumentOutOfRangeException(nameof(flag)),
                 };
             }

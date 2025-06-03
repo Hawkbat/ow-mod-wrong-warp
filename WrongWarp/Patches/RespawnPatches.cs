@@ -151,5 +151,31 @@ namespace WrongWarp.Patches
             }
             return true;
         }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(UIStyleApplier), nameof(UIStyleApplier.ChangeColors))]
+        public static void UIStyleApplier_ChangeColors(UIStyleApplier __instance, UIElementState state)
+        {
+            if (__instance.name == "Button-Respawn")
+            {
+                Color color = new Color(0f, 1f, 0.2f);
+                switch (state)
+                {
+                    case UIElementState.NORMAL:
+                        break;
+                    case UIElementState.INTERMEDIATELY_HIGHLIGHTED:
+                    case UIElementState.HIGHLIGHTED:
+                    case UIElementState.PRESSED:
+                    case UIElementState.ROLLOVER_HIGHLIGHT:
+                        color = new Color(0.8f, 1f, 0.9f);
+                        break;
+                    case UIElementState.DISABLED:
+                        return;
+                }
+                foreach (var gfx in __instance._foregroundGraphics)
+                {
+                    gfx.color = color;
+                }
+            }
+        }
     }
 }

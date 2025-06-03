@@ -13,6 +13,7 @@ namespace WrongWarp.Patches
     [HarmonyPatch]
     public static class EyePatches
     {
+        /*
         [HarmonyPrefix, HarmonyPatch(typeof(QuantumCampsiteController), nameof(QuantumCampsiteController.GetTravelerMusicEndClip))]
         public static bool QuantumCampsiteController_GetTravelerMusicEndClip(QuantumCampsiteController __instance, ref AudioClip __result)
         {
@@ -31,6 +32,7 @@ namespace WrongWarp.Patches
         {
             WrongWarpMod.Instance.EyeSequence.StartFinale();
         }
+        */
 
         [HarmonyPrefix, HarmonyPatch(typeof(NomaiCoordinateInterface), nameof(NomaiCoordinateInterface.SetPillarRaised), typeof(bool))]
         public static bool NomaiCoordinateInterface_SetPillarRaised(NomaiCoordinateInterface __instance, bool __0)

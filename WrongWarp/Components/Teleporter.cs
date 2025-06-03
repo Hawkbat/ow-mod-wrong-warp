@@ -18,13 +18,14 @@ namespace WrongWarp.Components
         public float Duration;
         public Teleporter Linked;
         public FrequencyAsset Frequency;
+        public List<ConditionAsset> ConditionsToSet = new List<ConditionAsset>();
 
         private bool isTeleporting;
         private List<GameObject> occupants = new List<GameObject>();
         private OWTriggerVolume triggerVolume;
         private bool isReEnable;
 
-        void OnEnable()
+        protected void OnEnable()
         {
             all.Add(this);
             triggerVolume = GetComponentInChildren<OWTriggerVolume>(true);
@@ -37,7 +38,7 @@ namespace WrongWarp.Components
             }
         }
 
-        void OnDisable()
+        protected void OnDisable()
         {
             all.Remove(this);
             triggerVolume.OnEntry -= TriggerVolume_OnEntry;
@@ -126,6 +127,8 @@ namespace WrongWarp.Components
             {
                 //Mod.QuantumExhibit.ApplyTemporaryLock();
                 Mod.Respawner.MakeCameraParticles(Duration);
+
+                DialogueUtils.SetConditions(ConditionsToSet, true);
             }
 
             yield return new WaitForSeconds(Duration);

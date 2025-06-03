@@ -20,5 +20,6 @@ namespace WrongWarp
         RespawnDisabled = 9,
         WrongWarpTaken = 10,
         ShipBarrierDisabled = 11,
+        VisitorHatchOpen = 12,
     }
 }

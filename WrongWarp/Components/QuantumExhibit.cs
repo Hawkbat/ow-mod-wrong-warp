@@ -48,11 +48,6 @@ namespace WrongWarp.Components
             return isPlayerInside;
         }
 
-        public override bool IsLockedByPlayerContact()
-        {
-            return isPlayerInside;
-        }
-
         public override void OnSectorOccupantsUpdated()
         {
             CheckEnabled();
