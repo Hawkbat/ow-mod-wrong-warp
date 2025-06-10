@@ -14,10 +14,9 @@ namespace WrongWarp.Components
         {
             if (hitObj.CompareTag("PlayerDetector"))
             {
-                if (WrongWarpMod.Instance.SaveData[SaveDataFlag.HasPlayedMuseumMelody] && !WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
+                if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
                 {
-                    var notification = new NotificationData(NotificationTarget.All, $"EMERGENCY RESPAWN ACTIVATED");
-                    NotificationManager.SharedInstance.PostNotification(notification);
+                    DialogueConditionManager.SharedInstance.SetConditionState("WW_REACT_WORMHOLE_RESPAWN", true);
                     WrongWarpMod.Instance.Respawner.RespawnPlayer();
                     WrongWarpMod.Instance.Respawner.RespawnShip();
                 }
