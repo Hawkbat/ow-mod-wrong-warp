@@ -1,12 +1,5 @@
 ﻿using ModDataTools.Assets.Props;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using WrongWarp.Configs;
-using WrongWarp.Modules;
 
 namespace WrongWarp.Components
 {
@@ -15,6 +8,7 @@ namespace WrongWarp.Components
         public SignalPropAsset SignalAsset;
         public AudioSignal Signal;
         public OWAudioSource ActivationSound;
+        public Sensor SignalEnableSensor;
 
         public float TimeSinceLastActivation;
 
@@ -23,7 +17,8 @@ namespace WrongWarp.Components
             ActivationSound = GetComponent<OWAudioSource>();
         }
 
-        public override float ComputeStrength() {
+        public override float ComputeStrength()
+        {
             var strength = Signal ? Signal.GetSignalStrength() * Signal.GetSignalStrength() : 0f;
             if (strength >= 1f && TimeSinceLastActivation < 0.25f)
             {
@@ -37,6 +32,15 @@ namespace WrongWarp.Components
         {
             base.Update();
 
+            float dist = Vector3.Distance(transform.position, Locator.GetPlayerBody().transform.position);
+            if (Signal && dist > MaxDistance) Mod.DeviceSignals.DeallocateSignal(this);
+            if (!Signal && dist < MinDistance) Mod.DeviceSignals.TryAllocateSignal(this);
+
+            if (SignalEnableSensor && Signal)
+            {
+                Signal.SetSignalActivation(IsActivated(SignalEnableSensor));
+            }
+
             if (WasActivatedThisFrame(this))
             {
                 if (ActivationSound) ActivationSound.PlayOneShot(AudioType.NomaiOrbSlotActivated);
@@ -45,10 +49,6 @@ namespace WrongWarp.Components
             {
                 TimeSinceLastActivation += Time.deltaTime;
             }
-
-            float dist = Vector3.Distance(transform.position, Locator.GetPlayerBody().transform.position);
-            if (Signal && dist > MaxDistance) Mod.DeviceSignals.DeallocateSignal(this);
-            if (!Signal && dist < MinDistance) Mod.DeviceSignals.TryAllocateSignal(this);
         }
     }
 }

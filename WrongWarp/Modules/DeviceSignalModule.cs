@@ -19,7 +19,7 @@ namespace WrongWarp.Modules
         private Dictionary<AudioSignal, AudioSignalDetectionTrigger> signalTriggers = new Dictionary<AudioSignal, AudioSignalDetectionTrigger>();
         private readonly HashSet<SignalName> signalsKnown = new HashSet<SignalName>();
         private readonly Dictionary<AudioSignal, SensorEmitter> allocations = new Dictionary<AudioSignal, SensorEmitter>();
-        
+
         public DeviceSignalModule(WrongWarpMod mod) : base(mod) { }
 
         public override void OnSystemLoad()
@@ -94,7 +94,8 @@ namespace WrongWarp.Modules
 
             if (availableSignals.Count > 0)
             {
-                var signal = availableSignals.Find(s => {
+                var signal = availableSignals.Find(s =>
+                {
                     if (emitter.SignalAsset != null && s.name != emitter.SignalAsset.FullID) return false;
                     return true;
                 });
@@ -104,11 +105,13 @@ namespace WrongWarp.Modules
                     if (signalTriggers.TryGetValue(signal, out AudioSignalDetectionTrigger trigger))
                     {
                         trigger.transform.SetParent(emitter.transform, false);
+                        trigger._trigger._shape.SetActivation(true);
                     }
                     availableSignals.Remove(signal);
                     emitter.Signal = signal;
                     emitter.Signal.SetSignalActivation(true);
-                } else
+                }
+                else
                 {
                     var signalNames = string.Join(", ", availableSignals.Select(s => AudioSignal.SignalNameToString(s.GetName()) + " (" + s.name + ")"));
                     LogUtils.Log($"Emitter wanted a signal matching '{emitter.SignalAsset.FullID}' but no match was found in list: {signalNames}");
@@ -118,12 +121,17 @@ namespace WrongWarp.Modules
 
         public void DeallocateSignal(SensorEmitter emitter)
         {
-            if (emitter.Signal && !availableSignals.Contains(emitter.Signal))
+            var signal = emitter.Signal;
+            if (signal && !availableSignals.Contains(signal))
             {
-                availableSignals.Add(emitter.Signal);
-                ForgetSignal(emitter.Signal.GetName());
-                emitter.Signal.SetSignalActivation(false);
+                availableSignals.Add(signal);
+                ForgetSignal(signal.GetName());
+                signal.SetSignalActivation(false);
                 emitter.Signal = null;
+                if (signalTriggers.TryGetValue(signal, out AudioSignalDetectionTrigger trigger))
+                {
+                    trigger._trigger._shape.SetActivation(false);
+                }
             }
         }
     }
