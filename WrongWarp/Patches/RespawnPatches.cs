@@ -143,7 +143,57 @@ namespace WrongWarp.Patches
         }
 
         [HarmonyPrefix, HarmonyPatch(typeof(ReferenceFrameGUI), nameof(ReferenceFrameGUI.OnPlayerDeath))]
-        public static bool ReferenceFrameGUI_OnPlayerDeath(ReferenceFrameGUI __instance)
+        public static bool ReferenceFrameGUI_OnPlayerDeath()
+        {
+            if (isRespawn)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(VisorEffectController), nameof(VisorEffectController.OnPlayerDeath))]
+        public static bool VisorEffectController_OnPlayerDeath()
+        {
+            if (isRespawn)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(MapController), nameof(MapController.OnPlayerDeath))]
+        public static bool MapController_OnPlayerDeath()
+        {
+            if (isRespawn)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(ThrustAndAttitudeIndicator), nameof(ThrustAndAttitudeIndicator.OnPlayerDeath))]
+        public static bool ThrustAndAttitudeIndicator_OnPlayerDeath()
+        {
+            if (isRespawn)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(ShipLogController), nameof(ShipLogController.OnPlayerDeath))]
+        public static bool ShipLogController_OnPlayerDeath()
+        {
+            if (isRespawn)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(HUDCanvas), nameof(HUDCanvas.OnPlayerDeath))]
+        public static bool HUDCanvas_OnPlayerDeath()
         {
             if (isRespawn)
             {
