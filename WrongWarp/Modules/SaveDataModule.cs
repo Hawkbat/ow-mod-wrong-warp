@@ -10,106 +10,32 @@ using WrongWarp.Utils;
 
 namespace WrongWarp.Modules
 {
-    public class SaveDataModule : WrongWarpModule
+    public class SaveDataModule(WrongWarpMod mod) : WrongWarpModule(mod)
     {
-        private const string SAVE_PATH = "saves/";
-
-        private SaveData data = null;
-        private bool saveNextFrame;
+        private const string SAVE_CONDITION_PREFIX = "WW_SAVE_";
 
         public bool this[SaveDataFlag flag]
         {
-            get => data[flag];
+            get => PlayerData.GetPersistentCondition(SAVE_CONDITION_PREFIX + flag.ToString());
             set {
-                var oldValue = data[flag];
-                if (!value.Equals(oldValue))
+                var oldValue = this[flag];
+                if (value != oldValue)
                 {
                     LogUtils.Success($"Changing {flag} from {oldValue} to {value}");
-                    data[flag] = value;
-                    Save();
+                    PlayerData.SetPersistentCondition(SAVE_CONDITION_PREFIX + flag.ToString(), value);
                 }
             }
         }
 
         public override bool Active => true;
 
-        public SaveDataModule(WrongWarpMod mod) : base(mod) {
-            LoadManager.OnCompleteSceneLoad += LoadManager_OnCompleteSceneLoad;
-        }
-
-        public override void OnSystemLoad()
+        public void ResetAllFlags()
         {
-            Load();
-        }
-
-        public override void OnSystemUnload()
-        {
-            Save();
-        }
-
-        public override void OnLateUpdate()
-        {
-            if (saveNextFrame)
+            foreach (SaveDataFlag flag in Enum.GetValues(typeof(SaveDataFlag)))
             {
-                saveNextFrame = false;
-                Save(true);
+                this[flag] = false;
             }
+            LogUtils.Success("All save data flags have been reset.");
         }
-
-        private void LoadManager_OnCompleteSceneLoad(OWScene originalScene, OWScene loadScene)
-        {
-            if (loadScene == OWScene.SolarSystem || loadScene == OWScene.EyeOfTheUniverse)
-            {
-                Load();
-            }
-        }
-
-        private void Load()
-        {
-            if (this.data != null && this.data.initialized && this.data.profile == GetCurrentProfile())
-            {
-                return;
-            }
-            var data = Mod.ModHelper.Storage.Load<SaveData>(GetCurrentSaveFileName());
-            if (data == null || !data.initialized || data.profile != GetCurrentProfile())
-            {
-                data = new SaveData
-                {
-                    initialized = true,
-                    profile = GetCurrentProfile(),
-                };
-                LogUtils.Success($"Created new {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
-                Save(true);
-            } else
-            {
-                LogUtils.Success($"Loaded {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
-            }
-            this.data = data;
-        }
-
-        private void Save(bool immediately = false)
-        {
-            if (data == null) return;
-            if (!immediately)
-            {
-                saveNextFrame = true;
-                return;
-            }
-            Mod.ModHelper.Storage.Save(data, GetCurrentSaveFileName());
-            LogUtils.Success($"Saved {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
-        }
-
-        private void Reset()
-        {
-            data = new SaveData()
-            {
-                initialized = true
-            };
-            LogUtils.Success($"Reset {nameof(WrongWarp)} save data for profile {GetCurrentProfile()}");
-            Save(true);
-        }
-
-        private string GetCurrentProfile() => StandaloneProfileManager.SharedInstance?.currentProfile?.profileName ?? "XboxGamepassDefaultProfile";
-        private string GetCurrentSaveFileName() => SAVE_PATH + GetCurrentProfile() + ".json";
     }
 }

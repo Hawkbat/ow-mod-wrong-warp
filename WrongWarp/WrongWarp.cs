@@ -49,7 +49,7 @@ namespace WrongWarp
 
         private bool wasSystemChange;
 
-        private void Start()
+        protected void Start()
         {
             Instance = this;
 
@@ -266,6 +266,7 @@ namespace WrongWarp
             }
             if (config.disabled.HasValue) c.enabled = !config.disabled.Value;
             c.ApplyConfig(config);
+            LogUtils.Log($"Applied component {typeof(TComponent).Name} to object {mo.gameObject.name}");
             return c;
         }
     }
