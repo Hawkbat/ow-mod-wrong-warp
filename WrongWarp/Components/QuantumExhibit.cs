@@ -25,7 +25,7 @@ namespace WrongWarp.Components
             base.Start();
         }
 
-        void FixedUpdate()
+        protected void FixedUpdate()
         {
             if (!transform.localPosition.ApproxEquals(Vector3.zero))
             {

@@ -17,7 +17,24 @@ namespace WrongWarp.Components
         {
             var output = "";
             output += Mod.NewHorizonsApi.GetTranslationForDialogue(Text.FullID + "_" + BlockIndex) + "\n\n";
-            output += $"[{BlockIndex + 1} / {Text.TextBlocks.Count}]";
+            var controls = $"[{BlockIndex + 1} / {Text.TextBlocks.Count}]";
+            if (BlockIndex > 0)
+            {
+                controls = "<< " + controls;
+            }
+            else
+            {
+                controls = "    " + controls;
+            }
+            if (BlockIndex < Text.TextBlocks.Count - 1)
+            {
+                controls += " >>";
+            }
+            else
+            {
+                controls += "    ";
+            }
+            output += controls;
             return output;
         }
 

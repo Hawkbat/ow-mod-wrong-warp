@@ -48,19 +48,16 @@ namespace WrongWarp.Patches
                 return true;
             }
 
-            if (__0 == DeathType.Default || __0 == DeathType.Impact)
-            {
-                var spawnPoint = WrongWarpMod.Instance.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
-                .GetComponentsInChildren<SpawnPoint>(true)
-                .FirstOrDefault(s => !s.IsShipSpawn());
+            var spawnPoint = WrongWarpMod.Instance.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
+            .GetComponentsInChildren<SpawnPoint>(true)
+            .FirstOrDefault(s => !s.IsShipSpawn());
 
-                var overheatVolume = GameObject.FindObjectOfType<Components.OverheatHazardVolume>();
-                var damage = overheatVolume.GetRawDamageAt(spawnPoint.transform.position);
-                if (damage > overheatVolume.MinDamageThreshold)
-                {
-                    LogUtils.Log($"Forcing true death because overheat volume has reached spawn point (death type: {__0})");
-                    return true;
-                }
+            var overheatVolume = GameObject.FindObjectOfType<Components.OverheatHazardVolume>();
+            var damage = overheatVolume.GetRawDamageAt(spawnPoint.transform.position);
+            if (damage > overheatVolume.MinDamageThreshold)
+            {
+                LogUtils.Log($"Forcing true death because overheat volume has reached spawn point (death type: {__0})");
+                return true;
             }
 
             LogUtils.Log($"Respawning player (death type: {__0})");

@@ -26,15 +26,15 @@ namespace WrongWarp.Components
             _type = customItemType;
         }
 
+        public override string GetDisplayName()
+        {
+            return WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(NameAsset.FullID);
+        }
+
         public override void PickUpItem(Transform holdTranform)
         {
             base.PickUpItem(holdTranform);
             WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled] = true;
-        }
-
-        public override string GetDisplayName()
-        {
-            return WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(NameAsset.FullID);
         }
     }
 }
