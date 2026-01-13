@@ -10,6 +10,7 @@ namespace WrongWarp.Components
     public class AmoebaStream : MonoBehaviour
     {
         [SerializeField] ParticleSystem stream;
+        [SerializeField] float streamSpeed = 100f;
         [SerializeField] float streamSpread = 0.5f;
         [SerializeField] bool reverseStream;
         [SerializeField] ParticleSystem start;
@@ -78,23 +79,39 @@ namespace WrongWarp.Components
 
         void UpdateParticles()
         {
-            var startPos = startTarget ? startTarget.position : transform.position;
-            var endPos = endTarget ? endTarget.position : transform.position;
+            var startT = startTarget ? startTarget : transform;
+            var endT = endTarget ? endTarget : transform;
+            var length = Vector3.Distance(startT.position, endT.position);
+
+            stream.transform.position = startT.position;
+            stream.transform.rotation = startT.rotation;
+
+            var startPos = startT.InverseTransformPoint(startT.position);
+            var endPos = startT.InverseTransformPoint(endT.position);
 
             // Update particle positions to create the stream effect
             var particleCount = stream.GetParticles(particles);
             for (int i = 0; i < particleCount; i++)
             {
-                float t = 1f - (particles[i].remainingLifetime / particles[i].startLifetime);
+                var lifetimeElapsed = particles[i].startLifetime - particles[i].remainingLifetime;
+
+                // Update total lifetime based on stream speed and length
+                particles[i].startLifetime = length / streamSpeed;
+                // Adjust remaining lifetime, extending or shortening it so particles keep current elapsed lifetime in seconds
+                particles[i].remainingLifetime = Mathf.Max(0f, particles[i].startLifetime - lifetimeElapsed);
+
+                float t = Mathf.Clamp01(lifetimeElapsed / particles[i].startLifetime);
                 if (reverseStream) t = 1f - t;
                 particles[i].position = Vector3.Lerp(startPos, endPos, t);
                 // Particles spread out perpendicular to the travel line over time, peaking at the middle before converging back to the end point
                 // Angle of spread is psuedo-random based on particle index
                 float spreadFactor = 1f - 4f * (t - 0.5f) * (t - 0.5f); // Parabola peaking at t=0.5
-                float angle = (i * 137.508f) * Mathf.Deg2Rad; // Use golden angle for pseudo-random distribution
-                Vector3 direction = (endPos - startPos).normalized;
-                Vector3 perpendicular = Vector3.Cross(direction, Vector3.up).normalized;
-                Vector3 spreadOffset = perpendicular * Mathf.Sin(angle) * streamSpread * spreadFactor;
+                float angle = (i * 137.508f + t * 720f) * Mathf.Deg2Rad; // Use golden angle for pseudo-random distribution
+                Vector3 dir = (endPos - startPos).normalized;
+                Vector3 perp1 = Vector3.Cross(dir, Vector3.up).normalized;
+                Vector3 perp2 = Vector3.Cross(dir, perp1).normalized;
+                Vector3 spreadOffset = (perp1 * Mathf.Cos(angle) + perp2 * Mathf.Sin(angle)) * streamSpread * spreadFactor;
+
                 particles[i].position += spreadOffset;
             }
             stream.SetParticles(particles, particleCount);

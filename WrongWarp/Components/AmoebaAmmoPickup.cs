@@ -10,11 +10,12 @@ namespace WrongWarp.Components
 {
     public class AmoebaAmmoPickupVolume : EffectVolume
     {
-        public AmoebaGunItem.AmmoType AmmoType;
-        public float AmmoAmount;
-        public bool UnlocksAmmoType;
-        public ParticleSystem ParticlesToDisable;
-        public FrequencyAsset PickupMessageAsset;
+        [SerializeField] AmoebaGunItem.AmmoType ammoType;
+        [SerializeField] float ammoAmount;
+        [SerializeField] bool unlocksAmmoType;
+        [SerializeField] ParticleSystem[] particlesToDisable;
+        [SerializeField] GameObject[] objectsToDisable;
+        [SerializeField] FrequencyAsset pickupMessageAsset;
 
         public override void OnEffectVolumeEnter(GameObject hitObj)
         {
@@ -28,11 +29,11 @@ namespace WrongWarp.Components
                 return;
             }
 
-            if (!amoebaGun.HasUnlockedAmmo(AmmoType))
+            if (!amoebaGun.HasUnlockedAmmo(ammoType))
             {
-                if (UnlocksAmmoType)
+                if (unlocksAmmoType)
                 {
-                    amoebaGun.UnlockAmmo(AmmoType);
+                    amoebaGun.UnlockAmmo(ammoType);
                 }
                 else
                 {
@@ -40,14 +41,18 @@ namespace WrongWarp.Components
                 }
             }
 
-            amoebaGun.RestoreAmmo(AmmoType, AmmoAmount);
+            amoebaGun.RestoreAmmo(ammoType, ammoAmount);
             SetVolumeActivation(false);
-            if (ParticlesToDisable != null)
+            foreach (var obj in objectsToDisable)
             {
-                ParticlesToDisable.Stop();
+                obj.SetActive(false);
+            }
+            foreach (var ps in particlesToDisable)
+            {
+                ps.Stop();
             }
 
-            var pickupMsg = WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(PickupMessageAsset.FullID);
+            var pickupMsg = WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(pickupMessageAsset.FullID);
             NotificationManager.SharedInstance.PostNotification(new NotificationData(NotificationTarget.All, pickupMsg));
         }
 

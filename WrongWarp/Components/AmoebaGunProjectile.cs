@@ -27,6 +27,13 @@ namespace WrongWarp.Components
             this.gun = gun;
             this.ammoType = ammoType;
             this.ammoAmount = ammoAmount;
+
+            var forceDetector = GetComponentInChildren<DynamicForceDetector>();
+
+            foreach (var vol in Locator.GetPlayerForceDetector()._activeVolumes)
+            {
+                forceDetector.AddVolume(vol);
+            }
         }
 
         protected void Update()
