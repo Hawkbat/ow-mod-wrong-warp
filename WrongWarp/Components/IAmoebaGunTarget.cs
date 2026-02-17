@@ -9,6 +9,6 @@ namespace WrongWarp.Components
 {
     public interface IAmoebaGunTarget
     {
-        void OnAmoebaGunHit(AmoebaGunItem gun, AmoebaGunItem.AmmoType ammoType, float amount, Vector3 point);
+        bool OnAmoebaGunHit(AmoebaGunItem gun, AmoebaGunItem.AmmoType ammoType, float amount, Vector3 point);
     }
 }

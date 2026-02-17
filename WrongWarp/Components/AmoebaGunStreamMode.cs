@@ -11,6 +11,8 @@ namespace WrongWarp.Components
     {
         [SerializeField] float ammoConsumptionRate = 0.2f;
         [SerializeField] AmoebaStream stream;
+        [SerializeField] LightningBeam lightning;
+        [SerializeField] bool lightningOnHitOnly;
         [SerializeField] OWAudioSource startFiringAudio;
         [SerializeField] OWAudioSource stopFiringAudio;
         [SerializeField] OWAudioSource firingAudio;
@@ -28,6 +30,11 @@ namespace WrongWarp.Components
             base.StartFiring();
             stream.SetEnabled(true);
             stream.SetPoints(gun.GetMuzzleTransform(), end);
+            if (lightning)
+            {
+                lightning.SetPoints(gun.GetMuzzleTransform(), end);
+                lightning.SetEnabled(!lightningOnHitOnly);
+            }
             if (startFiringAudio)
             {
                 startFiringAudio.Play();
@@ -42,6 +49,10 @@ namespace WrongWarp.Components
         {
             base.StopFiring();
             stream.SetEnabled(false);
+            if (lightning)
+            {
+                lightning.SetEnabled(false);
+            }
             if (stopFiringAudio)
             {
                 stopFiringAudio.Play();
@@ -75,14 +86,20 @@ namespace WrongWarp.Components
                 hitCollider = null;
             }
 
+            var didHit = false;
 
             if (hitCollider)
             {
                 var target = hitCollider.GetComponentInParent<IAmoebaGunTarget>();
                 if (target != null)
                 {
-                    target.OnAmoebaGunHit(gun, AmmoType, ammoSpent, end.position);
+                    didHit = target.OnAmoebaGunHit(gun, AmmoType, ammoSpent, end.position);
                 }
+            }
+
+            if (lightning)
+            {
+                lightning.SetEnabled(!lightningOnHitOnly || didHit);
             }
         }
     }

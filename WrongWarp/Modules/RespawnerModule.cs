@@ -177,6 +177,8 @@ namespace WrongWarp.Modules
                     var spawner = Locator.GetPlayerBody().GetComponent<PlayerSpawner>();
                     spawner.DebugWarp(spawnPoint);
                     isRespawningPlayer = false;
+
+                    Locator.GetPlayerTransform().GetComponent<PlayerResources>().DebugRefillResources();
                 });
             }
         }

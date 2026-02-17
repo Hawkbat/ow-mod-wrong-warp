@@ -6,5 +6,6 @@
   "uniqueName": "Hawkbar.WrongWarp",
   "version": "0.1.0",
   "owmlVersion": "2.5.1",
-  "dependencies": [ "xen.NewHorizons", "Hawkbar.ModDataTools" ]
+  "dependencies": [ "xen.NewHorizons", "Hawkbar.ModDataTools" ],
+  "conflicts": [ "Bwc9876.TimeSaver" ]
 }

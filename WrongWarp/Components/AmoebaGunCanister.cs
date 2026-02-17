@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModDataTools.Assets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,9 +15,11 @@ namespace WrongWarp.Components
         [SerializeField] bool unlocked;
         [SerializeField] float amount;
         [SerializeField] GameObject lockedObj;
+        [SerializeField] OWAudioSource activateAudio;
 
         AmoebaGunMode firingMode;
         ParticleSystem.Particle[] particleArray = new ParticleSystem.Particle[100];
+        bool activated;
 
         protected void Awake()
         {
@@ -65,6 +68,32 @@ namespace WrongWarp.Components
             amount -= delta;
             OnAmmoChanged();
             return delta;
+        }
+
+        public void OnCanisterActivated()
+        {
+            if (activateAudio)
+            {
+                activateAudio.Play();
+            }
+            activated = true;
+            enabled = true;
+        }
+
+        public void OnCanisterDeactivated()
+        {
+            activated = false;
+            enabled = true;
+        }
+
+        protected void Update()
+        {
+            var targetLocalPosition = activated ? Vector3.down * 0.2f : Vector3.zero;
+            transform.localPosition = Vector3.MoveTowards(transform.localPosition, targetLocalPosition, Time.deltaTime * 2f);
+            if (transform.localPosition == targetLocalPosition)
+            {
+                enabled = false;
+            }
         }
 
         void OnAmmoChanged()

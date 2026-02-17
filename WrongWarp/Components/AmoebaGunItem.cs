@@ -18,18 +18,22 @@ namespace WrongWarp.Components
         [SerializeField] FrequencyAsset nameAsset;
         [SerializeField] AmmoType currentAmmoType;
         [SerializeField] Transform muzzle;
+
         AmoebaGunMode currentFiringMode;
         bool preventFiringAfterSwitch;
 
         [SerializeField] FrequencyAsset firePromptAsset;
         [SerializeField] FrequencyAsset altFirePromptAsset;
-        [SerializeField] FrequencyAsset switchAmmoPromptAsset;
         [SerializeField] FrequencyAsset cancelPromptAsset;
+        [SerializeField] FrequencyAsset chargeAmmoPromptAsset;
+        [SerializeField] FrequencyAsset drainAmmoPromptAsset;
+        [SerializeField] FrequencyAsset oxygenAmmoPromptAsset;
+        [SerializeField] FrequencyAsset healAmmoPromptAsset;
 
         ScreenPrompt firePrompt;
         ScreenPrompt altFirePrompt;
-        ScreenPrompt switchAmmoPrompt;
         ScreenPrompt cancelPrompt;
+        Dictionary<AmmoType, ScreenPrompt> ammoPrompts = [];
 
         public static readonly ItemType ItemType;
 
@@ -43,7 +47,6 @@ namespace WrongWarp.Components
             base.Awake();
             _type = ItemType;
             enabled = false;
-
         }
 
         public override string GetDisplayName()
@@ -54,22 +57,19 @@ namespace WrongWarp.Components
         public override void PickUpItem(Transform holdTranform)
         {
             base.PickUpItem(holdTranform);
-            enabled = true;
-            SetPromptVisibility(true);
+            OnActivate();
         }
 
         public override void DropItem(Vector3 position, Vector3 normal, Transform parent, Sector sector, IItemDropTarget customDropTarget)
         {
             base.DropItem(position, normal, parent, sector, customDropTarget);
-            enabled = false;
-            SetPromptVisibility(false);
+            OnDeactivate();
         }
 
         public override void SocketItem(Transform socketTransform, Sector sector)
         {
             base.SocketItem(socketTransform, sector);
-            enabled = false;
-            SetPromptVisibility(false);
+            OnDeactivate();
         }
 
         public bool HasUnlockedAmmo(AmmoType type) => GetCanister(type).IsUnlocked();
@@ -102,13 +102,15 @@ namespace WrongWarp.Components
             }
 
             var inToolMode = Locator.GetToolModeSwapper().IsInToolMode(ToolMode.Item) && Locator.GetToolModeSwapper().GetItemCarryTool().GetHeldItem() == this;
-            var fireInput = inToolMode && OWInput.IsPressed(InputLibrary.toolActionPrimary, InputMode.Character);
+            var fireInput = inToolMode && OWInput.IsPressed(InputLibrary.lockOn, InputMode.Character) || OWInput.IsPressed(InputLibrary.toolActionPrimary, InputMode.Character);
             var altFireInput = inToolMode && OWInput.IsPressed(InputLibrary.toolActionSecondary, InputMode.Character);
-            var switchAmmoBackInput = inToolMode && (OWInput.IsNewlyPressed(InputLibrary.toolOptionUp, InputMode.Character) || OWInput.IsNewlyPressed(InputLibrary.toolOptionLeft, InputMode.Character));
-            var switchAmmoForwardInput = inToolMode && (OWInput.IsNewlyPressed(InputLibrary.toolOptionDown, InputMode.Character) || OWInput.IsNewlyPressed(InputLibrary.toolOptionRight, InputMode.Character));
             var cancelInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.cancel, InputMode.Character);
+            var switchDrainAmmoInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.toolOptionUp, InputMode.Character);
+            var switchChargeAmmoInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.toolOptionLeft, InputMode.Character);
+            var switchOxygenAmmoInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.toolOptionDown, InputMode.Character);
+            var switchHealAmmoInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.toolOptionRight, InputMode.Character);
 
-            SetPromptVisibility(inToolMode);
+            SetPromptVisibility(inToolMode && !OWTime.IsPaused());
 
             if (preventFiringAfterSwitch && !fireInput && !altFireInput)
             {
@@ -119,27 +121,23 @@ namespace WrongWarp.Components
             if (!currentCanister.IsUnlocked())
             {
                 // If the current canister was re-locked, switch to the first available canister
-                currentAmmoType = GetUnlockedCanisters().First().AmmoType;
-                preventFiringAfterSwitch = true;
+                SetCurrentAmmoType(GetUnlockedCanisters().First().AmmoType);
             }
-            else
+            if (switchDrainAmmoInput && HasUnlockedAmmo(AmmoType.Drain))
             {
-                if (switchAmmoBackInput)
-                {
-                    var unlockedCanisters = GetUnlockedCanisters().ToList();
-                    var currentIndex = unlockedCanisters.FindIndex(c => c.AmmoType == currentAmmoType);
-                    var newIndex = (currentIndex - 1 + unlockedCanisters.Count) % unlockedCanisters.Count;
-                    currentAmmoType = unlockedCanisters[newIndex].AmmoType;
-                    preventFiringAfterSwitch = true;
-                }
-                if (switchAmmoForwardInput)
-                {
-                    var unlockedCanisters = GetUnlockedCanisters().ToList();
-                    var currentIndex = unlockedCanisters.FindIndex(c => c.AmmoType == currentAmmoType);
-                    var newIndex = (currentIndex + 1) % unlockedCanisters.Count;
-                    currentAmmoType = unlockedCanisters[newIndex].AmmoType;
-                    preventFiringAfterSwitch = true;
-                }
+                SetCurrentAmmoType(AmmoType.Drain);
+            }
+            else if (switchChargeAmmoInput && HasUnlockedAmmo(AmmoType.Charge))
+            {
+                SetCurrentAmmoType(AmmoType.Charge);
+            }
+            else if (switchOxygenAmmoInput && HasUnlockedAmmo(AmmoType.Oxygen))
+            {
+                SetCurrentAmmoType(AmmoType.Oxygen);
+            }
+            else if (switchHealAmmoInput && HasUnlockedAmmo(AmmoType.Heal))
+            {
+                SetCurrentAmmoType(AmmoType.Heal);
             }
 
             // In Drain mode, secondary uses Charge if available
@@ -178,22 +176,58 @@ namespace WrongWarp.Components
         {
             if (firePrompt == null)
             {
-                firePrompt = new ScreenPrompt(InputLibrary.toolActionPrimary, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(firePromptAsset.FullID) + "   <CMD>" + UITextLibrary.GetString(UITextType.HoldPrompt));
-                altFirePrompt = new ScreenPrompt(InputLibrary.toolActionSecondary, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(altFirePromptAsset.FullID) + "   <CMD>" + UITextLibrary.GetString(UITextType.HoldPrompt));
-                switchAmmoPrompt = new ScreenPrompt(new List<IInputCommands> { InputLibrary.toolOptionUp, InputLibrary.toolOptionDown, InputLibrary.toolOptionLeft, InputLibrary.toolOptionRight }, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(switchAmmoPromptAsset.FullID) + "   <CMD>" + UITextLibrary.GetString(UITextType.PressPrompt), ScreenPrompt.MultiCommandType.NONE);
-                cancelPrompt = new ScreenPrompt(InputLibrary.cancel, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(cancelPromptAsset.FullID) + "   <CMD>" + UITextLibrary.GetString(UITextType.PressPrompt));
+                firePrompt = new ScreenPrompt(InputLibrary.lockOn, InputLibrary.toolActionPrimary, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(firePromptAsset.FullID) + "   <CMD>", ScreenPrompt.MultiCommandType.NONE);
+                altFirePrompt = new ScreenPrompt(InputLibrary.toolActionSecondary, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(altFirePromptAsset.FullID) + "   <CMD>");
+                cancelPrompt = new ScreenPrompt(InputLibrary.cancel, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(cancelPromptAsset.FullID) + "   <CMD>");
+
+                ammoPrompts = new Dictionary<AmmoType, ScreenPrompt>
+                {
+                    [AmmoType.Charge] = new ScreenPrompt(InputLibrary.toolOptionLeft, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(chargeAmmoPromptAsset.FullID) + "   <CMD>"),
+                    [AmmoType.Drain] = new ScreenPrompt(InputLibrary.toolOptionUp, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(drainAmmoPromptAsset.FullID) + "   <CMD>"),
+                    [AmmoType.Oxygen] = new ScreenPrompt(InputLibrary.toolOptionDown, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(oxygenAmmoPromptAsset.FullID) + "   <CMD>"),
+                    [AmmoType.Heal] = new ScreenPrompt(InputLibrary.toolOptionRight, WrongWarpMod.Instance.NewHorizonsApi.GetTranslationForUI(healAmmoPromptAsset.FullID) + "   <CMD>"),
+                };
 
                 Locator.GetPromptManager().AddScreenPrompt(firePrompt, PromptPosition.UpperRight, false);
                 Locator.GetPromptManager().AddScreenPrompt(altFirePrompt, PromptPosition.UpperRight, false);
-                Locator.GetPromptManager().AddScreenPrompt(switchAmmoPrompt, PromptPosition.UpperRight, false);
                 Locator.GetPromptManager().AddScreenPrompt(cancelPrompt, PromptPosition.UpperRight, false);
+                foreach (var prompt in ammoPrompts.Values)
+                {
+                    Locator.GetPromptManager().AddScreenPrompt(prompt, PromptPosition.UpperRight, false);
+                }
 
             }
 
             firePrompt.SetVisibility(visible);
             altFirePrompt.SetVisibility(visible);
-            switchAmmoPrompt.SetVisibility(visible);
             cancelPrompt.SetVisibility(visible && PlayerState.IsWearingSuit());
+            foreach (var kv in ammoPrompts)
+            {
+                kv.Value.SetVisibility(visible && GetCanister(kv.Key).IsUnlocked());
+            }
+        }
+
+        void OnActivate()
+        {
+            enabled = true;
+            SetPromptVisibility(true);
+            transform.localPosition = new Vector3(0.2f, -0.1f, 0.1f);
+            GetCanister(currentAmmoType).OnCanisterActivated();
+        }
+
+        void OnDeactivate()
+        {
+            enabled = false;
+            SetPromptVisibility(false);
+            GetCanister(currentAmmoType).OnCanisterDeactivated();
+        }
+
+        void SetCurrentAmmoType(AmmoType ammoType)
+        {
+            GetCanister(currentAmmoType).OnCanisterDeactivated();
+            currentAmmoType = ammoType;
+            GetCanister(currentAmmoType).OnCanisterActivated();
+            preventFiringAfterSwitch = true;
         }
 
         AmoebaGunCanister GetCanister(AmmoType type) => type switch
