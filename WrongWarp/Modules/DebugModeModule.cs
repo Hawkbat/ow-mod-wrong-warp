@@ -36,6 +36,7 @@ namespace WrongWarp.Modules
             AddSaveDataCommand(Key.Numpad9, SaveDataFlag.RespawnDisabled);
             AddSaveDataCommand(Key.NumpadDivide, SaveDataFlag.ShipBarrierDisabled);
             AddSaveDataCommand(Key.NumpadMultiply, SaveDataFlag.VisitorHatchOpen);
+            AddSaveDataCommand(Key.NumpadPlus, SaveDataFlag.BroughtCoreToEye);
             commands.Add(new DebugCommand(this, DebugInputMode.SaveData, Key.NumpadMinus, () => "Reset All Save Data Flags", () => Mod.SaveData.ResetAllFlags(), null));
 
             AddSpawnCommand(Key.Numpad1, "PlayerSpawnPoint", () => Mod.IsInWrongWarpSystem);

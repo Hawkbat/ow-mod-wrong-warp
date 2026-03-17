@@ -24,7 +24,7 @@ namespace WrongWarp.Components
         bool detonating;
         bool detonated;
 
-        public override float ComputeStrength() => detonating ? 1f : 0f;
+        public override float ComputeStrength() => detonated ? 1f : detonating ? 0.9f : 0f;
 
         public override void WireUp()
         {
@@ -33,6 +33,11 @@ namespace WrongWarp.Components
             explosionGO.transform.localPosition = Vector3.zero;
             explosionGO.transform.localEulerAngles = Vector3.zero;
             explosion = explosionGO.GetComponent<ExplosionController>();
+
+            foreach (var child in ChildrenToEnable)
+            {
+                child.gameObject.SetActive(false);
+            }
         }
 
         public override void Update()
@@ -80,7 +85,8 @@ namespace WrongWarp.Components
             {
                 Locator.GetDeathManager().KillPlayer(DeathType.Impact);
                 player.AddImpulse(dir * LaunchForce);
-            } else if (dist < HurtRadius)
+            }
+            else if (dist < HurtRadius)
             {
                 if (Locator.GetPlayerSuit().IsWearingSuit())
                     player.GetComponent<PlayerResources>().ApplySuitPuncture();

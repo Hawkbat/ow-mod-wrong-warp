@@ -11,24 +11,24 @@ namespace WrongWarp.Components
 {
     public class AmoebaGunItem : OWItem
     {
-        [SerializeField] AmoebaGunCanister chargeAmmo;
-        [SerializeField] AmoebaGunCanister drainAmmo;
-        [SerializeField] AmoebaGunCanister oxygenAmmo;
-        [SerializeField] AmoebaGunCanister healAmmo;
-        [SerializeField] FrequencyAsset nameAsset;
-        [SerializeField] AmmoType currentAmmoType;
-        [SerializeField] Transform muzzle;
+        [SerializeField] AmoebaGunCanister chargeAmmo = default;
+        [SerializeField] AmoebaGunCanister drainAmmo = default;
+        [SerializeField] AmoebaGunCanister oxygenAmmo = default;
+        [SerializeField] AmoebaGunCanister healAmmo = default;
+        [SerializeField] FrequencyAsset nameAsset = default;
+        [SerializeField] AmmoType currentAmmoType = default;
+        [SerializeField] Transform muzzle = default;
 
         AmoebaGunMode currentFiringMode;
         bool preventFiringAfterSwitch;
 
-        [SerializeField] FrequencyAsset firePromptAsset;
-        [SerializeField] FrequencyAsset altFirePromptAsset;
-        [SerializeField] FrequencyAsset cancelPromptAsset;
-        [SerializeField] FrequencyAsset chargeAmmoPromptAsset;
-        [SerializeField] FrequencyAsset drainAmmoPromptAsset;
-        [SerializeField] FrequencyAsset oxygenAmmoPromptAsset;
-        [SerializeField] FrequencyAsset healAmmoPromptAsset;
+        [SerializeField] FrequencyAsset firePromptAsset = default;
+        [SerializeField] FrequencyAsset altFirePromptAsset = default;
+        [SerializeField] FrequencyAsset cancelPromptAsset = default;
+        [SerializeField] FrequencyAsset chargeAmmoPromptAsset = default;
+        [SerializeField] FrequencyAsset drainAmmoPromptAsset = default;
+        [SerializeField] FrequencyAsset oxygenAmmoPromptAsset = default;
+        [SerializeField] FrequencyAsset healAmmoPromptAsset = default;
 
         ScreenPrompt firePrompt;
         ScreenPrompt altFirePrompt;

@@ -15,6 +15,7 @@ namespace WrongWarp.Components
         public Color InactiveColor;
         public Texture2D TextTexture;
         public ModDataTools.Assets.TranslatorTextBlockAsset TextBlock;
+        public float TextScale = 1f;
 
         NomaiWallText text;
         NomaiTextLine textLine;
@@ -44,6 +45,8 @@ namespace WrongWarp.Components
 
             translator = Locator.GetToolModeSwapper()._translator;
 
+            text.transform.localScale = Vector3.one * TextScale;
+            textLine.transform.localEulerAngles = Vector3.zero;
         }
 
         public override float ComputeStrength() => isHighlighted && textLine && textLine.IsTranslated() ? 1f : 0f;

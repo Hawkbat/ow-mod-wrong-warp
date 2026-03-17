@@ -21,5 +21,6 @@ namespace WrongWarp
         WrongWarpTaken = 10,
         ShipBarrierDisabled = 11,
         VisitorHatchOpen = 12,
+        BroughtCoreToEye = 13,
     }
 }

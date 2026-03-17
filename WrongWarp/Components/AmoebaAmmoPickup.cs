@@ -10,12 +10,12 @@ namespace WrongWarp.Components
 {
     public class AmoebaAmmoPickupVolume : EffectVolume
     {
-        [SerializeField] AmoebaGunItem.AmmoType ammoType;
-        [SerializeField] float ammoAmount;
-        [SerializeField] bool unlocksAmmoType;
-        [SerializeField] ParticleSystem[] particlesToDisable;
-        [SerializeField] GameObject[] objectsToDisable;
-        [SerializeField] FrequencyAsset pickupMessageAsset;
+        [SerializeField] AmoebaGunItem.AmmoType ammoType = default;
+        [SerializeField] float ammoAmount = default;
+        [SerializeField] bool unlocksAmmoType = default;
+        [SerializeField] ParticleSystem[] particlesToDisable = default;
+        [SerializeField] GameObject[] objectsToDisable = default;
+        [SerializeField] FrequencyAsset pickupMessageAsset = default;
 
         public override void OnEffectVolumeEnter(GameObject hitObj)
         {

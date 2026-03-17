@@ -14,9 +14,12 @@ namespace WrongWarp.Modules
     {
         public const string START_PLAYING_CONDITION = "WW_TRAVELER_PLAY";
 
+        bool fakeOutFlashback;
         bool startedFinale;
+        List<GameObject> shadowPuppetPrefabs;
 
-        public EyeSequenceModule(WrongWarpMod mod) : base(mod) {
+        public EyeSequenceModule(WrongWarpMod mod) : base(mod)
+        {
         }
 
         public override bool Active => LoadManager.GetCurrentScene() == OWScene.EyeOfTheUniverse;
@@ -24,6 +27,17 @@ namespace WrongWarp.Modules
         public override void OnSystemLoad()
         {
             GlobalMessenger<EyeState>.AddListener("EyeStateChanged", OnEyeStateChanged);
+
+            if (shadowPuppetPrefabs == null || shadowPuppetPrefabs.Count == 0 || shadowPuppetPrefabs.Any(p => p == null))
+            {
+                shadowPuppetPrefabs = new List<GameObject>();
+                for (var i = 0; i < 4; i++)
+                {
+                    var prefab = Mod.SystemAssetBundle.LoadAsset<GameObject>($"Assets/ModAssets/Shared/Objects/ShadowPuppets_{i}.prefab");
+                    prefab.SetActive(false);
+                    shadowPuppetPrefabs.Add(prefab);
+                }
+            }
         }
 
         public override void OnSystemUnload()
@@ -33,13 +47,43 @@ namespace WrongWarp.Modules
 
         private void OnEyeStateChanged(EyeState state)
         {
-            if (state == EyeState.InstrumentHunt)
+            LogUtils.Log($"Eye state changed to {state}");
+            if (fakeOutFlashback)
+            {
+                Mod.StartCoroutine(DoFakeOutFlashbackEnd());
+            }
+            else if (state == EyeState.IntoTheVortex && Mod.SaveData[SaveDataFlag.BroughtCoreToEye] && !fakeOutFlashback)
+            {
+                Mod.StartCoroutine(DoFakeOutFlashback());
+            }
+            else if (state == EyeState.InstrumentHunt)
             {
                 DoAfterFrames(10, () =>
                 {
                     SetupEyeSequence();
                 });
             }
+        }
+
+        IEnumerator DoFakeOutFlashback()
+        {
+            yield return new WaitForSeconds(8f);
+            var camFx = Locator.GetPlayerCamera().GetComponent<PlayerCameraEffectController>();
+            fakeOutFlashback = true;
+            Locator.GetDeathManager().KillPlayer(DeathType.TimeLoop);
+        }
+
+        IEnumerator DoFakeOutFlashbackEnd()
+        {
+            for (int i = 0; i < 10; i++)
+                yield return null;
+            fakeOutFlashback = false;
+            LogUtils.Log("Skipping to instrument hunt");
+            var eoteBody = GameObject.Find("EyeOfTheUniverse_Body").transform;
+            var campfireSpawn = UnityUtils.GetTransformAtPath(eoteBody, "Sector_EyeOfTheUniverse/Sector_Campfire/QuantumCampfire/SPAWN_Campfire");
+            var eyeSpawn = campfireSpawn.GetComponents<EyeSpawnPoint>().First(s => s.GetEyeState() == EyeState.InstrumentHunt);
+            Locator.GetEyeStateManager().SetState(EyeState.InstrumentHunt);
+            GameObject.FindObjectOfType<PlayerSpawner>().DebugWarp(eyeSpawn);
         }
 
         /*
@@ -169,13 +213,7 @@ namespace WrongWarp.Modules
 
             var beatCount = 8f;
 
-            var shadowPuppetPrefabs = new List<GameObject>();
-            for (var i = 0; i < 4; i++)
-            {
-                var prefab = Mod.SystemAssetBundle.LoadAsset<GameObject>($"Assets/ModAssets/Shared/Objects/ShadowPuppets_{i}.prefab");
-                prefab.SetActive(false);
-                shadowPuppetPrefabs.Add(prefab);
-            }
+            // TODO: Spawn campfires ahead of time and just disable them to avoid hitching
 
             var campfires = new List<EyeCampfire>();
 

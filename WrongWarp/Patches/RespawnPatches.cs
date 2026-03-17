@@ -39,7 +39,6 @@ namespace WrongWarp.Patches
             if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
             {
                 LogUtils.Log($"Forcing true death since respawner is disabled (death type: {__0})");
-                WrongWarpMod.Instance.Respawner.OverwriteFlashback();
                 return true;
             }
             if (__0 == DeathType.Dream || __0 == DeathType.DreamExplosion || __0 == DeathType.Supernova || __0 == DeathType.TimeLoop || __0 == DeathType.Meditation)
@@ -103,10 +102,19 @@ namespace WrongWarp.Patches
             return false;
         }
 
+        [HarmonyPostfix, HarmonyPatch(typeof(GameOverController), nameof(GameOverController.OnTriggerDeathOutsideTimeLoop))]
+        public static void GameOverController_OnTriggerDeathOutsideTimeLoop(GameOverController __instance)
+        {
+            if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return;
+            if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled]) return;
+            __instance._deathText.color = new Color(0f, 1f, 0.2f);
+        }
+
         [HarmonyPrefix, HarmonyPatch(typeof(ShipDamageController), nameof(ShipDamageController.Explode))]
         public static bool ShipDamageController_Explode(ShipDamageController __instance)
         {
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
+            if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled]) return true;
             LogUtils.Warn($"Prevented ship explosion");
             WrongWarpMod.Instance.Respawner.RespawnShip();
             return false;
@@ -116,6 +124,7 @@ namespace WrongWarp.Patches
         public static bool ShipDetachableModule_Detach(ShipDetachableModule __instance)
         {
             if (!WrongWarpMod.Instance.IsInWrongWarpSystem) return true;
+            if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled]) return true;
             LogUtils.Warn($"Prevented {__instance} from detaching");
             if (__instance.name == "Module_Cockpit")
             {
@@ -202,26 +211,24 @@ namespace WrongWarp.Patches
         [HarmonyPostfix, HarmonyPatch(typeof(UIStyleApplier), nameof(UIStyleApplier.ChangeColors))]
         public static void UIStyleApplier_ChangeColors(UIStyleApplier __instance, UIElementState state)
         {
-            if (__instance.name == "Button-Respawn")
+            if (__instance.name != "Button-Respawn") return;
+            var color = new Color(0f, 1f, 0.2f);
+            switch (state)
             {
-                Color color = new Color(0f, 1f, 0.2f);
-                switch (state)
-                {
-                    case UIElementState.NORMAL:
-                        break;
-                    case UIElementState.INTERMEDIATELY_HIGHLIGHTED:
-                    case UIElementState.HIGHLIGHTED:
-                    case UIElementState.PRESSED:
-                    case UIElementState.ROLLOVER_HIGHLIGHT:
-                        color = new Color(0.8f, 1f, 0.9f);
-                        break;
-                    case UIElementState.DISABLED:
-                        return;
-                }
-                foreach (var gfx in __instance._foregroundGraphics)
-                {
-                    gfx.color = color;
-                }
+                case UIElementState.NORMAL:
+                    break;
+                case UIElementState.INTERMEDIATELY_HIGHLIGHTED:
+                case UIElementState.HIGHLIGHTED:
+                case UIElementState.PRESSED:
+                case UIElementState.ROLLOVER_HIGHLIGHT:
+                    color = new Color(0.8f, 1f, 0.9f);
+                    break;
+                case UIElementState.DISABLED:
+                    return;
+            }
+            foreach (var gfx in __instance._foregroundGraphics)
+            {
+                gfx.color = color;
             }
         }
     }

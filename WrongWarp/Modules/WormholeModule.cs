@@ -49,13 +49,9 @@ namespace WrongWarp.Modules
             {
                 whiteHole.SetActive(false);
             }
-            var warpVolumeActive = blackHoleActive && Mod.SaveData[SaveDataFlag.RespawnDisabled];
-            if (blackHoleWarpVolume && !blackHoleWarpVolume.activeSelf && warpVolumeActive)
+            if (blackHoleWarpVolume.activeSelf)
             {
-                blackHoleWarpVolume.SetActive(true);
-            }
-            if (blackHoleWarpVolume && blackHoleWarpVolume.activeSelf && !warpVolumeActive)
-            {
+                // Handled by WormholeRespawnVolume
                 blackHoleWarpVolume.SetActive(false);
             }
         }

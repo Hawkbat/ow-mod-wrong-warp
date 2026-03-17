@@ -7,7 +7,6 @@ using ModDataTools.Utilities;
 using OWML.Common;
 using OWML.ModHelper;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using WrongWarp.Components;
 using WrongWarp.Configs;
 using WrongWarp.Modules;
@@ -123,15 +122,28 @@ namespace WrongWarp
                         vmat.Type = VanillaMaterial.MaterialType.QuantumRock;
                     }
                 });
-            } else if (wasSystemChange)
+            }
+            else if (wasSystemChange)
             {
                 IsInWrongWarpSystem = false;
-                SaveData[SaveDataFlag.WrongWarpTaken] = false;
-            } else
-            {
-                IsInWrongWarpSystem = false;
-                if (SaveData[SaveDataFlag.WrongWarpTaken])
+                if (system == "SolarSystem")
                 {
+                    LogUtils.Log($"Warped back to Timber Hearth after being in the Wrong Warp system, resetting Wrong Warp flags");
+                    SaveData[SaveDataFlag.RespawnDisabled] = false;
+                    SaveData[SaveDataFlag.WrongWarpTaken] = false;
+                    SaveData[SaveDataFlag.BroughtCoreToEye] = false;
+                }
+                else if (system == "EyeOfTheUniverse")
+                {
+                    LogUtils.Log($"Warped to the Eye of the Universe (was wrong warped: {SaveData[SaveDataFlag.WrongWarpTaken]}, brought core: {SaveData[SaveDataFlag.BroughtCoreToEye]})");
+                }
+            }
+            else
+            {
+                IsInWrongWarpSystem = false;
+                if (system == "SolarSystem" && SaveData[SaveDataFlag.WrongWarpTaken])
+                {
+                    LogUtils.Log($"Loaded Timber Hearth after being in the Wrong Warp system, forcing system change");
                     UnityUtils.DoAfterFrames(this, 1, () =>
                     {
                         Warp.WarpToWrongWarpSystem(!SaveData[SaveDataFlag.HasDoneIntroTour]);
@@ -217,7 +229,8 @@ namespace WrongWarp
                             }
                         }
                     }
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
                     ModHelper.Console.WriteLine(ex.ToString(), MessageType.Error);
                 }

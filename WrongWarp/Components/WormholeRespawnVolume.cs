@@ -14,12 +14,22 @@ namespace WrongWarp.Components
         {
             if (hitObj.CompareTag("PlayerDetector"))
             {
-                if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
+                if (!WrongWarpMod.Instance.SaveData[SaveDataFlag.HasPlayedMuseumMelody])
                 {
-                    DialogueConditionManager.SharedInstance.SetConditionState("WW_REACT_WORMHOLE_RESPAWN", true);
-                    WrongWarpMod.Instance.Respawner.RespawnPlayer();
-                    WrongWarpMod.Instance.Respawner.RespawnShip();
+                    // Black hole is still a white hole, do nothing
+                    return;
                 }
+                if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
+                {
+                    var hasSeed = Locator.GetToolModeSwapper().GetItemCarryTool().GetHeldItemType() == CuratorSeedItem.ItemType;
+                    WrongWarpMod.Instance.SaveData[SaveDataFlag.BroughtCoreToEye] = hasSeed;
+                    WrongWarpMod.Instance.Warp.WarpToEye();
+                    return;
+                }
+
+                DialogueConditionManager.SharedInstance.SetConditionState("WW_REACT_WORMHOLE_RESPAWN", true);
+                WrongWarpMod.Instance.Respawner.RespawnPlayer();
+                WrongWarpMod.Instance.Respawner.RespawnShip();
             }
         }
 

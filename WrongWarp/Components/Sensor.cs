@@ -28,6 +28,7 @@ namespace WrongWarp.Components
         public static bool WasActivatedThisFrame(Sensor sensor) => GetStrength(sensor) == 1f && GetPreviousStrength(sensor) < 1f;
         public static float GetMaxStrength(IEnumerable<Sensor> sensors) => sensors != null && sensors.Any() ? sensors.Max(e => GetStrength(e)) : 0f;
         public static float GetMinStrength(IEnumerable<Sensor> sensors) => sensors != null && sensors.Any() ? sensors.Min(e => GetStrength(e)) : 0f;
+        public static float GetAverageStrength(IEnumerable<Sensor> sensors) => sensors != null && sensors.Any() ? sensors.Average(e => GetStrength(e)) : 0f;
         public static bool AreAnyActivated(IEnumerable<Sensor> sensors) => sensors != null && sensors.Any() && sensors.Any(s => IsActivated(s));
         public static bool AreAllActivated(IEnumerable<Sensor> sensors) => sensors != null && sensors.Any() && sensors.All(s => IsActivated(s));
         public static bool AreAnyDeactivated(IEnumerable<Sensor> sensors) => sensors != null && sensors.Any() && sensors.Any(s => IsDeactivated(s));

@@ -17,8 +17,14 @@ namespace WrongWarp.Modules
 
         bool isRespawningPlayer;
         bool isRespawningShip;
+        bool flashbackOverwritten;
 
         SubmitAction respawnButton;
+        AudioClip finalFlashbackClip;
+        Texture2D flashbackTex;
+        GameObject maskReplacementPrefab;
+
+        public override bool Active => true;
 
         public bool IsRespawningPlayer => isRespawningPlayer;
         public bool IsRespawningShip => isRespawningShip;
@@ -29,11 +35,12 @@ namespace WrongWarp.Modules
         {
             GlobalMessenger<DeathType>.AddListener("PlayerDeath", OnPlayerDeath);
             GlobalMessenger.AddListener("FlashbackStart", FlashbackStart);
+
             DoAfterSeconds(0.1f, () =>
             {
                 TimeLoop.SetTimeLoopEnabled(true);
 
-                if (Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
+                if (Mod.IsInWrongWarpSystem && Mod.SaveData[SaveDataFlag.HasDoneIntroTour])
                 {
                     RespawnPlayer();
                     RespawnShip();
@@ -58,10 +65,16 @@ namespace WrongWarp.Modules
                 respawnButton.OnSubmitAction -= OnRespawnButtonSubmit;
                 respawnButton = null;
             }
+            flashbackOverwritten = false;
         }
 
         private void OnRespawnButtonSubmit()
         {
+            if (WrongWarpMod.Instance.SaveData[SaveDataFlag.RespawnDisabled])
+            {
+                Locator.GetMenuAudioController().PlayNegativeUISound();
+                return;
+            }
             var pauseMenu = UnityEngine.Object.FindObjectOfType<PauseMenuManager>();
             pauseMenu._pauseMenu.EnableMenu(false);
             DialogueConditionManager.SharedInstance.SetConditionState("WW_REACT_PAUSE_MENU_RESPAWN", true);
@@ -71,9 +84,27 @@ namespace WrongWarp.Modules
 
         private void OnPlayerDeath(DeathType deathType)
         {
-            if (Mod.IsInWrongWarpSystem && deathType == DeathType.TimeLoop)
+            if (!Mod.IsInWrongWarpSystem && LoadManager.GetCurrentScene() != OWScene.EyeOfTheUniverse)
+            {
+                return;
+            }
+
+            if (deathType == DeathType.TimeLoop)
             {
                 Locator.GetPlayerCamera().postProcessingSettings.eyeMask.edgeColor = new Color(0f, 1.5f, 0.5f);
+
+                if (LoadManager.GetCurrentScene() == OWScene.EyeOfTheUniverse)
+                {
+                    if (finalFlashbackClip == null)
+                    {
+                        finalFlashbackClip = Mod.SystemAssetBundle.LoadAsset<AudioClip>("Assets/ModAssets/Shared/Audio/FinalFlashback.ogg");
+                    }
+                    OverwriteFlashback();
+                    // Re-enable time loop so flashback plays
+                    TimeLoop.SetTimeLoopEnabled(true);
+                    // Prevent travel music from playing over the flashback music
+                    PlayerState._atFlightConsole = false;
+                }
             }
 
             if (Mod.IsInWrongWarpSystem && !Mod.SaveData[SaveDataFlag.RespawnDisabled])
@@ -84,55 +115,53 @@ namespace WrongWarp.Modules
             }
         }
 
-        Texture2D flashbackTex;
-        GameObject maskReplacementPrefab;
-
         private void FlashbackStart()
         {
-            if (Mod.IsInWrongWarpSystem)
+            if (!Mod.IsInWrongWarpSystem && LoadManager.GetCurrentScene() != OWScene.EyeOfTheUniverse)
             {
-                if (!flashbackTex)
+                return;
+            }
+            if (!flashbackTex)
+            {
+                flashbackTex = Mod.SystemAssetBundle.LoadAsset<Texture2D>("Assets/ModAssets/Shared/Textures/FlashbackStreams.png");
+                flashbackTex.wrapMode = TextureWrapMode.Clamp;
+                flashbackTex.wrapModeU = TextureWrapMode.Clamp;
+                flashbackTex.wrapModeV = TextureWrapMode.Repeat;
+                flashbackTex.wrapModeW = TextureWrapMode.Repeat;
+            }
+
+            var flashback = UnityEngine.Object.FindObjectOfType<Flashback>();
+            flashback._matPropBlock_Streams.SetColor("_EmissionColor", Mod.TweakConfig.flashbackColor);
+            flashback._matPropBlock_Streams.SetTexture("_MainTex", flashbackTex);
+
+            var mask = flashback._maskTransform.Find("Props_NOM_Mask");
+            mask.gameObject.SetActive(false);
+
+            if (!maskReplacementPrefab)
+            {
+                maskReplacementPrefab = Mod.SystemAssetBundle.LoadAsset<GameObject>("Assets/ModAssets/Shared/Objects/FlashbackMaskReplacement.prefab");
+                maskReplacementPrefab.SetActive(false);
+            }
+
+            var maskReplacement = UnityEngine.Object.Instantiate(maskReplacementPrefab);
+            maskReplacement.transform.parent = flashback._maskTransform;
+            maskReplacement.transform.localPosition = Vector3.zero;
+            maskReplacement.transform.localRotation = Quaternion.identity;
+            maskReplacement.layer = (int)OuterWildsLayer.Flashback;
+            maskReplacement.SetActive(true);
+
+            if (flashbackOverwritten)
+            {
+                var snapshotDuration = 0f;
+                var snapshotCount = GetFinalFlashbackImageCount();
+                for (int i = 0; i < snapshotCount; i++)
                 {
-                    flashbackTex = Mod.SystemAssetBundle.LoadAsset<Texture2D>("Assets/ModAssets/Shared/Textures/FlashbackStreams.png");
-                    flashbackTex.wrapMode = TextureWrapMode.Clamp;
-                    flashbackTex.wrapModeU = TextureWrapMode.Clamp;
-                    flashbackTex.wrapModeV = TextureWrapMode.Repeat;
-                    flashbackTex.wrapModeW = TextureWrapMode.Repeat;
+                    snapshotDuration += GetFinalFlashbackImageDuration();
+                    flashback._imageDisplayTimes[snapshotCount - 1 - i] = snapshotDuration;
                 }
-
-                var flashback = UnityEngine.Object.FindObjectOfType<Flashback>();
-                flashback._matPropBlock_Streams.SetColor("_EmissionColor", Mod.TweakConfig.flashbackColor);
-                flashback._matPropBlock_Streams.SetTexture("_MainTex", flashbackTex);
-
-                var mask = flashback._maskTransform.Find("Props_NOM_Mask");
-                mask.gameObject.SetActive(false);
-
-                if (!maskReplacementPrefab)
-                {
-                    maskReplacementPrefab = Mod.SystemAssetBundle.LoadAsset<GameObject>("Assets/ModAssets/Shared/Objects/FlashbackMaskReplacement.prefab");
-                    maskReplacementPrefab.SetActive(false);
-                }
-
-                var maskReplacement = UnityEngine.Object.Instantiate(maskReplacementPrefab);
-                maskReplacement.transform.parent = flashback._maskTransform;
-                maskReplacement.transform.localPosition = Vector3.zero;
-                maskReplacement.transform.localRotation = Quaternion.identity;
-                maskReplacement.layer = (int)OuterWildsLayer.Flashback;
-                maskReplacement.SetActive(true);
-
-                if (Mod.SaveData[SaveDataFlag.RespawnDisabled])
-                {
-                    var snapshotDuration = 0f;
-                    var snapshotCount = GetFinalFlashbackImageCount();
-                    for (int i = 0; i < snapshotCount; i++)
-                    {
-                        snapshotDuration += GetFinalFlashbackImageDuration();
-                        flashback._imageDisplayTimes[snapshotCount - 1 - i] = snapshotDuration;
-                    }
-                    flashback._snapshotIndex = snapshotCount - 1;
-                    flashback._flashbackTimer = new Timer(flashback._flashbackStartDelay + flashback._playbackDelay + snapshotDuration);
-                    Mod.StartCoroutine(DoPlayFinalFlashbackSong());
-                }
+                flashback._snapshotIndex = snapshotCount - 1;
+                flashback._flashbackTimer = new Timer(flashback._flashbackStartDelay + flashback._playbackDelay + snapshotDuration);
+                Mod.StartCoroutine(DoPlayFinalFlashbackSong());
             }
         }
 
@@ -140,9 +169,8 @@ namespace WrongWarp.Modules
         {
             var flashback = UnityEngine.Object.FindObjectOfType<Flashback>();
             var startDelay = flashback._flashbackStartDelay + flashback._playbackDelay;
-            var finalSongClip = Mod.SystemAssetBundle.LoadAsset<AudioClip>("Assets/ModAssets/Shared/Audio/FinalFlashback.ogg");
             yield return new WaitForSeconds(startDelay);
-            flashback._audioController._oneShotSource.PlayOneShot(finalSongClip);
+            flashback._audioController._oneShotSource.PlayOneShot(finalFlashbackClip, 0.7f);
         }
 
         float GetFinalFlashbackImageDuration()
@@ -194,7 +222,8 @@ namespace WrongWarp.Modules
                 spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_SEEKERS_EXHIBIT")
                     .GetComponentsInChildren<SpawnPoint>(true)
                     .First(s => s.IsShipSpawn());
-            } else
+            }
+            else
             {
                 spawnPoint = Mod.NewHorizonsApi.GetPlanet("WW_HEARTHIAN_EXHIBIT")
                     .GetComponentsInChildren<SpawnPoint>(true)
@@ -219,7 +248,7 @@ namespace WrongWarp.Modules
 
                 spawnRB.WarpToPositionRotation(shipBody.transform.position, shipBody.transform.rotation);
                 spawnRB.SetVelocity(shipBody.GetVelocity());
-                
+
                 for (int i = 0; i < 10; i++)
                 {
                     UnityUtils.DoAfterSeconds(Mod, 0.1f * i, () =>
@@ -299,8 +328,10 @@ namespace WrongWarp.Modules
             return teleporterFx;
         }
 
-        public void OverwriteFlashback()
+        private void OverwriteFlashback()
         {
+            flashbackOverwritten = true;
+
             if (flashbackAssetBundle == null)
             {
                 flashbackAssetBundle = Mod.ModHelper.Assets.LoadBundle("assetbundles/flashback");
@@ -339,7 +370,8 @@ namespace WrongWarp.Modules
                     if (sparesIndex < oldArray.Length)
                     {
                         renderTexture = oldArray[sparesIndex++];
-                    } else
+                    }
+                    else
                     {
                         renderTexture = new RenderTexture(Mathf.RoundToInt(dstW), Mathf.RoundToInt(dstH), 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
                         renderTexture.name = "FlashbackRenderTex_" + outputIndex;

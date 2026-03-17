@@ -11,11 +11,11 @@ namespace WrongWarp.Components
     public class AmoebaGunCanister : WrongWarpBehaviour
     {
         public AmoebaGunItem.AmmoType AmmoType;
-        [SerializeField] ParticleSystem particles;
-        [SerializeField] bool unlocked;
-        [SerializeField] float amount;
-        [SerializeField] GameObject lockedObj;
-        [SerializeField] OWAudioSource activateAudio;
+        [SerializeField] ParticleSystem particles = default;
+        [SerializeField] bool unlocked = default;
+        [SerializeField] float amount = default;
+        [SerializeField] GameObject lockedObj = default;
+        [SerializeField] OWAudioSource activateAudio = default;
 
         AmoebaGunMode firingMode;
         ParticleSystem.Particle[] particleArray = new ParticleSystem.Particle[100];
