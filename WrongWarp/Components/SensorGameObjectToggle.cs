@@ -29,7 +29,11 @@ namespace WrongWarp.Components
                 if (p != null) return p.gameObject;
                 return o;
             }).ToList();
-            wasActive = true;
+            foreach (var obj in Objects)
+            {
+                obj.SetActive(false);
+            }
+            wasActive = false;
             wiredUp = true;
         }
 

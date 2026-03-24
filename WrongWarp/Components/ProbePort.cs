@@ -47,23 +47,33 @@ namespace WrongWarp.Components
         private Vector3 previousOffset;
         private Vector3 currentOffset;
 
-        public override void WireUp()
+        protected void Awake()
         {
             AudioSource = GetComponent<OWAudioSource>();
-            var probe = Locator.GetProbe();
-            probe.OnAnchorProbe += SurveyorProbe_OnAnchorProbe;
-            probe.OnStartRetrieveProbe += SurveyorProbe_OnStartRetrieveProbe;
-            GlobalMessenger<ProbeCamera>.AddListener("ProbeSnapshot", cam =>
-            {
-                if (cam == probe.GetRotatingCamera() && IsProbeInPort())
-                {
-                    OnProbeSnapshot();
-                }
-            });
+
             foreach (var screen in GetComponentsInChildren<ProbePortScreen>()) Screens.Add(screen);
             UpdateScreen();
             initialOffset = Socket.localPosition;
             previousOffset = initialOffset;
+        }
+
+        public override void WireUp()
+        {
+            var probe = Locator.GetProbe();
+            probe.OnAnchorProbe += SurveyorProbe_OnAnchorProbe;
+            probe.OnStartRetrieveProbe += SurveyorProbe_OnStartRetrieveProbe;
+            GlobalMessenger<ProbeCamera>.AddListener("ProbeSnapshot", OnProbeSnapshot);
+        }
+
+        protected void OnDestroy()
+        {
+            var probe = Locator.GetProbe();
+            if (probe)
+            {
+                probe.OnAnchorProbe -= SurveyorProbe_OnAnchorProbe;
+                probe.OnStartRetrieveProbe -= SurveyorProbe_OnStartRetrieveProbe;
+            }
+            GlobalMessenger<ProbeCamera>.RemoveListener("ProbeSnapshot", OnProbeSnapshot);
         }
 
         protected virtual void Update()
@@ -82,11 +92,9 @@ namespace WrongWarp.Components
             }
         }
 
-        private void OnProbeSnapshot()
+        private void OnProbeSnapshot(ProbeCamera cam)
         {
-            var probe = Locator.GetProbe();
-            var cam = probe.GetRotatingCamera();
-
+            if (cam != Locator.GetProbe().GetRotatingCamera() || !IsProbeInPort()) return;
             // Horizontal rotation goes infinitely in both directions
             // -30deg clockwise/'left', +30deg clockwise/'right'
             // Vertical rotation moves between 0 and -90 degrees
@@ -94,9 +102,13 @@ namespace WrongWarp.Components
             // rotation here is post-rotation
             var deltaRotation = cam._cameraRotation - previousRotation;
 
-            var rotIncrement = 30f;
-            var deltaX = Mathf.RoundToInt(deltaRotation.x / rotIncrement);
-            var deltaY = Mathf.RoundToInt(-deltaRotation.y / rotIncrement);
+            var deltaX = 0;
+            var deltaY = 0;
+
+            if (OWInput.IsNewlyPressed(InputLibrary.toolOptionRight)) deltaX += 1;
+            if (OWInput.IsNewlyPressed(InputLibrary.toolOptionLeft)) deltaX -= 1;
+            if (OWInput.IsNewlyPressed(InputLibrary.toolOptionUp)) deltaY += 1;
+            if (OWInput.IsNewlyPressed(InputLibrary.toolOptionDown)) deltaY -= 1;
 
             var newScreen = Screens.Find(s =>
                 s.X == CurrentScreen.X + deltaX &&
@@ -109,10 +121,11 @@ namespace WrongWarp.Components
                 Locator.GetPlayerAudioController().PlayEnterLaunchCodes();
                 previousRotation = cam._cameraRotation;
                 CurrentScreen.OnEnter();
-            } else
+            }
+            else
             {
-                if (deltaX != 0) cam.RotateHorizontal(-deltaRotation.x);
-                if (deltaY != 0) cam.RotateVertical(-deltaRotation.y);
+                if (deltaRotation.x != 0) cam.RotateHorizontal(-deltaRotation.x);
+                if (deltaRotation.y != 0) cam.RotateVertical(-deltaRotation.y);
                 if (!CurrentScreen.OnTick(deltaX, -deltaY))
                 {
                     Locator.GetPlayerAudioController().PlayNegativeUISound();

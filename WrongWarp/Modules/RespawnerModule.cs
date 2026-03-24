@@ -175,6 +175,8 @@ namespace WrongWarp.Modules
 
         float GetFinalFlashbackImageDuration()
         {
+            // Temp to fast-forward through flashback for testing
+            return 1f / 60f;
             var beatsPerMinute = 92f;
             var secondsPerBeat = 60f / beatsPerMinute;
             return secondsPerBeat;

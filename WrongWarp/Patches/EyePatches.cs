@@ -26,13 +26,13 @@ namespace WrongWarp.Patches
             }
             return true;
         }
+        */
 
         [HarmonyPrefix, HarmonyPatch(typeof(TravelerEyeController), nameof(TravelerEyeController.OnCrossfadeToFinale))]
         public static void TravelerEyeController_OnCrossfadeToFinale(TravelerEyeController __instance, float __0)
         {
             WrongWarpMod.Instance.EyeSequence.StartFinale();
         }
-        */
 
         [HarmonyPrefix, HarmonyPatch(typeof(NomaiCoordinateInterface), nameof(NomaiCoordinateInterface.SetPillarRaised), typeof(bool))]
         public static bool NomaiCoordinateInterface_SetPillarRaised(NomaiCoordinateInterface __instance, bool __0)

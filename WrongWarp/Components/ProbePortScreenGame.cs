@@ -33,15 +33,21 @@ namespace WrongWarp.Components
         public override void OnEnter()
         {
             base.OnEnter();
-            CurrentGame = new ProbeGame(Port, this);
-            CurrentGame.Start();
+            if (CurrentGame == null)
+            {
+                CurrentGame = new ProbeGame(Port, this);
+                CurrentGame.Start();
+            }
         }
 
         public override void OnExit()
         {
             base.OnExit();
-            CurrentGame.End(false);
-            CurrentGame = null;
+            if (!CurrentGame.Win)
+            {
+                CurrentGame.End(false);
+                CurrentGame = null;
+            }
         }
 
         public override bool OnTick(int dx, int dy)

@@ -38,6 +38,21 @@ namespace WrongWarp.Modules
                     shadowPuppetPrefabs.Add(prefab);
                 }
             }
+            DoAfterFrames(4, () =>
+            {
+                if (LoadManager.GetCurrentScene() != OWScene.EyeOfTheUniverse) return;
+                var seedObj = GameObject.Find("EyeOfTheUniverse_Body").transform.Find("Sector_EyeOfTheUniverse/EYE_CURATOR_SEED").gameObject;
+                var seed = seedObj.GetComponent<CuratorSeedItem>();
+
+                if (Mod.SaveData[SaveDataFlag.BroughtCoreToEye])
+                {
+                    Locator.GetToolModeSwapper().GetItemCarryTool().PickUpItemInstantly(seed);
+                }
+                else
+                {
+                    seedObj.SetActive(false);
+                }
+            });
         }
 
         public override void OnSystemUnload()
@@ -71,6 +86,11 @@ namespace WrongWarp.Modules
             var camFx = Locator.GetPlayerCamera().GetComponent<PlayerCameraEffectController>();
             fakeOutFlashback = true;
             Locator.GetDeathManager().KillPlayer(DeathType.TimeLoop);
+            var heldCore = Locator.GetToolModeSwapper().GetItemCarryTool().GetHeldItem() as CuratorSeedItem;
+            if (heldCore)
+            {
+                heldCore.Flash();
+            }
         }
 
         IEnumerator DoFakeOutFlashbackEnd()
