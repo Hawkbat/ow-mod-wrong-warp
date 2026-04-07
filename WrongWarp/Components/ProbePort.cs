@@ -21,6 +21,7 @@ namespace WrongWarp.Components
         public Text InterfaceMarkerDown;
         public SpriteRenderer[] ProbeGameGrid;
         public Sprite[] ProbeGameSprites;
+        public ParticleSystem[] Particles;
 
         [HideInInspector]
         public OWAudioSource AudioSource;
@@ -55,6 +56,11 @@ namespace WrongWarp.Components
             UpdateScreen();
             initialOffset = Socket.localPosition;
             previousOffset = initialOffset;
+            foreach (var ps in Particles)
+            {
+                var emission = ps.emission;
+                emission.enabled = false;
+            }
         }
 
         public override void WireUp()
@@ -89,6 +95,10 @@ namespace WrongWarp.Components
                 }
                 var t = Mathf.SmoothStep(0f, 1f, t1);
                 Socket.localPosition = Vector3.Lerp(previousOffset, currentOffset, t);
+            }
+            else
+            {
+                enabled = false;
             }
         }
 
@@ -163,11 +173,17 @@ namespace WrongWarp.Components
                     InterfaceCanvas.renderMode = RenderMode.ScreenSpaceCamera;
                     InterfaceCanvas.worldCamera = probe.GetRotatingCamera().GetOWCamera().mainCamera;
                 }
+                foreach (var ps in Particles)
+                {
+                    var emission = ps.emission;
+                    emission.enabled = true;
+                }
                 probe.GetRotatingCamera().ResetRotation();
                 previousRotation = probe.GetRotatingCamera()._cameraRotation;
                 CurrentScreen = Screens.Find(s => s.X == 0 && s.Y == 0);
                 CurrentScreen.OnEnter();
                 UpdateScreen();
+                enabled = true;
             }
         }
 
