@@ -15,13 +15,17 @@ namespace WrongWarp.Components
         public List<Sensor> Sensors = new List<Sensor>();
         public List<string> SensorPaths = new List<string>();
         public EasingFunc EaseIn;
+        public EasingType EaseInType;
         public EasingFunc EaseOut;
+        public EasingType EaseOutType;
         public float Speed;
         public float GracePeriod;
 
         public Transform Pivot;
         public Transform StartPoint;
         public Transform EndPoint;
+
+        public DarkZone DarkZone;
 
         public float OpenAmount = 0f;
         public bool IsOpen = false;
@@ -43,6 +47,8 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
+            EaseIn ??= EasingUtils.Lookup(EaseInType);
+            EaseOut ??= EasingUtils.Lookup(EaseOutType);
             if (!Sensors.Any()) Sensors = GetComponentsAtPaths<Sensor>(SensorPaths);
             if (!Pivot) Pivot = GetTransformAtPath("Pivot");
             if (!StartPoint) StartPoint = GetTransformAtPath("Start");
@@ -60,6 +66,17 @@ namespace WrongWarp.Components
             {
                 float t = EasingUtils.Ease(OpenAmount, IsOpen ? EaseIn : EaseOut, IsOpen ? EaseOut : EaseIn);
                 Pivot.transform.position = Vector3.Lerp(StartPoint.position, EndPoint.position, t);
+            }
+            if (DarkZone)
+            {
+                if (OpenAmount == 0 && !DarkZone._playerInDarkZone)
+                {
+                    DarkZone.AddPlayerToZone(true);
+                }
+                else if (OpenAmount > 0 && DarkZone._playerInDarkZone)
+                {
+                    DarkZone.RemovePlayerFromZone(true);
+                }
             }
         }
     }

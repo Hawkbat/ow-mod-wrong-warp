@@ -152,7 +152,7 @@ namespace WrongWarp.Components
             }
 
             var hasAmmo = currentCanister.GetAmount() > 0f;
-            var shouldFire = (fireInput || altFireInput) && hasAmmo && !preventFiringAfterSwitch;
+            var shouldFire = inToolMode && (fireInput || altFireInput) && hasAmmo && !preventFiringAfterSwitch;
 
             if (currentFiringMode != currentCanister.GetFiringMode())
             {

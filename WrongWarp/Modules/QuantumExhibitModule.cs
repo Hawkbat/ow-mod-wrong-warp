@@ -83,5 +83,10 @@ namespace WrongWarp.Modules
             if (!shouldBeQuantum) quantumExhibit.MoveToSocket(defaultSocket);
             quantumExhibit.SetIsQuantum(shouldBeQuantum);
         }
+
+        public EyeExhibitState GetActiveExhibitState()
+        {
+            return states.FirstOrDefault(s => s.IsStateActive());
+        }
     }
 }

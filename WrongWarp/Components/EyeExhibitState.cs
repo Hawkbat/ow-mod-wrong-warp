@@ -19,6 +19,8 @@ namespace WrongWarp.Components
         public QuantumSocket QuantumSocket => socket;
         public bool IsStateActive() => socket.IsOccupied();
 
+        public bool IsPlayerInDarkZone() => darkZone._playerInDarkZone;
+
         void OnEnable()
         {
             socket = GetComponentInChildren<QuantumSocket>();

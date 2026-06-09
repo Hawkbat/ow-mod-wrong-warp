@@ -53,9 +53,30 @@ namespace WrongWarp.Components
             CheckEnabled();
         }
 
+        public override bool CheckIllumination()
+        {
+            if (isPlayerInside)
+            {
+                var activeState = WrongWarpMod.Instance.QuantumExhibit.GetActiveExhibitState();
+                if (activeState && !activeState.IsPlayerInDarkZone()) return true;
+            }
+            return base.CheckIllumination();
+        }
+
         public override bool ChangeQuantumState(bool skipInstantVisibilityCheck)
         {
             if (!IsQuantum()) return false;
+            if (isPlayerInside)
+            {
+                // If the player is inside, only allow state changes if we're intentionally entangle-teleporting
+                var activeState = WrongWarpMod.Instance.QuantumExhibit.GetActiveExhibitState();
+                if (!activeState || !activeState.IsPlayerInDarkZone()) return false;
+                if (PlayerState.IsFlashlightOn()) return false;
+                if (activeState.IsPlayerInDarkZone())
+                {
+                    skipInstantVisibilityCheck = true;
+                }
+            }
             var changed = base.ChangeQuantumState(skipInstantVisibilityCheck);
             if (changed && _occupiedSocket != null)
             {
@@ -65,7 +86,8 @@ namespace WrongWarp.Components
             if (changed)
             {
                 LogUtils.Warn("Quantum exhibit changed state to " + _occupiedSocket);
-            } else
+            }
+            else
             {
                 LogUtils.Warn("Quantum exhibit failed to change state");
             }

@@ -22,6 +22,7 @@ namespace WrongWarp.Components
         public SpriteRenderer[] ProbeGameGrid;
         public Sprite[] ProbeGameSprites;
         public ParticleSystem[] Particles;
+        public Sensor ActivationSensor;
 
         [HideInInspector]
         public OWAudioSource AudioSource;
@@ -43,10 +44,13 @@ namespace WrongWarp.Components
             s.X == CurrentScreen.X &&
             s.Y == CurrentScreen.Y - 1);
 
+        public bool IsActivated => !ActivationSensor || Sensor.IsActivated(ActivationSensor);
+
         private Vector2 previousRotation;
         private Vector3 initialOffset;
         private Vector3 previousOffset;
         private Vector3 currentOffset;
+        private bool isInterfaceActive;
 
         protected void Awake()
         {
@@ -84,6 +88,11 @@ namespace WrongWarp.Components
 
         protected virtual void Update()
         {
+            if ((isInterfaceActive && !IsActivated) || !IsProbeInPort())
+                DeactivateInterface();
+            if (!isInterfaceActive && IsActivated && IsProbeInPort())
+                ActivateInterface();
+
             if (IsProbeInPort())
             {
                 var t0 = Mathf.Repeat(Time.time - Time.deltaTime, 1f);
@@ -104,7 +113,7 @@ namespace WrongWarp.Components
 
         private void OnProbeSnapshot(ProbeCamera cam)
         {
-            if (cam != Locator.GetProbe().GetRotatingCamera() || !IsProbeInPort()) return;
+            if (cam != Locator.GetProbe().GetRotatingCamera() || !IsProbeInPort() || !IsActivated) return;
             // Horizontal rotation goes infinitely in both directions
             // -30deg clockwise/'left', +30deg clockwise/'right'
             // Vertical rotation moves between 0 and -90 degrees
@@ -167,42 +176,63 @@ namespace WrongWarp.Components
                 {
                     light.SetActivation(false);
                 }
-                if (InterfaceCanvas)
-                {
-                    InterfaceCanvas.enabled = true;
-                    InterfaceCanvas.renderMode = RenderMode.ScreenSpaceCamera;
-                    InterfaceCanvas.worldCamera = probe.GetRotatingCamera().GetOWCamera().mainCamera;
-                }
-                foreach (var ps in Particles)
-                {
-                    var emission = ps.emission;
-                    emission.enabled = true;
-                }
                 probe.GetRotatingCamera().ResetRotation();
                 previousRotation = probe.GetRotatingCamera()._cameraRotation;
-                CurrentScreen = Screens.Find(s => s.X == 0 && s.Y == 0);
-                CurrentScreen.OnEnter();
-                UpdateScreen();
+                if (IsActivated) ActivateInterface();
                 enabled = true;
             }
         }
 
         private void SurveyorProbe_OnStartRetrieveProbe(float retrieveLength)
         {
-            var probe = Locator.GetProbe();
-            foreach (var light in probe.GetLights())
+            if (IsProbeInPort())
             {
-                light.SetActivation(true);
+                var probe = Locator.GetProbe();
+                foreach (var light in probe.GetLights())
+                {
+                    light.SetActivation(true);
+                }
+                DeactivateInterface();
             }
+        }
+
+        private void ActivateInterface()
+        {
+            var probe = Locator.GetProbe();
+            if (InterfaceCanvas)
+            {
+                InterfaceCanvas.enabled = true;
+                InterfaceCanvas.renderMode = RenderMode.ScreenSpaceCamera;
+                InterfaceCanvas.worldCamera = probe.GetRotatingCamera().GetOWCamera().mainCamera;
+            }
+            foreach (var ps in Particles)
+            {
+                var emission = ps.emission;
+                emission.enabled = IsActivated;
+            }
+            CurrentScreen = Screens.Find(s => s.X == 0 && s.Y == 0);
+            CurrentScreen.OnEnter();
+            UpdateScreen();
+            isInterfaceActive = true;
+        }
+
+        private void DeactivateInterface()
+        {
             if (InterfaceCanvas)
             {
                 InterfaceCanvas.worldCamera = null;
                 InterfaceCanvas.enabled = false;
             }
+            foreach (var ps in Particles)
+            {
+                var emission = ps.emission;
+                emission.enabled = IsActivated;
+            }
             foreach (var sr in ProbeGameGrid)
                 sr.enabled = false;
             if (CurrentScreen) CurrentScreen.OnExit();
             CurrentScreen = null;
+            isInterfaceActive = false;
         }
 
         private void UpdateScreen()
