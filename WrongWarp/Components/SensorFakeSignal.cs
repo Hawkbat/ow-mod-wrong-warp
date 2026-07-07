@@ -20,7 +20,8 @@ namespace WrongWarp.Components
             if (!ActivationSound) ActivationSound = GetComponent<OWAudioSource>();
         }
 
-        public override float ComputeStrength() {
+        public override float ComputeStrength()
+        {
             var strength = 0f;
             var scope = Locator.GetToolModeSwapper().GetSignalScope();
             if (scope.IsEquipped())

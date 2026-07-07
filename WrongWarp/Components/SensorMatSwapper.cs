@@ -28,7 +28,6 @@ namespace WrongWarp.Components
             if (sensorsActive != wasActive)
             {
                 Swap(sensorsActive);
-                wasActive = sensorsActive;
             }
         }
 
@@ -41,6 +40,7 @@ namespace WrongWarp.Components
                 arr[MaterialSlot] = mat;
                 r.sharedMaterials = arr;
             }
+            wasActive = sensorsActive;
         }
     }
 }

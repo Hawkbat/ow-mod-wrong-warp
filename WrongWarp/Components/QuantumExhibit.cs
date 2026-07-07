@@ -10,6 +10,8 @@ namespace WrongWarp.Components
 {
     public class QuantumExhibit : SocketedQuantumObject
     {
+        public DarkZone darkZone;
+
         bool isPlayerInside;
 
         public override void Awake()
@@ -55,11 +57,7 @@ namespace WrongWarp.Components
 
         public override bool CheckIllumination()
         {
-            if (isPlayerInside)
-            {
-                var activeState = WrongWarpMod.Instance.QuantumExhibit.GetActiveExhibitState();
-                if (activeState && !activeState.IsPlayerInDarkZone()) return true;
-            }
+            if (isPlayerInside && !darkZone._playerInDarkZone) return true;
             return base.CheckIllumination();
         }
 
@@ -69,19 +67,25 @@ namespace WrongWarp.Components
             if (isPlayerInside)
             {
                 // If the player is inside, only allow state changes if we're intentionally entangle-teleporting
-                var activeState = WrongWarpMod.Instance.QuantumExhibit.GetActiveExhibitState();
-                if (!activeState || !activeState.IsPlayerInDarkZone()) return false;
-                if (PlayerState.IsFlashlightOn()) return false;
-                if (activeState.IsPlayerInDarkZone())
-                {
-                    skipInstantVisibilityCheck = true;
-                }
+                if (!darkZone._playerInDarkZone) return false;
+                skipInstantVisibilityCheck = true;
             }
             var changed = base.ChangeQuantumState(skipInstantVisibilityCheck);
             if (changed && _occupiedSocket != null)
             {
                 transform.parent = _occupiedSocket.transform;
                 transform.position = _occupiedSocket.transform.TransformPoint(_localOffset);
+
+                if (darkZone._ambientLight != null)
+                {
+                    darkZone._ambientLight.intensity = darkZone._origAmbientIntensity;
+                }
+                darkZone._ambientLight = _occupiedSocket.transform.root.Find("Sector/AmbientLight").GetComponent<Light>();
+                darkZone._origAmbientIntensity = darkZone._ambientLight.intensity;
+                if (darkZone._playerInDarkZone)
+                {
+                    darkZone._ambientLight.intensity = 0f;
+                }
             }
             if (changed)
             {

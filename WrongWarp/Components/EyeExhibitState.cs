@@ -12,22 +12,15 @@ namespace WrongWarp.Components
         public QuantumExhibit QuantumExhibit;
 
         QuantumSocket socket;
-        DarkZone darkZone;
         GravityVolume gravityWell;
-        Light ambientLight;
 
         public QuantumSocket QuantumSocket => socket;
         public bool IsStateActive() => socket.IsOccupied();
 
-        public bool IsPlayerInDarkZone() => darkZone._playerInDarkZone;
-
         void OnEnable()
         {
             socket = GetComponentInChildren<QuantumSocket>();
-            darkZone = GetComponentInChildren<DarkZone>();
             gravityWell = transform.root.Find("GravityWell").GetComponent<GravityVolume>();
-            ambientLight = transform.root.Find("Sector/AmbientLight").GetComponent<Light>();
-            darkZone._ambientLight = ambientLight;
         }
 
         void OnDisable()
