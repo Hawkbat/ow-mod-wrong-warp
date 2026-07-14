@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using UnityEngine;
 
 namespace WrongWarp.Components
 {
@@ -10,5 +6,13 @@ namespace WrongWarp.Components
     {
         public float MinDistance;
         public float MaxDistance;
+
+        protected virtual void OnDrawGizmosSelected()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, MinDistance);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, MaxDistance);
+        }
     }
 }

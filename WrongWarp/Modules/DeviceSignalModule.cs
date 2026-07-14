@@ -105,6 +105,7 @@ namespace WrongWarp.Modules
                     if (signalTriggers.TryGetValue(signal, out AudioSignalDetectionTrigger trigger))
                     {
                         trigger.transform.SetParent(emitter.transform, false);
+                        (trigger._trigger._shape as SphereShape).radius = emitter.MinDistance;
                         trigger._trigger._shape.SetActivation(true);
                     }
                     availableSignals.Remove(signal);
