@@ -93,8 +93,7 @@ namespace WrongWarp.Components
 
         public float GetProgress() =>
             TimeLoop.GetFractionElapsed();
-        public float GetRadius() =>
-            Mathf.Lerp(MinRadius, MaxRadius, GetProgress());
+        public float GetRadius() => WrongWarpMod.Instance.Wormhole.GetHeatNovaRadius() + 1000f;
         public float GetDistance(Vector3 point) =>
             Vector3.Distance(transform.position, point);
         public float GetCurrentMaxTemperature()

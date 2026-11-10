@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModDataTools.Assets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace WrongWarp.Components
     {
         public bool Activated;
         public List<Sensor> Sensors = new();
+        public FactAsset RevealFact;
 
         int index;
 
@@ -43,6 +45,10 @@ namespace WrongWarp.Components
                             Activated = true;
                             LogUtils.Log($"Sequence Complete - {name}");
                             Locator.GetPlayerAudioController()._oneShotExternalSource.PlayOneShot(AudioType.NomaiTractorBeamActivate);
+                            if (RevealFact != null)
+                            {
+                                DialogueUtils.RevealFact(RevealFact);
+                            }
                         }
                         return;
                     }

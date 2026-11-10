@@ -15,6 +15,8 @@ namespace WrongWarp.Modules
 {
     public class IntroTourModule : WrongWarpModule
     {
+        const string INTRO_TOUR_CONDITION = "WW_IS_INTRO_TOUR";
+
         private OWRigidbody vesselBody;
 
         public IntroTourModule(WrongWarpMod mod) : base(mod) { }
@@ -93,6 +95,8 @@ namespace WrongWarp.Modules
             vesselBody.AddAngularVelocityChange(Vector3.forward * 0.05f);
 
             playerBody.SetVelocity(vesselBody.GetPointVelocity(playerBody.GetPosition()));
+
+            DialogueConditionManager.SharedInstance.SetConditionState(INTRO_TOUR_CONDITION, true);
         }
     }
 }

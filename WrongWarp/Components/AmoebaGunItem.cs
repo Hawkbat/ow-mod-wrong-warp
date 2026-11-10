@@ -102,7 +102,7 @@ namespace WrongWarp.Components
             }
 
             var inToolMode = Locator.GetToolModeSwapper().IsInToolMode(ToolMode.Item) && Locator.GetToolModeSwapper().GetItemCarryTool().GetHeldItem() == this;
-            var fireInput = inToolMode && OWInput.IsPressed(InputLibrary.lockOn, InputMode.Character) || OWInput.IsPressed(InputLibrary.toolActionPrimary, InputMode.Character);
+            var fireInput = inToolMode && (OWInput.IsPressed(InputLibrary.lockOn, InputMode.Character) || OWInput.IsPressed(InputLibrary.toolActionPrimary, InputMode.Character));
             var altFireInput = inToolMode && OWInput.IsPressed(InputLibrary.toolActionSecondary, InputMode.Character);
             var cancelInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.cancel, InputMode.Character);
             var switchDrainAmmoInput = inToolMode && OWInput.IsNewlyPressed(InputLibrary.toolOptionUp, InputMode.Character);

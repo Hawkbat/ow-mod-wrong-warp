@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using WrongWarp.Components;
 using WrongWarp.Objects;
 using WrongWarp.Utils;
 
@@ -24,6 +25,7 @@ namespace WrongWarp.Modules
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.Numpad1, () => "SaveData Debug Menu", () => inputMode = DebugInputMode.SaveData, null));
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.Numpad2, () => "Spawn Debug Menu", () => inputMode = DebugInputMode.Spawn, null));
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.Numpad3, () => "Warp Debug Menu", () => inputMode = DebugInputMode.Warp, null));
+            commands.Add(new DebugCommand(this, DebugInputMode.None, Key.Numpad4, () => "Tool Debug Menu", () => inputMode = DebugInputMode.Tool, null));
 
             AddSaveDataCommand(Key.Numpad1, SaveDataFlag.ArchivistSignalActive);
             AddSaveDataCommand(Key.Numpad2, SaveDataFlag.GuideSignalActive);
@@ -63,6 +65,9 @@ namespace WrongWarp.Modules
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad3, () => "Warp to Wrong Warp System", () => Mod.Warp.WarpToWrongWarpSystem(false), null));
             commands.Add(new DebugCommand(this, DebugInputMode.Warp, Key.Numpad4, () => "Warp to Wrong Warp System (Force Intro Tour)", () => Mod.Warp.WarpToWrongWarpSystem(true), null));
 
+            GiveItemCommand<AmoebaGunItem>(Key.Numpad1, "Amoeba Gun");
+            GiveItemCommand<CuratorSeedItem>(Key.Numpad2, "Curator Seed");
+
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPeriod, () => "Remove Suit", () => Locator.GetPlayerSuit().RemoveSuit(), () => Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadPeriod, () => "Suit Up", () => Locator.GetPlayerSuit().SuitUp(), () => !Locator.GetPlayerSuit()?.IsWearingSuit() ?? false));
             commands.Add(new DebugCommand(this, DebugInputMode.None, Key.NumpadDivide, () => "Kill Player", () => Locator.GetDeathManager().KillPlayer(DeathType.Default), null));
@@ -80,6 +85,18 @@ namespace WrongWarp.Modules
             void AddSpawnCommand(Key key, string spawnPoint, Func<bool> condition)
             {
                 commands.Add(new DebugCommand(this, DebugInputMode.Spawn, key, () => spawnPoint, () => WarpToSpawnPoint(spawnPoint), condition));
+            }
+
+            void GiveItemCommand<T>(Key key, string itemName) where T : OWItem
+            {
+                commands.Add(new DebugCommand(this, DebugInputMode.Tool, key, () => $"Give {itemName}", () =>
+                {
+                    var item = UnityEngine.Object.FindObjectOfType<T>();
+                    if (item != null)
+                    {
+                        Locator.GetToolModeSwapper().GetItemCarryTool().PickUpItemInstantly(item);
+                    }
+                }, null));
             }
         }
 
@@ -131,6 +148,7 @@ namespace WrongWarp.Modules
             SaveData = 1,
             Spawn = 2,
             Warp = 3,
+            Tool = 4,
         }
 
         public class DebugCommand

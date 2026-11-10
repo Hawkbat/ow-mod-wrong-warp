@@ -25,6 +25,9 @@ namespace WrongWarp.Components
         [SerializeField] DirectionalForceVolume alignmentVolume;
         [SerializeField] Transform topEmitter;
         [SerializeField] Transform bottomEmitter;
+        [SerializeField] Sensor activationSensor;
+        [SerializeField] Material poweredEmitterMaterial;
+        [SerializeField] Material unpoweredEmitterMaterial;
 
         float input;
         CapsuleCollider fieldShape;
@@ -35,19 +38,33 @@ namespace WrongWarp.Components
         float previousRadius;
         float previousSpeed;
 
+        public bool IsActivated => !activationSensor || Sensor.IsActivated(activationSensor);
+
         public override void Awake()
         {
             base.Awake();
             fieldShape = GetComponent<CapsuleCollider>();
+            if (activationSensor)
+            {
+                activationSensor.OnActivated.AddListener(OnActivationChanged);
+                activationSensor.OnDeactivated.AddListener(OnActivationChanged);
+            }
         }
 
         public override void Start()
         {
             base.Start();
             UpdateParameters(true);
-            if (!Application.isEditor)
+            if (Application.isPlaying) UpdateActivation();
+        }
+
+        public override void OnDestroy()
+        {
+            base.OnDestroy();
+            if (activationSensor)
             {
-                enabled = false;
+                activationSensor.OnActivated.RemoveListener(OnActivationChanged);
+                activationSensor.OnDeactivated.RemoveListener(OnActivationChanged);
             }
         }
 
@@ -60,6 +77,8 @@ namespace WrongWarp.Components
             }
             UpdateParameters();
         }
+
+        void OnActivationChanged(Sensor sensor, float currentStrength, float previousStrength) => UpdateActivation();
 
         public override void OnEffectVolumeEnter(GameObject hitObj)
         {
@@ -126,6 +145,32 @@ namespace WrongWarp.Components
             return result;
         }
 
+        void UpdateActivation()
+        {
+            var active = IsActivated;
+            SetVolumeActivation(active);
+            alignmentVolume.SetVolumeActivation(active);
+            enabled = playerInside || Application.isEditor;
+
+            if (active)
+            {
+                UpdateParameters(true);
+            }
+            else
+            {
+                rings.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                sparkles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            }
+
+            foreach (var emitter in new[] { topEmitter, bottomEmitter })
+            {
+                var r = emitter.GetComponent<MeshRenderer>();
+                var mats = r.sharedMaterials;
+                mats[1] = active ? poweredEmitterMaterial : unpoweredEmitterMaterial;
+                r.sharedMaterials = mats;
+            }
+        }
+
         void UpdateParameters(bool force = false)
         {
             var speed = playerInside ? input * maxPlayerSpeed : idleSpeed;
@@ -139,7 +184,7 @@ namespace WrongWarp.Components
             previousSpeed = speed;
             var parametersChanged = lengthChanged || radiusChanged || speedChanged;
 
-            if (!parametersChanged) return;
+            if (!parametersChanged && !force) return;
 
             var start = transform.position;
             var end = transform.position + transform.up * length;

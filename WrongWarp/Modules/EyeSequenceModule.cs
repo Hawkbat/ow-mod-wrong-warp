@@ -38,6 +38,13 @@ namespace WrongWarp.Modules
                     shadowPuppetPrefabs.Add(prefab);
                 }
             }
+
+            if (Mod.SaveData[SaveDataFlag.WrongWarpTaken])
+            {
+                var skipSpawn = GameObject.Find("EyeOfTheUniverse_Body").transform.Find("EYE_BROUGHT_CORE_SPAWN").GetComponent<SpawnPoint>();
+                Locator.GetPlayerBody().GetComponent<PlayerSpawner>().DebugWarp(skipSpawn);
+            }
+
             DoAfterFrames(4, () =>
             {
                 if (LoadManager.GetCurrentScene() != OWScene.EyeOfTheUniverse) return;

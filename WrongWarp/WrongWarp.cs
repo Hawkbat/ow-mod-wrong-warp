@@ -107,7 +107,6 @@ namespace WrongWarp
                 SaveData[SaveDataFlag.WrongWarpTaken] = true;
                 SystemLoadCounter++;
                 SetupNewHorizonsConfigObjectTypes();
-                foreach (var module in Modules) module.OnSystemLoad();
 
                 UnityUtils.DoAfterFrames(this, 2, () =>
                 {

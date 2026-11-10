@@ -4,11 +4,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace WrongWarp.Components
 {
     public abstract class Sensor : WrongWarpBehaviour
     {
+        public class SensorEvent : UnityEvent<Sensor, float, float> { }
+
+        public SensorEvent OnStrengthChanged = new();
+        public SensorEvent OnActivated = new();
+        public SensorEvent OnDeactivated = new();
+
         public float Strength { get; private set; }
         public float PreviousStrength { get; private set; }
 
@@ -18,6 +25,19 @@ namespace WrongWarp.Components
         {
             PreviousStrength = Strength;
             Strength = ComputeStrength();
+
+            if (Strength != PreviousStrength)
+            {
+                OnStrengthChanged.Invoke(this, Strength, PreviousStrength);
+                if (WasActivatedThisFrame(this))
+                {
+                    OnActivated.Invoke(this, Strength, PreviousStrength);
+                }
+                else if (WasDeactivatedThisFrame(this))
+                {
+                    OnDeactivated.Invoke(this, Strength, PreviousStrength);
+                }
+            }
         }
 
         public static float GetStrength(Sensor sensor) => sensor != null ? Mathf.Clamp01(sensor.Strength) : 0f;

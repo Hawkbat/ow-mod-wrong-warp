@@ -65,6 +65,12 @@ namespace WrongWarp.Components
                 var emission = ps.emission;
                 emission.enabled = false;
             }
+
+            if (ActivationSensor)
+            {
+                ActivationSensor.OnActivated.AddListener(OnActivationChanged);
+                ActivationSensor.OnDeactivated.AddListener(OnActivationChanged);
+            }
         }
 
         public override void WireUp()
@@ -84,6 +90,11 @@ namespace WrongWarp.Components
                 probe.OnStartRetrieveProbe -= SurveyorProbe_OnStartRetrieveProbe;
             }
             GlobalMessenger<ProbeCamera>.RemoveListener("ProbeSnapshot", OnProbeSnapshot);
+            if (ActivationSensor)
+            {
+                ActivationSensor.OnActivated.RemoveListener(OnActivationChanged);
+                ActivationSensor.OnDeactivated.RemoveListener(OnActivationChanged);
+            }
         }
 
         protected virtual void Update()
@@ -205,11 +216,7 @@ namespace WrongWarp.Components
                 InterfaceCanvas.renderMode = RenderMode.ScreenSpaceCamera;
                 InterfaceCanvas.worldCamera = probe.GetRotatingCamera().GetOWCamera().mainCamera;
             }
-            foreach (var ps in Particles)
-            {
-                var emission = ps.emission;
-                emission.enabled = IsActivated;
-            }
+            UpdateParticles();
             CurrentScreen = Screens.Find(s => s.X == 0 && s.Y == 0);
             CurrentScreen.OnEnter();
             UpdateScreen();
@@ -223,16 +230,27 @@ namespace WrongWarp.Components
                 InterfaceCanvas.worldCamera = null;
                 InterfaceCanvas.enabled = false;
             }
-            foreach (var ps in Particles)
-            {
-                var emission = ps.emission;
-                emission.enabled = IsActivated;
-            }
+            UpdateParticles();
             foreach (var sr in ProbeGameGrid)
                 sr.enabled = false;
             if (CurrentScreen) CurrentScreen.OnExit();
             CurrentScreen = null;
             isInterfaceActive = false;
+        }
+
+        private void UpdateParticles()
+        {
+            foreach (var ps in Particles)
+            {
+                var emission = ps.emission;
+                emission.enabled = IsActivated;
+            }
+        }
+
+        private void OnActivationChanged(Sensor sensor, float currentStrength, float previousStrength)
+        {
+            UpdateParticles();
+            enabled = true;
         }
 
         private void UpdateScreen()

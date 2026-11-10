@@ -59,6 +59,12 @@ namespace WrongWarp.Patches
                 return true;
             }
 
+            if (WrongWarpMod.Instance.Wormhole.HasHeatNovaOvertakenSpawn())
+            {
+                LogUtils.Log($"Forcing true death because heat nova has overtaken spawn point (death type: {__0})");
+                return true;
+            }
+
             LogUtils.Log($"Respawning player (death type: {__0})");
             isRespawn = true;
             __instance._isDying = true;

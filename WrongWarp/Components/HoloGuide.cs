@@ -65,7 +65,7 @@ namespace WrongWarp.Components
 
                 var pathToAnimController = UnityUtils.GetTransformPath(t, true);
 
-                var (dialogueTree, remoteTrigger) = Mod.NewHorizonsApi.SpawnDialogue(Mod, dialogueObj.transform.root.gameObject, dialoguePath, 2f, 1f, null, 5f, pathToAnimController, 0f);
+                var (dialogueTree, remoteTrigger) = Mod.NewHorizonsApi.SpawnDialogue(Mod, dialogueObj.transform.root.gameObject, dialoguePath, 2f, 2f, null, 5f, pathToAnimController, 0f);
                 dialogueTree.transform.parent = dialogueObj.transform;
                 dialogueTree.transform.localPosition = Vector3.zero;
                 dialogueTree.transform.localRotation = Quaternion.identity;

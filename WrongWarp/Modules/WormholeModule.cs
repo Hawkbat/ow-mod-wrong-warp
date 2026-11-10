@@ -13,6 +13,8 @@ namespace WrongWarp.Modules
         GameObject whiteHole;
         GameObject blackHole;
         GameObject blackHoleWarpVolume;
+        GameObject heatNova;
+        bool hasNovaExploded;
 
         public WormholeModule(WrongWarpMod mod) : base(mod) { }
 
@@ -22,6 +24,9 @@ namespace WrongWarp.Modules
             blackHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/WW_C_BLACK_HOLE").gameObject;
             whiteHole = UnityUtils.GetTransformAtPath(core.transform, "./Sector/WW_C_WHITE_HOLE").gameObject;
             blackHoleWarpVolume = UnityUtils.GetTransformAtPath(blackHole.transform, "./DestructionVolume").gameObject;
+            var heatNovaBody = Mod.NewHorizonsApi.GetPlanet("WW_HEAT_NOVA");
+            heatNova = UnityUtils.GetTransformAtPath(heatNovaBody.transform, "./Sector/Star").gameObject;
+            hasNovaExploded = false;
         }
 
         public override void OnSystemUnload()
@@ -49,11 +54,33 @@ namespace WrongWarp.Modules
             {
                 whiteHole.SetActive(false);
             }
-            if (blackHoleWarpVolume.activeSelf)
+            if (blackHoleWarpVolume && blackHoleWarpVolume.activeSelf)
             {
                 // Handled by WormholeRespawnVolume
                 blackHoleWarpVolume.SetActive(false);
             }
+            if (!blackHoleActive && TimeLoop.GetMinutesElapsed() > 1f && !hasNovaExploded)
+            {
+                heatNova.SendMessage("StartSupernova");
+                hasNovaExploded = true;
+            }
+        }
+
+        public float GetHeatNovaRadius()
+        {
+            if (!hasNovaExploded) return 0f;
+            const float SUPERNOVA_EXPLOSION_TIME = 1f;
+            const float SUPERNOVA_EXPANSION_RATE = 12f;
+            var supernovaRadius = (TimeLoop.GetMinutesElapsed() - SUPERNOVA_EXPLOSION_TIME) * SUPERNOVA_EXPANSION_RATE;
+            return supernovaRadius;
+        }
+
+        public bool HasHeatNovaOvertakenSpawn()
+        {
+            if (!hasNovaExploded) return false;
+            const float SPAWN_ORBIT_RADIUS = 16000f;
+            var supernovaRadius = GetHeatNovaRadius();
+            return supernovaRadius >= SPAWN_ORBIT_RADIUS;
         }
     }
 }

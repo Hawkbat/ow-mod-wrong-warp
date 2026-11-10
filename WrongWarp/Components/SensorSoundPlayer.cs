@@ -12,6 +12,7 @@ namespace WrongWarp.Components
 {
     public class SensorSoundPlayer : WrongWarpBehaviour
     {
+        public AudioType AudioType;
         public string AudioTypeName;
         public float Delay;
         public bool Continuous;
@@ -23,6 +24,10 @@ namespace WrongWarp.Components
 
         public override void WireUp()
         {
+            if (AudioType == AudioType.None && !string.IsNullOrEmpty(AudioTypeName))
+            {
+                AudioType = EnumUtils.Parse(AudioTypeName, AudioType.NonDiaUINegativeSFX);
+            }
             audioSource = gameObject.GetAddComponent<AudioSource>();
             audioSource.spatialBlend = 1f;
             owAudioSource = gameObject.GetAddComponent<OWAudioSource>();
@@ -30,7 +35,7 @@ namespace WrongWarp.Components
             owAudioSource.loop = Continuous;
             UnityUtils.DoAfterFrames(Mod, 1, () =>
             {
-                owAudioSource.AssignAudioLibraryClip(EnumUtils.Parse<AudioType>(AudioTypeName, AudioType.NonDiaUINegativeSFX));
+                owAudioSource.AssignAudioLibraryClip(AudioType);
             });
         }
 

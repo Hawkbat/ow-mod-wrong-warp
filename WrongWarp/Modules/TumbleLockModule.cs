@@ -35,11 +35,13 @@ namespace WrongWarp.Modules
 
         public void Register(TumbleLock tl)
         {
+            if (tl.Master) return; // Don't register dependent locks
             locks[tl.Frequency.FullID] = tl;
         }
 
         public void Unregister(TumbleLock tl)
         {
+            if (tl.Master) return;
             locks.Remove(tl.Frequency.FullID);
         }
     }
