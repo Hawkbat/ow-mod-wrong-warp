@@ -7,34 +7,41 @@ using UnityEngine;
 
 namespace WrongWarp.Components
 {
-    public class EyeExhibitState : WrongWarpBehaviour
+    public class EyeExhibitState : VisibilityObject
     {
         public QuantumExhibit QuantumExhibit;
 
-        QuantumSocket socket;
         GravityVolume gravityWell;
+        QuantumSocket socket;
 
         public QuantumSocket QuantumSocket => socket;
         public bool IsStateActive() => socket.IsOccupied();
 
-        void OnEnable()
+        public override void Awake()
         {
-            socket = GetComponentInChildren<QuantumSocket>();
+            base.Awake();
             gravityWell = transform.root.Find("GravityWell").GetComponent<GravityVolume>();
+            socket = GetComponent<QuantumSocket>();
+            if (socket._visibilityObject == this)
+            {
+                GetSector().OnSectorOccupantsUpdated -= socket.OnSectorOccupantsUpdated;
+            }
+            SetSector(null);
+            CheckEnabled();
+            WrongWarpMod.Instance.QuantumExhibit.RegisterExhibitState(this);
         }
 
-        void OnDisable()
+        protected void Start()
         {
-
+            socket.enabled = true;
+            
+            // Quantum exhibit starts as a child, so its visibility trackers get picked up from GetComponentsInChildren
+            _visibilityTrackers = _visibilityTrackers.Except(WrongWarpMod.Instance.QuantumExhibit.GetQuantumExhibit()._visibilityTrackers).ToArray();
         }
 
-        public override void WireUp()
+        public override void Update()
         {
-            Mod.QuantumExhibit.RegisterExhibitState(this);
-        }
-
-        void Update()
-        {
+            base.Update();
             if (gravityWell != null && gravityWell.IsVolumeActive() != IsStateActive())
             {
                 gravityWell.SetVolumeActivation(IsStateActive());

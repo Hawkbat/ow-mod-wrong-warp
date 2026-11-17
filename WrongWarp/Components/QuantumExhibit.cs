@@ -17,14 +17,9 @@ namespace WrongWarp.Components
         public override void Awake()
         {
             _prebuilt = true;
-            SetQuantumSocketsBetter(_sockets);
             base.Awake();
-        }
-
-        public override void Start()
-        {
             SetSector(null);
-            base.Start();
+            enabled = true;
         }
 
         protected void FixedUpdate()
@@ -55,10 +50,33 @@ namespace WrongWarp.Components
             CheckEnabled();
         }
 
+        public override void OnSocketObscured(QuantumSocket socket)
+        {
+            LogUtils.Log($"Socket obscured: {socket.name}");
+            if (!_socketCollapseDirty && !socket.IsOccupied())
+            {
+                if (!socket.GetVisibilityObject().IsIlluminated() && socket.GetVisibilityObject().CheckPointInside(Locator.GetPlayerCamera().transform.position))
+                {
+                    LogUtils.Log("Player is inside the newly obscured socket, skipping collapse");
+                    return;
+                }
+                LogUtils.Log("Collapsing quantum exhibit due to newly obscured socket: " + socket.name);
+                _failedNewlyObscuredSocketRolls = 0;
+                _recentlyObscuredSocket = socket;
+                _socketCollapseDirty = AttemptCollapse();
+                _recentlyObscuredSocket = null;
+            }
+        }
+
         public override bool CheckIllumination()
         {
-            if (isPlayerInside && !darkZone._playerInDarkZone) return true;
-            return base.CheckIllumination();
+            if (!isPlayerInside || !darkZone._playerInDarkZone) return true;
+            // Dirty hack to prevent socket illumination from overriding the exhibit's illumination
+            var occupiedSocket = _occupiedSocket;
+            _occupiedSocket = null;
+            var isLit = base.CheckIllumination();
+            _occupiedSocket = occupiedSocket;
+            return isLit;
         }
 
         public override bool ChangeQuantumState(bool skipInstantVisibilityCheck)
@@ -70,7 +88,8 @@ namespace WrongWarp.Components
                 if (!darkZone._playerInDarkZone) return false;
                 skipInstantVisibilityCheck = true;
             }
-            var changed = base.ChangeQuantumState(skipInstantVisibilityCheck);
+
+            var changed = ChangeQuantumStateBetter(skipInstantVisibilityCheck);
             if (changed && _occupiedSocket != null)
             {
                 transform.parent = _occupiedSocket.transform;
@@ -96,6 +115,25 @@ namespace WrongWarp.Components
                 LogUtils.Warn("Quantum exhibit failed to change state");
             }
             return changed;
+        }
+
+        bool ChangeQuantumStateBetter(bool skipInstantVisibilityCheck)
+        {
+            // Vanilla tries random sockets until it finds one that isn't visible, but we can pre-filter instead
+            var validSockets = _socketList.Where(s => !s.IsOccupied() && s.IsActive() && (skipInstantVisibilityCheck || !s.GetVisibilityObject().IsVisible())).ToList();
+            if (validSockets.Count == 0)
+            {
+                LogUtils.Warn("No valid sockets to collapse into");
+                return false;
+            }
+            if (_recentlyObscuredSocket != null)
+            {
+                // Vanilla moves directly to a newly obscured socket, bypassing visibility checks, but we don't
+                _recentlyObscuredSocket = null;
+            }
+            var randomSocket = validSockets[UnityEngine.Random.Range(0, validSockets.Count)];
+            MoveToSocket(randomSocket);
+            return true;
         }
 
         public void SetQuantumSocketsBetter(QuantumSocket[] sockets)

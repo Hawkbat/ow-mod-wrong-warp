@@ -70,7 +70,7 @@ namespace WrongWarp.Modules
                 defaultSocket = state.QuantumSocket;
                 quantumExhibit = state.QuantumExhibit;
             }
-            if (states.Count >= 3)
+            if (states.Count == 3)
             {
                 quantumExhibit.SetQuantumSocketsBetter(states.Select(s => s.QuantumSocket).ToArray());
                 quantumExhibit.SetActivation(true);
@@ -87,6 +87,11 @@ namespace WrongWarp.Modules
         public EyeExhibitState GetActiveExhibitState()
         {
             return states.FirstOrDefault(s => s.IsStateActive());
+        }
+
+        public QuantumExhibit GetQuantumExhibit()
+        {
+            return quantumExhibit;
         }
     }
 }
